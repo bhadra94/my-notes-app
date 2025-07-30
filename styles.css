@@ -74,7 +74,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
+    padding: 0;
 }
 
 .welcome-container {
@@ -85,6 +85,75 @@ body {
 .welcome-content {
     text-align: center;
     color: white;
+}
+
+/* New Split Screen Layout */
+.welcome-split-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+    width: 100vw;
+}
+
+.welcome-left {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.welcome-right {
+    background: var(--bg-primary);
+    padding: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.welcome-left .welcome-content {
+    max-width: 500px;
+}
+
+.welcome-left .app-branding {
+    margin-bottom: 3rem;
+}
+
+.welcome-left .feature-highlights {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+    max-width: none;
+}
+
+.welcome-left .feature-item {
+    padding: 1.5rem;
+    text-align: left;
+}
+
+.welcome-left .feature-item i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.welcome-left .feature-item h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.welcome-left .trust-indicators {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.welcome-right .auth-container {
+    max-width: 400px;
+    background: var(--bg-primary);
+    border-radius: 0;
+    padding: 2rem;
+    box-shadow: none;
+    border: none;
 }
 
 .app-branding {
@@ -1129,6 +1198,37 @@ body {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    /* Split screen mobile layout */
+    .welcome-split-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+    
+    .welcome-left {
+        padding: 2rem 1.5rem;
+        min-height: auto;
+    }
+    
+    .welcome-right {
+        padding: 1.5rem;
+    }
+    
+    .welcome-left .app-branding {
+        margin-bottom: 1.5rem;
+    }
+    
+    .welcome-left .feature-highlights {
+        margin-bottom: 1.5rem;
+    }
+    
+    .welcome-left .trust-indicators {
+        margin-bottom: 1rem;
+    }
+    
+    .welcome-right .auth-container {
+        padding: 1.5rem;
+    }
+    
     /* Auth responsive */
     .app-branding h1 {
         font-size: 2.5rem;

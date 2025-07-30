@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Notes App</title>
+    <title>ballpenbox</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -11,126 +11,122 @@
     <div id="app">
         <!-- Authentication Screen -->
         <div id="authScreen" class="auth-screen">
-            <!-- Welcome Landing -->
+            <!-- Welcome Landing with Split Layout -->
             <div id="welcomeSection" class="welcome-section">
-                <div class="welcome-container">
-                    <div class="welcome-content">
-                        <div class="app-branding">
-                            <div class="app-icon">
-                                <i class="fas fa-sticky-note"></i>
+                <div class="welcome-split-container">
+                    <!-- Left Side: Branding and Features -->
+                    <div class="welcome-left">
+                        <div class="welcome-content">
+                            <div class="app-branding">
+                                <div class="app-icon">
+                                    <i class="fas fa-pen"></i>
+                                </div>
+                                <h1>ballpenbox</h1>
+                                <p class="tagline">Your digital ballpoint pen for secure notes and ideas</p>
                             </div>
-                            <h1>SecureNotes</h1>
-                            <p class="tagline">Your personal, secure workspace for everything that matters</p>
+                            
+                            <div class="feature-highlights">
+                                <div class="feature-item">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <h3>Bank-Grade Security</h3>
+                                    <p>End-to-end encryption keeps your data safe</p>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-cloud"></i>
+                                    <h3>Sync Everywhere</h3>
+                                    <p>Access your notes from any device, anywhere</p>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-pen-fancy"></i>
+                                    <h3>Rich Features</h3>
+                                    <p>Notes, passwords, documents, and creative projects</p>
+                                </div>
+                            </div>
+                            
+                            <div class="trust-indicators">
+                                <div class="trust-item">
+                                    <i class="fas fa-lock"></i>
+                                    <span>256-bit encryption</span>
+                                </div>
+                                <div class="trust-item">
+                                    <i class="fas fa-user-shield"></i>
+                                    <span>Zero-knowledge architecture</span>
+                                </div>
+                                <div class="trust-item">
+                                    <i class="fas fa-eye-slash"></i>
+                                    <span>Private by design</span>
+                                </div>
+                            </div>
                         </div>
-                        
-                        <div class="feature-highlights">
-                            <div class="feature-item">
-                                <i class="fas fa-shield-alt"></i>
-                                <h3>Bank-Grade Security</h3>
-                                <p>End-to-end encryption keeps your data safe</p>
+                    </div>
+                    
+                    <!-- Right Side: Login Form (Always Visible) -->
+                    <div class="welcome-right">
+                        <div class="auth-container">
+                            <div class="auth-header">
+                                <h2>Welcome Back</h2>
+                                <p>Sign in to your ballpenbox account</p>
                             </div>
-                            <div class="feature-item">
-                                <i class="fas fa-cloud"></i>
-                                <h3>Sync Everywhere</h3>
-                                <p>Access your notes from any device, anywhere</p>
-                            </div>
-                            <div class="feature-item">
-                                <i class="fas fa-palette"></i>
-                                <h3>Rich Features</h3>
-                                <p>Notes, passwords, documents, and creative projects</p>
-                            </div>
-                        </div>
-                        
-                        <div class="cta-buttons">
-                            <button class="btn-primary large" onclick="showRegister()">
-                                <i class="fas fa-user-plus"></i> Get Started Free
-                            </button>
-                            <button class="btn-secondary large" onclick="showLogin()">
-                                <i class="fas fa-sign-in-alt"></i> Sign In
-                            </button>
-                        </div>
-                        
-                        <div class="trust-indicators">
-                            <div class="trust-item">
-                                <i class="fas fa-lock"></i>
-                                <span>256-bit encryption</span>
-                            </div>
-                            <div class="trust-item">
-                                <i class="fas fa-user-shield"></i>
-                                <span>Zero-knowledge architecture</span>
-                            </div>
-                            <div class="trust-item">
-                                <i class="fas fa-eye-slash"></i>
-                                <span>Private by design</span>
-                            </div>
+                            
+                            <form id="loginForm" class="auth-form">
+                                <div class="form-group">
+                                    <label for="loginEmail" class="form-label">Email Address</label>
+                                    <input type="email" id="loginEmail" class="form-input" placeholder="Enter your email" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="loginPassword" class="form-label">Password</label>
+                                    <div class="password-input-container">
+                                        <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
+                                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('loginPassword')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-options">
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" id="rememberMe">
+                                        <span class="checkmark"></span>
+                                        Remember me
+                                    </label>
+                                    <a href="#" class="forgot-password" onclick="showForgotPassword()">Forgot password?</a>
+                                </div>
+                                
+                                <button type="submit" class="btn-primary full-width" id="loginBtn">
+                                    <span class="btn-text">Sign In</span>
+                                    <div class="btn-spinner hidden">
+                                        <div class="spinner"></div>
+                                    </div>
+                                </button>
+                                
+                                <div class="auth-divider">
+                                    <span>or continue with</span>
+                                </div>
+                                
+                                <div class="social-login">
+                                    <button type="button" class="btn-social google" onclick="loginWithGoogle()">
+                                        <i class="fab fa-google"></i>
+                                        Google
+                                    </button>
+                                    <button type="button" class="btn-social github" onclick="loginWithGitHub()">
+                                        <i class="fab fa-github"></i>
+                                        GitHub
+                                    </button>
+                                </div>
+                                
+                                <div class="auth-switch">
+                                    <p>Don't have an account? <a href="#" onclick="showRegister()">Sign up</a></p>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Login Form -->
+            <!-- Login Form (now integrated into welcome section above) -->
             <div id="loginSection" class="auth-form-section hidden">
-                <div class="auth-container">
-                    <div class="auth-header">
-                        <button class="back-btn" onclick="showWelcome()">
-                            <i class="fas fa-arrow-left"></i>
-                        </button>
-                        <h2>Welcome Back</h2>
-                        <p>Sign in to your SecureNotes account</p>
-                    </div>
-                    
-                    <form id="loginForm" class="auth-form">
-                        <div class="form-group">
-                            <label for="loginEmail" class="form-label">Email Address</label>
-                            <input type="email" id="loginEmail" class="form-input" placeholder="Enter your email" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="loginPassword" class="form-label">Password</label>
-                            <div class="password-input-container">
-                                <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
-                                <button type="button" class="password-toggle" onclick="togglePasswordVisibility('loginPassword')">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="form-options">
-                            <label class="checkbox-container">
-                                <input type="checkbox" id="rememberMe">
-                                <span class="checkmark"></span>
-                                Remember me
-                            </label>
-                            <a href="#" class="forgot-password" onclick="showForgotPassword()">Forgot password?</a>
-                        </div>
-                        
-                        <button type="submit" class="btn-primary full-width" id="loginBtn">
-                            <span class="btn-text">Sign In</span>
-                            <div class="btn-spinner hidden">
-                                <div class="spinner"></div>
-                            </div>
-                        </button>
-                        
-                        <div class="auth-divider">
-                            <span>or continue with</span>
-                        </div>
-                        
-                        <div class="social-login">
-                            <button type="button" class="btn-social google" onclick="loginWithGoogle()">
-                                <i class="fab fa-google"></i>
-                                Google
-                            </button>
-                            <button type="button" class="btn-social github" onclick="loginWithGitHub()">
-                                <i class="fab fa-github"></i>
-                                GitHub
-                            </button>
-                        </div>
-                        
-                        <div class="auth-switch">
-                            <p>Don't have an account? <a href="#" onclick="showRegister()">Sign up</a></p>
-                        </div>
-                    </form>
-                </div>
+                <!-- This section is now unused - login form is in the welcome section -->
             </div>
             
             <!-- Registration Form -->
@@ -141,7 +137,7 @@
                             <i class="fas fa-arrow-left"></i>
                         </button>
                         <h2>Create Account</h2>
-                        <p>Join thousands of users who trust SecureNotes</p>
+                        <p>Join thousands of users who trust ballpenbox</p>
                     </div>
                     
                     <form id="registerForm" class="auth-form">
@@ -269,7 +265,7 @@
             <!-- Header -->
             <header class="app-header">
                 <div class="header-content">
-                    <h1><i class="fas fa-sticky-note"></i> SecureNotes</h1>
+                    <h1><i class="fas fa-pen"></i> ballpenbox</h1>
                     <div class="header-actions">
                         <div class="search-container">
                             <input type="text" id="globalSearch" placeholder="Search everywhere..." />
@@ -331,7 +327,7 @@
                     <span>Dashboard</span>
                 </div>
                 <div class="nav-item" data-module="notes">
-                    <i class="fas fa-sticky-note"></i>
+                    <i class="fas fa-pen"></i>
                     <span>Notes</span>
                 </div>
                 <div class="nav-item" data-module="banking">
@@ -363,7 +359,7 @@
                     <div class="dashboard-grid">
                         <div class="dashboard-card" data-module="notes">
                             <div class="card-header">
-                                <i class="fas fa-sticky-note"></i>
+                                <i class="fas fa-pen"></i>
                                 <h3>Notes</h3>
                             </div>
                             <div class="card-stats">
@@ -438,7 +434,7 @@
                 <!-- Notes Module -->
                 <div id="notes" class="module-content">
                     <div class="module-header">
-                        <h2><i class="fas fa-sticky-note"></i> Notes</h2>
+                        <h2><i class="fas fa-pen"></i> Notes</h2>
                         <button class="btn-primary" onclick="createNote()">
                             <i class="fas fa-plus"></i> New Note
                         </button>
