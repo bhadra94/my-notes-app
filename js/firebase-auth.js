@@ -183,7 +183,7 @@ class FirebaseAuthManager {
                 lastLoginAt: this.functions.serverTimestamp()
             });
             
-            this.showAuthSuccess('Account created successfully! Welcome to SecureNotes!');
+            this.showAuthSuccess('Account created successfully! Welcome to ballpenbox!');
             this.clearForm('registerForm');
             
         } catch (error) {

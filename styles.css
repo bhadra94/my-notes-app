@@ -176,6 +176,12 @@ body {
 .app-icon i {
     font-size: 2.5rem;
     color: white;
+    transform: rotate(-45deg);
+    transition: transform 0.3s ease;
+}
+
+.app-icon:hover i {
+    transform: rotate(-40deg) scale(1.1);
 }
 
 .app-branding h1 {
@@ -1196,42 +1202,118 @@ body {
     color: var(--text-muted);
 }
 
-/* Responsive Design */
+/* Mobile-First Responsive Design */
 @media (max-width: 768px) {
-    /* Split screen mobile layout */
+    /* Mobile-first: Login form takes priority */
     .welcome-split-container {
         grid-template-columns: 1fr;
-        grid-template-rows: auto 1fr;
+        grid-template-rows: 1fr auto;
     }
     
-    .welcome-left {
-        padding: 2rem 1.5rem;
-        min-height: auto;
-    }
-    
+    /* Login form comes first on mobile */
     .welcome-right {
-        padding: 1.5rem;
+        order: -1;
+        padding: 1rem;
+        min-height: 85vh;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding-top: 2rem;
     }
     
-    .welcome-left .app-branding {
-        margin-bottom: 1.5rem;
+    /* Branding section minimized on mobile */
+    .welcome-left {
+        order: 1;
+        padding: 1rem;
+        min-height: auto;
+        max-height: 15vh;
+        overflow: hidden;
     }
     
+    /* Hide feature cards on mobile */
     .welcome-left .feature-highlights {
-        margin-bottom: 1.5rem;
+        display: none;
     }
     
+    /* Hide trust indicators on mobile */
     .welcome-left .trust-indicators {
+        display: none;
+    }
+    
+    /* Minimal branding on mobile */
+    .welcome-left .app-branding {
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+    
+    .welcome-left .app-branding h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .welcome-left .app-branding .tagline {
+        font-size: 0.9rem;
+        margin-bottom: 0;
+    }
+    
+    .welcome-left .app-icon {
+        width: 40px;
+        height: 40px;
+        margin: 0 auto 0.5rem;
+    }
+    
+    .welcome-left .app-icon i {
+        font-size: 1.25rem;
+        transform: rotate(-45deg);
+    }
+    
+    /* Login form optimizations for mobile */
+    .welcome-right .auth-container {
+        padding: 1.5rem;
+        width: 100%;
+        max-width: 350px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Auth form mobile optimizations */
+    .auth-header h2 {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .auth-header p {
+        font-size: 0.9rem;
         margin-bottom: 1rem;
     }
     
-    .welcome-right .auth-container {
-        padding: 1.5rem;
+    /* Mobile touch-friendly inputs */
+    .form-input {
+        padding: 1rem;
+        font-size: 16px; /* Prevents zoom on iOS */
+        border-radius: 8px;
+        min-height: 48px; /* Touch-friendly height */
     }
     
-    /* Auth responsive */
-    .app-branding h1 {
-        font-size: 2.5rem;
+    .btn-primary {
+        min-height: 48px;
+        font-size: 1rem;
+        padding: 0.875rem 1.5rem;
+    }
+    
+    .btn-social {
+        min-height: 48px;
+        padding: 1rem;
+        font-size: 0.95rem;
+    }
+    
+    .password-toggle {
+        padding: 0.75rem;
+        right: 0.75rem;
+    }
+    
+    .password-toggle i {
+        font-size: 1.1rem;
     }
     
     .feature-highlights {
@@ -1265,7 +1347,13 @@ body {
     }
     
     .social-login {
-        flex-direction: column;
+        flex-direction: row;
+        gap: 0.75rem;
+    }
+    
+    .btn-social {
+        flex: 1;
+        min-width: 0;
     }
     
     .form-options {
@@ -1420,6 +1508,64 @@ body {
 .file-upload-area.dragover {
     border-color: var(--primary-color);
     background: rgba(37, 99, 235, 0.1);
+}
+
+/* Mobile viewport optimization */
+@media (max-width: 768px) {
+    /* Ensure no horizontal scrolling */
+    body {
+        overflow-x: hidden;
+    }
+    
+    /* Optimize auth screen for mobile */
+    .auth-screen {
+        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    
+    /* Login form visibility priority on mobile */
+    .welcome-section {
+        padding: 0;
+        min-height: 100vh;
+    }
+    
+    /* Improve touch targets */
+    .checkbox-container {
+        padding: 0.5rem 0;
+        min-height: 44px;
+        align-items: center;
+    }
+    
+    .forgot-password {
+        padding: 0.5rem 0;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+    
+    /* Better mobile form spacing */
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    
+    .auth-divider {
+        margin: 1.5rem 0;
+    }
+    
+    /* Mobile auth switch */
+    .auth-switch {
+        padding: 1rem 0;
+        font-size: 0.95rem;
+    }
+    
+    .auth-switch a {
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+    }
+    
+    .auth-switch a:hover {
+        background-color: rgba(37, 99, 235, 0.1);
+    }
 }
 
 /* Animation Classes */
