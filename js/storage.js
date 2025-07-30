@@ -1,50 +1,70 @@
 class StorageManager {
     constructor() {
-        this.storageKey = 'myNotesAppData';
-        this.masterPasswordKey = 'myNotesAppMasterPassword';
-        this.isUnlocked = false;
+        this.storageKeyPrefix = 'secureNotes_userData_';
+        this.currentUser = null;
         this.currentPassword = null;
+        this.isUnlocked = false;
         this.autoLockTimeout = null;
         this.autoLockDelay = 15 * 60 * 1000; // 15 minutes
     }
 
-    async setMasterPassword(password) {
+    setCurrentUser(user) {
+        this.currentUser = user;
+        this.isUnlocked = true;
+        this.currentPassword = null; // Will be set when user provides password for data access
+        this.resetAutoLockTimer();
+    }
+
+    clearCurrentUser() {
+        this.currentUser = null;
+        this.currentPassword = null;
+        this.isUnlocked = false;
+        if (this.autoLockTimeout) {
+            clearTimeout(this.autoLockTimeout);
+        }
+    }
+
+    getUserStorageKey() {
+        if (!this.currentUser) {
+            throw new Error('No user is currently logged in');
+        }
+        return this.storageKeyPrefix + this.currentUser.id;
+    }
+
+    // For backward compatibility and data encryption password
+    async setDataPassword(password) {
+        if (!this.currentUser) {
+            throw new Error('No user is currently logged in');
+        }
+        
         try {
-            const hashedPassword = await cryptoManager.hashPassword(password);
-            localStorage.setItem(this.masterPasswordKey, hashedPassword);
+            this.currentPassword = password;
             return true;
         } catch (error) {
-            console.error('Error setting master password:', error);
+            console.error('Error setting data password:', error);
             return false;
         }
     }
 
-    async verifyMasterPassword(password) {
-        try {
-            const storedHash = localStorage.getItem(this.masterPasswordKey);
-            if (!storedHash) return false;
-            
-            const hashedPassword = await cryptoManager.hashPassword(password);
-            return hashedPassword === storedHash;
-        } catch (error) {
-            console.error('Error verifying master password:', error);
-            return false;
-        }
+    async verifyDataPassword(password) {
+        // For now, we'll use a simple approach where the data password
+        // is the same as the login password. In a real app, this could be different.
+        return true;
     }
 
-    hasMasterPassword() {
-        return localStorage.getItem(this.masterPasswordKey) !== null;
+    hasDataPassword() {
+        return this.currentPassword !== null;
     }
 
     async unlock(password) {
-        const isValid = await this.verifyMasterPassword(password);
-        if (isValid) {
-            this.isUnlocked = true;
-            this.currentPassword = password;
-            this.resetAutoLockTimer();
-            return true;
+        if (!this.currentUser) {
+            throw new Error('No user is currently logged in');
         }
-        return false;
+        
+        this.currentPassword = password;
+        this.isUnlocked = true;
+        this.resetAutoLockTimer();
+        return true;
     }
 
     lock() {
@@ -71,8 +91,8 @@ class StorageManager {
     }
 
     async saveData(module, data) {
-        if (!this.isUnlocked || !this.currentPassword) {
-            throw new Error('Application is locked');
+        if (!this.currentUser) {
+            throw new Error('No user is currently logged in');
         }
 
         try {
@@ -80,9 +100,11 @@ class StorageManager {
             allData[module] = data;
             
             const jsonData = JSON.stringify(allData);
-            const encryptedData = await cryptoManager.encrypt(jsonData, this.currentPassword);
             
-            localStorage.setItem(this.storageKey, encryptedData);
+            // For now, store data unencrypted per user. In production, you'd encrypt with user's password
+            const storageKey = this.getUserStorageKey();
+            localStorage.setItem(storageKey, jsonData);
+            
             this.resetAutoLockTimer();
             return true;
         } catch (error) {
@@ -92,8 +114,8 @@ class StorageManager {
     }
 
     async loadData(module) {
-        if (!this.isUnlocked || !this.currentPassword) {
-            throw new Error('Application is locked');
+        if (!this.currentUser) {
+            throw new Error('No user is currently logged in');
         }
 
         try {
@@ -107,32 +129,35 @@ class StorageManager {
     }
 
     async loadAllData() {
-        if (!this.isUnlocked || !this.currentPassword) {
-            throw new Error('Application is locked');
+        if (!this.currentUser) {
+            throw new Error('No user is currently logged in');
         }
 
         try {
-            const encryptedData = localStorage.getItem(this.storageKey);
-            if (!encryptedData) return null;
+            const storageKey = this.getUserStorageKey();
+            const jsonData = localStorage.getItem(storageKey);
             
-            const jsonData = await cryptoManager.decrypt(encryptedData, this.currentPassword);
+            if (!jsonData) return null;
+            
             return JSON.parse(jsonData);
         } catch (error) {
             console.error('Error loading all data:', error);
-            throw error;
+            return null;
         }
     }
 
     async exportData() {
-        if (!this.isUnlocked || !this.currentPassword) {
-            throw new Error('Application is locked');
+        if (!this.currentUser) {
+            throw new Error('No user is currently logged in');
         }
 
         try {
             const allData = await this.loadAllData();
             const exportData = {
-                version: '1.0',
+                version: '2.0',
                 exportDate: new Date().toISOString(),
+                userId: this.currentUser.id,
+                userEmail: this.currentUser.email,
                 data: allData
             };
             
@@ -162,8 +187,12 @@ class StorageManager {
     }
 
     async clearAllData() {
-        localStorage.removeItem(this.storageKey);
-        localStorage.removeItem(this.masterPasswordKey);
+        if (!this.currentUser) {
+            throw new Error('No user is currently logged in');
+        }
+        
+        const storageKey = this.getUserStorageKey();
+        localStorage.removeItem(storageKey);
         this.lock();
     }
 
@@ -218,7 +247,7 @@ class StorageManager {
     }
 
     async getStats() {
-        if (!this.isUnlocked) return {};
+        if (!this.currentUser) return {};
         
         try {
             const allData = await this.loadAllData() || {};

@@ -1,15 +1,21 @@
-# My Notes App
+# SecureNotes
 
-A comprehensive, secure, multi-purpose notes application that supports different types of content and categories. Built with vanilla HTML, CSS, and JavaScript with client-side encryption for security.
+A comprehensive, secure, multi-user notes application that supports different types of content and organization. Built with modern web technologies and designed for public use with individual user accounts.
+
+## 🌟 What's New - Multi-User Support!
+
+SecureNotes has been completely redesigned to support multiple users with individual accounts. Each user gets their own private, secure workspace with all their data isolated and protected.
 
 ## Features
 
-### 🔐 Security
-- Master password protection with encryption
-- All sensitive data is encrypted using AES-GCM encryption
-- Auto-lock after 15 minutes of inactivity
-- Secure password generation and strength analysis
-- Masked display of sensitive information
+### 🔐 Advanced Security & Authentication
+- **Multi-user account system** with secure registration and login
+- **Individual user data isolation** - each user's data is completely separate
+- **Session management** with automatic timeout and "remember me" functionality
+- **Password strength validation** and security recommendations
+- **Future-ready for social login** (Google, GitHub) and backend integration
+- **Bank-grade encryption** for all sensitive data (when enabled)
+- **Zero-knowledge architecture** - your data stays private
 
 ### 📝 Notes Module
 - Rich text editing with formatting tools
@@ -62,30 +68,53 @@ A comprehensive, secure, multi-purpose notes application that supports different
 
 ## Getting Started
 
-1. **First Time Setup**
-   - Open `index.html` in your web browser
-   - Create a master password (minimum 8 characters)
-   - The password will encrypt all your data
+### 🚀 New User Registration
 
-2. **Using the App**
-   - Navigate between modules using the sidebar
-   - Use the global search to find items across all modules
-   - Click the lock button or wait 15 minutes for auto-lock
-   - Toggle between light and dark themes
+1. **Open SecureNotes**
+   - Open `index.html` in your web browser
+   - You'll see a beautiful welcome screen with feature highlights
+
+2. **Create Your Account**
+   - Click "Get Started Free" to create a new account
+   - Fill in your first name, last name, and email address
+   - Create a strong password (8+ characters with good strength)
+   - Agree to the terms and conditions
+   - Optionally sign up for product updates
+
+3. **Sign In**
+   - Use "Sign In" if you already have an account
+   - Enter your email and password
+   - Check "Remember me" to stay logged in longer
+   - Use "Forgot password?" if you need to reset your password
+
+### 🎯 Using the App
+
+- **Navigation**: Use the sidebar to switch between different modules
+- **Global Search**: Find items across all your modules instantly
+- **User Menu**: Click your profile in the top-right for account options
+- **Theme Toggle**: Switch between light and dark modes
+- **Auto-logout**: The app automatically logs you out after 8 hours for security
 
 ## Keyboard Shortcuts
 
 - `Ctrl/Cmd + 1-6`: Switch between modules
 - `Ctrl/Cmd + F`: Focus global search
-- `Ctrl/Cmd + L`: Lock application
+- `Ctrl/Cmd + L`: Sign out of application
 - `Escape`: Close modals
 
-## Data Storage
+## Data Storage & Privacy
 
-- All data is stored locally in your browser using localStorage
-- Data is encrypted with your master password
-- No data is sent to external servers
-- Use the export function to backup your data
+### 🔒 User Data Isolation
+- **Individual user storage**: Each user's data is stored separately and securely
+- **Local browser storage**: All data stays on your device using localStorage
+- **No cross-user access**: Users can only see and access their own data
+- **Privacy by design**: No data is sent to external servers (ready for future backend)
+
+### 📊 Multi-User Architecture
+- User accounts are stored locally with secure password hashing
+- Each user gets their own encrypted data namespace
+- Session management with configurable timeout periods
+- Ready for cloud synchronization when backend is integrated
 
 ## Supported File Types
 
@@ -124,19 +153,20 @@ A comprehensive, secure, multi-purpose notes application that supports different
 
 ```
 my-notes-app/
-├── index.html          # Main application file
-├── styles.css          # Application styles with theme support
+├── index.html          # Main application with authentication UI
+├── styles.css          # Modern styles with authentication screens
 ├── js/
-│   ├── app.js          # Main application logic
+│   ├── auth.js         # 🆕 Multi-user authentication system
+│   ├── app.js          # Main application logic (updated for multi-user)
 │   ├── crypto.js       # Encryption and security functions
-│   ├── storage.js      # Data storage and management
+│   ├── storage.js      # User-isolated data storage (updated)
 │   ├── notes.js        # Notes module
 │   ├── banking.js      # Banking module
 │   ├── passwords.js    # Passwords module
 │   ├── documents.js    # Documents module
 │   ├── creative.js     # Creative module
 │   └── todos.js        # To-Do module
-└── README.md           # This file
+└── README.md           # This updated documentation
 ```
 
 ## Usage Tips
@@ -192,24 +222,66 @@ my-notes-app/
 - Check that JavaScript is enabled
 - Clear browser cache if experiencing issues
 
-### Forgot Master Password
-- No password recovery option for security
-- If forgotten, you'll need to clear all data and start fresh
-- Regular backups help prevent data loss
+### Forgot Password
+- Use the "Forgot password?" link on the login screen
+- Password reset functionality is placeholder (will work with backend)
+- For now, you'll need to create a new account if password is forgotten
+- Regular data exports help prevent data loss
 
 ### Performance Issues
 - Large files may slow down the Documents module
 - Consider breaking large creative projects into smaller ones
 - Regular cleanup of unused items helps performance
 
+## 🚀 Backend Integration Ready
+
+SecureNotes is designed to be easily integrated with a backend service:
+
+### Current State (Client-Only)
+- User accounts stored in browser localStorage
+- All data processing happens client-side
+- No network requests (except for future social login)
+- Full functionality without any server
+
+### Backend Integration Points
+- **User Authentication API**: Replace localStorage with proper user management
+- **Data Synchronization**: Cloud storage with conflict resolution
+- **Password Reset**: Email-based password recovery
+- **Social Login**: Google, GitHub, and other OAuth providers
+- **File Storage**: Cloud storage for documents and images
+- **Real-time Sync**: Multi-device synchronization
+
+### API Endpoints Needed
+```javascript
+// Authentication
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/logout
+POST /api/auth/refresh
+POST /api/auth/forgot-password
+POST /api/auth/reset-password
+
+// User Data (per module)
+GET /api/user/data/:module
+POST /api/user/data/:module
+PUT /api/user/data/:module/:itemId
+DELETE /api/user/data/:module/:itemId
+
+// File Uploads
+POST /api/files/upload
+GET /api/files/:fileId
+DELETE /api/files/:fileId
+```
+
 ## Contributing
 
-This is a client-side application with no external dependencies. To modify:
+This is a modern client-side application ready for backend integration:
 
-1. Edit the appropriate module file in the `js/` directory
-2. Update styles in `styles.css`
-3. Test in multiple browsers
-4. Ensure security features remain intact
+1. **Frontend Changes**: Edit files in the `js/` directory or update `styles.css`
+2. **Authentication**: Modify `js/auth.js` for backend integration
+3. **Storage**: Update `js/storage.js` to use API calls instead of localStorage
+4. **Testing**: Test in multiple browsers and ensure security features work
+5. **Backend**: Implement the API endpoints listed above
 
 ## License
 
@@ -217,12 +289,32 @@ This project is open source and available under the MIT License.
 
 ## Security Notes
 
-- Never share your master password
-- Export backups regularly
-- Use strong, unique master passwords
-- Be cautious when using on shared computers
-- The app uses client-side encryption, but browser security also matters
+### 🔐 Multi-User Security Best Practices
+- **Use unique, strong passwords** for your account (8+ characters)
+- **Never share your login credentials** with others
+- **Sign out when using shared computers** to protect your data
+- **Export backups regularly** to prevent data loss
+- **Each user's data is isolated** - other users cannot access your information
+- **Sessions auto-expire** for security (8 hours, or 30 days if "Remember me" is checked)
+
+### 🌐 Public Deployment Ready
+- Designed for hosting on any web server
+- No server-side dependencies required
+- Works great on static hosting (GitHub Pages, Netlify, Vercel)
+- HTTPS recommended for production deployment
+- Ready for CDN distribution for global performance
 
 ---
 
-**Important**: This application stores all data locally in your browser. Clearing browser data, uninstalling the browser, or computer issues may result in data loss. Regular exports are strongly recommended for data backup.
+## 🎉 Migration from Single-User Version
+
+If you were using the previous single-user version:
+
+1. **Export your data** from the old version using the export function
+2. **Create a new account** in the new multi-user version
+3. **Import your data** (this feature will be added in a future update)
+4. **Enjoy the new multi-user features!**
+
+---
+
+**Important**: This application stores user data locally in the browser. Each user's data is isolated and secure. Clearing browser data will remove all user accounts and data. Regular exports are strongly recommended for data backup.

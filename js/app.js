@@ -10,11 +10,8 @@ class NotesApp {
         this.setupEventListeners();
         this.setupTheme();
         
-        if (storageManager.hasMasterPassword()) {
-            this.showLockScreen();
-        } else {
-            this.showSetupScreen();
-        }
+        // The auth system will handle showing the appropriate screen
+        // Main app will be shown once user is authenticated
         
         this.initialized = true;
     }
@@ -62,15 +59,7 @@ class NotesApp {
             this.handleKeyboardShortcuts(e);
         });
 
-        // Master password input
-        const masterPasswordInput = document.getElementById('masterPassword');
-        if (masterPasswordInput) {
-            masterPasswordInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    this.unlockApp();
-                }
-            });
-        }
+        // Remove old master password input listener - handled by auth system now
     }
 
     setupTheme() {
@@ -83,103 +72,13 @@ class NotesApp {
         }
     }
 
-    showLockScreen() {
-        document.getElementById('lockScreen').classList.remove('hidden');
-        document.getElementById('mainApp').classList.add('hidden');
-        document.getElementById('masterPassword').focus();
-    }
-
-    showSetupScreen() {
-        const setupHtml = `
-            <div class="lock-container">
-                <h1><i class="fas fa-shield-alt"></i> Welcome to My Notes App</h1>
-                <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">
-                    Set up a master password to secure your data. This password will encrypt all your notes, 
-                    passwords, and sensitive information.
-                </p>
-                <div class="lock-form">
-                    <input type="password" id="setupPassword" placeholder="Create master password" />
-                    <input type="password" id="confirmPassword" placeholder="Confirm master password" />
-                    <div class="password-strength" id="setupPasswordStrength" style="display: none;">
-                        <div class="strength-bar">
-                            <div class="strength-fill"></div>
-                        </div>
-                        <div class="strength-text"></div>
-                    </div>
-                    <button onclick="app.setupMasterPassword()">Set up My Notes App</button>
-                </div>
-            </div>
-        `;
-        
-        document.getElementById('lockScreen').innerHTML = setupHtml;
-        document.getElementById('lockScreen').classList.remove('hidden');
-        document.getElementById('mainApp').classList.add('hidden');
-        
-        // Add password strength indicator
-        const setupPassword = document.getElementById('setupPassword');
-        setupPassword.addEventListener('input', (e) => {
-            this.updatePasswordStrength(e.target.value, 'setupPasswordStrength');
-        });
-        
-        setupPassword.focus();
-    }
-
-    async setupMasterPassword() {
-        const password = document.getElementById('setupPassword').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-        
-        if (!password || password.length < 8) {
-            alert('Password must be at least 8 characters long');
-            return;
-        }
-        
-        if (password !== confirmPassword) {
-            alert('Passwords do not match');
-            return;
-        }
-        
-        const strength = cryptoManager.calculatePasswordStrength(password);
-        if (strength.strength === 'weak') {
-            if (!confirm('Your password is weak. Are you sure you want to continue?')) {
-                return;
-            }
-        }
-        
-        const success = await storageManager.setMasterPassword(password);
-        if (success) {
-            await this.unlockApp(password);
-        } else {
-            alert('Failed to set up master password. Please try again.');
-        }
-    }
-
-    async unlockApp(password = null) {
-        const passwordInput = password || document.getElementById('masterPassword')?.value;
-        
-        if (!passwordInput) {
-            alert('Please enter your password');
-            return;
-        }
-        
-        const success = await storageManager.unlock(passwordInput);
-        if (success) {
-            document.getElementById('lockScreen').classList.add('hidden');
-            document.getElementById('mainApp').classList.remove('hidden');
-            await this.loadDashboard();
-            this.switchModule('dashboard');
-        } else {
-            alert('Invalid password');
-            const input = document.getElementById('masterPassword');
-            if (input) {
-                input.value = '';
-                input.focus();
-            }
-        }
-    }
-
+    // Authentication is now handled by AuthManager
+    // These methods are kept for compatibility but redirect to auth system
+    
     lockApp() {
-        storageManager.lock();
-        this.showLockScreen();
+        if (window.authManager) {
+            window.authManager.logoutUser();
+        }
     }
 
     toggleTheme() {
@@ -381,7 +280,9 @@ class NotesApp {
                     break;
                 case 'l':
                     e.preventDefault();
-                    this.lockApp();
+                    if (window.authManager) {
+                        window.authManager.logoutUser();
+                    }
                     break;
             }
         }
@@ -488,10 +389,8 @@ class NotesApp {
 }
 
 // Global functions for HTML onclick handlers
-window.unlockApp = () => window.app.unlockApp();
-window.setupMasterPassword = () => window.app.setupMasterPassword();
-window.lockApp = () => window.app.lockApp();
 window.toggleTheme = () => window.app.toggleTheme();
+window.exportAllData = () => window.app.exportAllData();
 
 // Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
