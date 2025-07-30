@@ -120,13 +120,23 @@ class NotesApp {
                 if (window.notesModule) window.notesModule.loadNotes();
                 break;
             case 'banking':
-                if (window.bankingModule) window.bankingModule.loadBankAccounts();
+                if (window.bankingModule) {
+                    // Initialize with accounts tab by default
+                    window.bankingModule.switchTab('accounts');
+                }
                 break;
             case 'passwords':
                 if (window.passwordsModule) window.passwordsModule.loadPasswords();
                 break;
             case 'documents':
-                if (window.documentsModule) window.documentsModule.loadDocuments();
+                if (window.documentsModule) {
+                    if (window.documentsModule.folderManager) {
+                        // Initialize folder manager and load root folder
+                        window.documentsModule.folderManager.navigateToFolder('');
+                    } else {
+                        window.documentsModule.loadDocuments();
+                    }
+                }
                 break;
             case 'creative':
                 if (window.creativeModule) window.creativeModule.loadProjects();

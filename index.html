@@ -454,14 +454,55 @@
                 <div id="banking" class="module-content">
                     <div class="module-header">
                         <h2><i class="fas fa-university"></i> Banking</h2>
-                        <button class="btn-primary" onclick="createBankAccount()">
-                            <i class="fas fa-plus"></i> Add Account
+                        <div class="header-actions">
+                            <button class="btn-secondary" id="addAccountBtn" onclick="createBankAccount()">
+                                <i class="fas fa-university"></i> Add Account
+                            </button>
+                            <button class="btn-primary" id="addCardBtn" onclick="bankingModule.createCard()">
+                                <i class="fas fa-credit-card"></i> Add Card
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Banking Tabs -->
+                    <div class="banking-tabs">
+                        <button class="tab-btn active" onclick="bankingModule.switchTab('accounts')">
+                            <i class="fas fa-university"></i> Accounts
+                        </button>
+                        <button class="tab-btn" onclick="bankingModule.switchTab('cards')">
+                            <i class="fas fa-credit-card"></i> Cards
                         </button>
                     </div>
-                    <div class="module-toolbar">
-                        <input type="text" id="bankingSearch" placeholder="Search accounts..." />
+                    
+                    <!-- Accounts Tab -->
+                    <div id="banking-accounts" class="banking-tab-content active">
+                        <div class="module-toolbar">
+                            <input type="text" id="bankingSearch" placeholder="Search accounts..." />
+                        </div>
+                        <div id="bankingList" class="items-grid"></div>
                     </div>
-                    <div id="bankingList" class="items-grid"></div>
+                    
+                    <!-- Cards Tab -->
+                    <div id="banking-cards" class="banking-tab-content">
+                        <div class="module-toolbar">
+                            <input type="text" id="cardsSearch" placeholder="Search cards..." />
+                            <select id="cardsFilter">
+                                <option value="">All Cards</option>
+                                <option value="credit">Credit Cards</option>
+                                <option value="debit">Debit Cards</option>
+                                <option value="prepaid">Prepaid Cards</option>
+                                <option value="gift">Gift Cards</option>
+                                <option value="store">Store Cards</option>
+                            </select>
+                            <select id="cardsCategory">
+                                <option value="">All Categories</option>
+                                <option value="personal">Personal</option>
+                                <option value="business">Business</option>
+                                <option value="family">Family</option>
+                            </select>
+                        </div>
+                        <div id="cardsList" class="items-grid"></div>
+                    </div>
                 </div>
 
                 <!-- Passwords Module -->
@@ -489,21 +530,74 @@
                 <div id="documents" class="module-content">
                     <div class="module-header">
                         <h2><i class="fas fa-file-alt"></i> Documents</h2>
-                        <label class="btn-primary file-upload-btn">
-                            <i class="fas fa-upload"></i> Upload Document
-                            <input type="file" id="documentUpload" multiple style="display: none;" />
-                        </label>
+                        <div class="header-actions">
+                            <button class="btn-secondary" onclick="documentsModule.createFolder()">
+                                <i class="fas fa-folder-plus"></i> New Folder
+                            </button>
+                            <label class="btn-primary file-upload-btn">
+                                <i class="fas fa-upload"></i> Upload Document
+                                <input type="file" id="documentUpload" multiple style="display: none;" />
+                            </label>
+                        </div>
                     </div>
-                    <div class="module-toolbar">
-                        <input type="text" id="documentsSearch" placeholder="Search documents..." />
-                        <select id="documentsFilter">
-                            <option value="">All Types</option>
-                            <option value="pdf">PDF</option>
-                            <option value="doc">Documents</option>
-                            <option value="image">Images</option>
-                        </select>
+                    
+                    <!-- Documents Layout -->
+                    <div class="documents-layout">
+                        <!-- Folder Navigation -->
+                        <div class="folder-navigation">
+                            <div class="breadcrumb" id="folderBreadcrumb">
+                                <span class="breadcrumb-item active" onclick="documentsModule.navigateToFolder('')">
+                                    <i class="fas fa-home"></i> Root
+                                </span>
+                            </div>
+                            
+                            <div class="folder-tree" id="folderTree">
+                                <!-- Folder tree will be rendered here -->
+                            </div>
+                        </div>
+                        
+                        <!-- Main Content Area -->
+                        <div class="documents-content">
+                            <div class="module-toolbar">
+                                <input type="text" id="documentsSearch" placeholder="Search in current folder..." />
+                                <select id="documentsFilter">
+                                    <option value="">All Types</option>
+                                    <option value="pdf">PDF</option>
+                                    <option value="doc">Documents</option>
+                                    <option value="image">Images</option>
+                                </select>
+                                <select id="documentsSort">
+                                    <option value="name">Sort by Name</option>
+                                    <option value="date">Sort by Date</option>
+                                    <option value="size">Sort by Size</option>
+                                    <option value="type">Sort by Type</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Current Folder Info -->
+                            <div class="current-folder-info" id="currentFolderInfo">
+                                <h3 class="folder-title">
+                                    <i class="fas fa-home"></i> 
+                                    <span id="currentFolderName">Root Folder</span>
+                                </h3>
+                                <div class="folder-stats" id="folderStats">
+                                    <span class="stat-item">
+                                        <i class="fas fa-folder"></i>
+                                        <span id="folderCount">0</span> folders
+                                    </span>
+                                    <span class="stat-item">
+                                        <i class="fas fa-file"></i>
+                                        <span id="fileCount">0</span> files
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <!-- Folders and Files Grid -->
+                            <div id="documentsList" class="documents-grid">
+                                <!-- Folders and files will be rendered here -->
+                            </div>
+                        </div>
                     </div>
-                    <div id="documentsList" class="items-grid"></div>
                 </div>
 
                 <!-- Creative Module -->
@@ -654,8 +748,10 @@
     <script src="js/app.js"></script>
     <script src="js/notes.js"></script>
     <script src="js/banking.js"></script>
+    <script src="js/card-editor.js"></script>
     <script src="js/passwords.js"></script>
     <script src="js/documents.js"></script>
+    <script src="js/documents-folders.js"></script>
     <script src="js/creative.js"></script>
     <script src="js/todos.js"></script>
 </body>

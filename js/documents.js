@@ -74,6 +74,13 @@ class DocumentsModule {
 
     async loadDocuments() {
         try {
+            // If folder manager exists, use it to load current folder
+            if (this.folderManager) {
+                await this.folderManager.loadCurrentFolder();
+                return;
+            }
+            
+            // Fallback to original behavior
             const documents = await storageManager.loadData('documents');
             const sortedDocuments = documents.sort((a, b) => 
                 new Date(b.modified || b.created) - new Date(a.modified || a.created)
@@ -213,7 +220,11 @@ class DocumentsModule {
         
         for (const file of validFiles) {
             try {
-                await storageManager.saveFile(file);
+                if (this.folderManager) {
+                    await this.folderManager.uploadFileToFolder(file);
+                } else {
+                    await storageManager.saveFile(file);
+                }
             } catch (error) {
                 console.error('Error uploading file:', error);
                 app.showToast(`Error uploading ${file.name}`, 'error');
@@ -226,6 +237,41 @@ class DocumentsModule {
         // Reset file input
         const fileInput = document.getElementById('documentUpload');
         if (fileInput) fileInput.value = '';
+    }
+
+    async processFile(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                const fileData = {
+                    name: file.name,
+                    type: file.type,
+                    size: file.size,
+                    data: e.target.result,
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString(),
+                    folderId: this.folderManager ? this.folderManager.currentFolderId : ''
+                };
+                resolve(fileData);
+            };
+            
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Folder management methods
+    async createFolder() {
+        if (this.folderManager) {
+            await this.folderManager.createFolder();
+        }
+    }
+
+    async navigateToFolder(folderId) {
+        if (this.folderManager) {
+            await this.folderManager.navigateToFolder(folderId);
+        }
     }
 
     validateFile(file) {
@@ -482,6 +528,426 @@ window.documentsModule = new DocumentsModule();
 
 // Additional CSS for documents module
 const documentsStyles = `
+/* Documents Layout */
+.documents-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 1.5rem;
+    min-height: 500px;
+}
+
+.folder-navigation {
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+}
+
+.documents-content {
+    background: var(--bg-primary);
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: var(--bg-tertiary);
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+}
+
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+
+.breadcrumb-item:hover {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.breadcrumb-item.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+.breadcrumb-separator {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+}
+
+/* Folder Tree */
+.folder-tree {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.tree-item {
+    margin-bottom: 0.25rem;
+}
+
+.tree-item-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+
+.tree-item-content:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.tree-item-content.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+.tree-item-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tree-empty {
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 2rem;
+}
+
+/* Current Folder Info */
+.current-folder-info {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
+
+.folder-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.folder-stats {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.9rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--text-secondary);
+}
+
+.stat-item i {
+    color: var(--primary-color);
+}
+
+/* Documents Grid */
+.documents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.folder-item {
+    border-left: 4px solid var(--warning-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.folder-item:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.folder-item .item-title i {
+    font-size: 1.2rem;
+}
+
+/* Context Menu */
+.context-menu {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    padding: 0.5rem 0;
+    min-width: 150px;
+    z-index: 1001;
+}
+
+.context-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.context-menu-item:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.context-menu-item.danger {
+    color: var(--error-color);
+}
+
+.context-menu-item.danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.context-menu-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 0.5rem 0;
+}
+
+/* Empty State */
+.empty-state {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+}
+
+.empty-state-content {
+    text-align: center;
+    max-width: 400px;
+}
+
+.empty-state-content i {
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state-content h3 {
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.empty-state-content p {
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.empty-state-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .documents-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+    
+    .folder-navigation {
+        order: 2;
+        padding: 0.75rem;
+    }
+    
+    .documents-content {
+        order: 1;
+    }
+    
+    .breadcrumb {
+        font-size: 0.8rem;
+        padding: 0.5rem;
+    }
+    
+    .folder-stats {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .empty-state-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .context-menu {
+        position: fixed !important;
+        left: 10px !important;
+        right: 10px !important;
+        bottom: 10px !important;
+        top: auto !important;
+        border-radius: 12px;
+    }
+}
+
+/* Header Actions for documents */
+.header-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .header-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+        width: 100%;
+    }
+    
+    .header-actions button,
+    .header-actions label {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Enhanced Drag and Drop Styles */
+.drop-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(37, 99, 235, 0.1);
+    backdrop-filter: blur(5px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.drop-overlay-content {
+    text-align: center;
+    color: var(--primary-color);
+    background: var(--bg-primary);
+    padding: 3rem;
+    border-radius: 20px;
+    border: 2px dashed var(--primary-color);
+    box-shadow: var(--shadow-lg);
+}
+
+.drop-overlay-content i {
+    margin-bottom: 1rem;
+    opacity: 0.8;
+}
+
+.drop-overlay-content h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+}
+
+.drop-overlay-content p {
+    opacity: 0.8;
+    font-size: 1rem;
+}
+
+.drop-zone-active {
+    background: rgba(37, 99, 235, 0.05) !important;
+    border: 2px dashed var(--primary-color) !important;
+    border-radius: var(--border-radius) !important;
+}
+
+.folder-item.drop-zone-active {
+    background: rgba(251, 191, 36, 0.1) !important;
+    border-left-color: var(--warning-color) !important;
+    transform: scale(1.02) !important;
+    box-shadow: 0 8px 25px rgba(251, 191, 36, 0.3) !important;
+}
+
+.dragging {
+    opacity: 0.5;
+    transform: rotate(5deg);
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.item-card {
+    cursor: move;
+}
+
+.item-card:hover {
+    cursor: grab;
+}
+
+.item-card:active {
+    cursor: grabbing;
+}
+
+/* Make items draggable */
+.folder-item,
+.document-card {
+    draggable: true;
+}
+
+/* Drag handle indicator */
+.item-card::before {
+    content: '⋮⋮';
+    position: absolute;
+    left: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.item-card:hover::before {
+    opacity: 0.5;
+}
+
+/* Responsive drag and drop */
+@media (max-width: 768px) {
+    .drop-overlay-content {
+        padding: 2rem;
+        margin: 1rem;
+    }
+    
+    .drop-overlay-content h3 {
+        font-size: 1.2rem;
+    }
+    
+    .drop-overlay-content p {
+        font-size: 0.9rem;
+    }
+    
+    /* Touch-friendly drag indicators */
+    .item-card::before {
+        opacity: 0.3;
+        font-size: 1rem;
+    }
+}
+
+`
 .document-editor {
     width: 500px;
     max-width: 90vw;
