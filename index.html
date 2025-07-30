@@ -558,9 +558,103 @@
         <div id="modalContent" class="modal-content"></div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged,
+            updateProfile,
+            sendPasswordResetEmail,
+            GoogleAuthProvider,
+            GithubAuthProvider,
+            signInWithPopup
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc, 
+            getDoc, 
+            updateDoc, 
+            deleteDoc, 
+            collection, 
+            query, 
+            where, 
+            getDocs,
+            orderBy,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyDh7tcdyCWbmUcWx0qKTo-AdT4QNO6ZCHc",
+          authDomain: "my-notes-app-a9568.firebaseapp.com",
+          projectId: "my-notes-app-a9568",
+          storageBucket: "my-notes-app-a9568.firebasestorage.app",
+          messagingSenderId: "5575127275",
+          appId: "1:5575127275:web:0aa341a0d811adf3b24eae",
+          measurementId: "G-DXEHTJ4FB8"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // Configure Auth providers
+        const googleProvider = new GoogleAuthProvider();
+        const githubProvider = new GithubAuthProvider();
+        
+        // Make Firebase services available globally
+        window.firebaseApp = app;
+        window.firebaseAnalytics = analytics;
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        window.firebaseProviders = {
+            google: googleProvider,
+            github: githubProvider
+        };
+        
+        // Make Firebase functions available globally
+        window.firebaseFunctions = {
+            // Auth functions
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged,
+            updateProfile,
+            sendPasswordResetEmail,
+            signInWithPopup,
+            
+            // Firestore functions
+            doc,
+            setDoc,
+            getDoc,
+            updateDoc,
+            deleteDoc,
+            collection,
+            query,
+            where,
+            getDocs,
+            orderBy,
+            serverTimestamp
+        };
+    </script>
+
     <script src="js/crypto.js"></script>
+    <!-- Firebase-integrated scripts -->
+    <script src="js/firebase-auth.js"></script>
+    <script src="js/firebase-storage.js"></script>
+    <!-- Legacy scripts for backward compatibility -->
     <script src="js/storage.js"></script>
     <script src="js/auth.js"></script>
+    <!-- Main application -->
     <script src="js/app.js"></script>
     <script src="js/notes.js"></script>
     <script src="js/banking.js"></script>
