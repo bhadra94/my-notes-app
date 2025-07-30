@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Notes App</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Security Lock Screen -->
+        <div id="lockScreen" class="lock-screen">
+            <div class="lock-container">
+                <h1><i class="fas fa-lock"></i> My Notes App</h1>
+                <div class="lock-form">
+                    <input type="password" id="masterPassword" placeholder="Enter master password" />
+                    <button onclick="unlockApp()">Unlock</button>
+                    <div class="lock-options">
+                        <button onclick="setupMasterPassword()" class="setup-btn">First time? Set up password</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Application -->
+        <div id="mainApp" class="main-app hidden">
+            <!-- Header -->
+            <header class="app-header">
+                <div class="header-content">
+                    <h1><i class="fas fa-sticky-note"></i> My Notes App</h1>
+                    <div class="header-actions">
+                        <div class="search-container">
+                            <input type="text" id="globalSearch" placeholder="Search everywhere..." />
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <button class="theme-toggle" onclick="toggleTheme()">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <button class="lock-btn" onclick="lockApp()">
+                            <i class="fas fa-lock"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Navigation -->
+            <nav class="app-nav">
+                <div class="nav-item active" data-module="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" data-module="notes">
+                    <i class="fas fa-sticky-note"></i>
+                    <span>Notes</span>
+                </div>
+                <div class="nav-item" data-module="banking">
+                    <i class="fas fa-university"></i>
+                    <span>Banking</span>
+                </div>
+                <div class="nav-item" data-module="passwords">
+                    <i class="fas fa-key"></i>
+                    <span>Passwords</span>
+                </div>
+                <div class="nav-item" data-module="documents">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Documents</span>
+                </div>
+                <div class="nav-item" data-module="creative">
+                    <i class="fas fa-palette"></i>
+                    <span>Creative</span>
+                </div>
+                <div class="nav-item" data-module="todos">
+                    <i class="fas fa-tasks"></i>
+                    <span>To-Do</span>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="app-main">
+                <!-- Dashboard -->
+                <div id="dashboard" class="module-content active">
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card" data-module="notes">
+                            <div class="card-header">
+                                <i class="fas fa-sticky-note"></i>
+                                <h3>Notes</h3>
+                            </div>
+                            <div class="card-stats">
+                                <span class="stat-number" id="notesCount">0</span>
+                                <span class="stat-label">Total Notes</span>
+                            </div>
+                            <div class="card-recent" id="recentNotes"></div>
+                        </div>
+
+                        <div class="dashboard-card" data-module="banking">
+                            <div class="card-header">
+                                <i class="fas fa-university"></i>
+                                <h3>Banking</h3>
+                            </div>
+                            <div class="card-stats">
+                                <span class="stat-number" id="bankingCount">0</span>
+                                <span class="stat-label">Bank Accounts</span>
+                            </div>
+                            <div class="card-recent" id="recentBanking"></div>
+                        </div>
+
+                        <div class="dashboard-card" data-module="passwords">
+                            <div class="card-header">
+                                <i class="fas fa-key"></i>
+                                <h3>Passwords</h3>
+                            </div>
+                            <div class="card-stats">
+                                <span class="stat-number" id="passwordsCount">0</span>
+                                <span class="stat-label">Saved Passwords</span>
+                            </div>
+                            <div class="card-recent" id="recentPasswords"></div>
+                        </div>
+
+                        <div class="dashboard-card" data-module="documents">
+                            <div class="card-header">
+                                <i class="fas fa-file-alt"></i>
+                                <h3>Documents</h3>
+                            </div>
+                            <div class="card-stats">
+                                <span class="stat-number" id="documentsCount">0</span>
+                                <span class="stat-label">Documents</span>
+                            </div>
+                            <div class="card-recent" id="recentDocuments"></div>
+                        </div>
+
+                        <div class="dashboard-card" data-module="creative">
+                            <div class="card-header">
+                                <i class="fas fa-palette"></i>
+                                <h3>Creative</h3>
+                            </div>
+                            <div class="card-stats">
+                                <span class="stat-number" id="creativeCount">0</span>
+                                <span class="stat-label">Projects</span>
+                            </div>
+                            <div class="card-recent" id="recentCreative"></div>
+                        </div>
+
+                        <div class="dashboard-card" data-module="todos">
+                            <div class="card-header">
+                                <i class="fas fa-tasks"></i>
+                                <h3>To-Do</h3>
+                            </div>
+                            <div class="card-stats">
+                                <span class="stat-number" id="todosCount">0</span>
+                                <span class="stat-label">Active Tasks</span>
+                            </div>
+                            <div class="card-recent" id="recentTodos"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes Module -->
+                <div id="notes" class="module-content">
+                    <div class="module-header">
+                        <h2><i class="fas fa-sticky-note"></i> Notes</h2>
+                        <button class="btn-primary" onclick="createNote()">
+                            <i class="fas fa-plus"></i> New Note
+                        </button>
+                    </div>
+                    <div class="module-toolbar">
+                        <input type="text" id="notesSearch" placeholder="Search notes..." />
+                        <select id="notesSortBy">
+                            <option value="modified">Modified Date</option>
+                            <option value="created">Created Date</option>
+                            <option value="title">Title</option>
+                        </select>
+                    </div>
+                    <div id="notesList" class="items-grid"></div>
+                </div>
+
+                <!-- Banking Module -->
+                <div id="banking" class="module-content">
+                    <div class="module-header">
+                        <h2><i class="fas fa-university"></i> Banking</h2>
+                        <button class="btn-primary" onclick="createBankAccount()">
+                            <i class="fas fa-plus"></i> Add Account
+                        </button>
+                    </div>
+                    <div class="module-toolbar">
+                        <input type="text" id="bankingSearch" placeholder="Search accounts..." />
+                    </div>
+                    <div id="bankingList" class="items-grid"></div>
+                </div>
+
+                <!-- Passwords Module -->
+                <div id="passwords" class="module-content">
+                    <div class="module-header">
+                        <h2><i class="fas fa-key"></i> Passwords</h2>
+                        <button class="btn-primary" onclick="createPassword()">
+                            <i class="fas fa-plus"></i> Add Password
+                        </button>
+                    </div>
+                    <div class="module-toolbar">
+                        <input type="text" id="passwordsSearch" placeholder="Search passwords..." />
+                        <select id="passwordsCategory">
+                            <option value="">All Categories</option>
+                            <option value="work">Work</option>
+                            <option value="personal">Personal</option>
+                            <option value="financial">Financial</option>
+                            <option value="shopping">Shopping</option>
+                        </select>
+                    </div>
+                    <div id="passwordsList" class="items-grid"></div>
+                </div>
+
+                <!-- Documents Module -->
+                <div id="documents" class="module-content">
+                    <div class="module-header">
+                        <h2><i class="fas fa-file-alt"></i> Documents</h2>
+                        <label class="btn-primary file-upload-btn">
+                            <i class="fas fa-upload"></i> Upload Document
+                            <input type="file" id="documentUpload" multiple style="display: none;" />
+                        </label>
+                    </div>
+                    <div class="module-toolbar">
+                        <input type="text" id="documentsSearch" placeholder="Search documents..." />
+                        <select id="documentsFilter">
+                            <option value="">All Types</option>
+                            <option value="pdf">PDF</option>
+                            <option value="doc">Documents</option>
+                            <option value="image">Images</option>
+                        </select>
+                    </div>
+                    <div id="documentsList" class="items-grid"></div>
+                </div>
+
+                <!-- Creative Module -->
+                <div id="creative" class="module-content">
+                    <div class="module-header">
+                        <h2><i class="fas fa-palette"></i> Creative</h2>
+                        <button class="btn-primary" onclick="createCreativeProject()">
+                            <i class="fas fa-plus"></i> New Project
+                        </button>
+                    </div>
+                    <div class="module-toolbar">
+                        <input type="text" id="creativeSearch" placeholder="Search projects..." />
+                    </div>
+                    <div id="creativeList" class="items-grid"></div>
+                </div>
+
+                <!-- Todos Module -->
+                <div id="todos" class="module-content">
+                    <div class="module-header">
+                        <h2><i class="fas fa-tasks"></i> To-Do</h2>
+                        <button class="btn-primary" onclick="createTodo()">
+                            <i class="fas fa-plus"></i> New Task
+                        </button>
+                    </div>
+                    <div class="module-toolbar">
+                        <input type="text" id="todosSearch" placeholder="Search tasks..." />
+                        <select id="todosFilter">
+                            <option value="">All Tasks</option>
+                            <option value="pending">Pending</option>
+                            <option value="completed">Completed</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
+                        <select id="todosPriority">
+                            <option value="">All Priorities</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                    <div id="todosList" class="items-grid"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modalOverlay" class="modal-overlay">
+        <div id="modalContent" class="modal-content"></div>
+    </div>
+
+    <script src="js/crypto.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/notes.js"></script>
+    <script src="js/banking.js"></script>
+    <script src="js/passwords.js"></script>
+    <script src="js/documents.js"></script>
+    <script src="js/creative.js"></script>
+    <script src="js/todos.js"></script>
+</body>
+</html>
