@@ -811,16 +811,21 @@ body {
     white-space: nowrap;
     color: var(--text-secondary);
     transition: all 0.3s ease;
+    border: 2px solid transparent;
 }
 
 .nav-item:hover {
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
+    background: rgba(168, 216, 255, 0.1);
+    color: #1a5490;
+    border-color: rgba(168, 216, 255, 0.3);
 }
 
 .nav-item.active {
-    background: var(--primary-color);
-    color: white;
+    background: linear-gradient(135deg, #a8d8ff 0%, #87c5ff 50%, #6bb6ff 100%);
+    color: #1a5490;
+    font-weight: 500;
+    border: 2px solid rgba(168, 216, 255, 0.3);
+    box-shadow: 0 2px 8px rgba(168, 216, 255, 0.3);
 }
 
 /* Main Content */
