@@ -737,16 +737,8 @@
 
     <!-- Modal Overlay -->
     <div class="modal-overlay" id="modalOverlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modalTitle">Modal Title</h3>
-                <button class="modal-close" onclick="closeModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body" id="modalBody">
-                <!-- Modal content will be loaded here -->
-            </div>
+        <div class="modal-content" id="modalContent">
+            <!-- Modal content will be loaded here -->
         </div>
     </div>
     
@@ -1001,6 +993,26 @@
         
         // Initialize Firebase when the page loads
         document.addEventListener('DOMContentLoaded', function() {
+            // Load essential scripts first
+            const scriptsToLoad = ['crypto.js', 'storage.js', 'auth.js', 'app.js'];
+            let loadedScripts = 0;
+            
+            scriptsToLoad.forEach(scriptName => {
+                const script = document.createElement('script');
+                script.src = `js/${scriptName}`;
+                script.onload = function() {
+                    loadedScripts++;
+                    console.log(`${scriptName} loaded`);
+                    if (loadedScripts === scriptsToLoad.length) {
+                        initializeApp();
+                    }
+                };
+                script.onerror = function() {
+                    console.error(`Failed to load ${scriptName}`);
+                };
+                document.head.appendChild(script);
+            });
+            
             // Wait a bit for Firebase to be available
             setTimeout(() => {
                 if (typeof firebase !== 'undefined') {
@@ -1011,6 +1023,118 @@
                 }
             }, 1000);
         });
+        
+        function initializeApp() {
+            console.log('All essential scripts loaded');
+        }
+        
+        function getModuleHTML(module) {
+            const moduleTemplates = {
+                notes: `
+                    <div class="module-header">
+                        <h2><i class="fas fa-pen"></i> Notes</h2>
+                        <p>Create and manage your personal notes</p>
+                    </div>
+                    <div class="module-toolbar">
+                        <input type="text" placeholder="Search notes..." id="notesSearch">
+                        <select id="notesSortBy" class="form-select">
+                            <option value="modified">Sort by Modified</option>
+                            <option value="created">Sort by Created</option>
+                            <option value="title">Sort by Title</option>
+                        </select>
+                        <button class="btn-primary" onclick="createNote()">
+                            <i class="fas fa-plus"></i> New Note
+                        </button>
+                    </div>
+                    <div id="notesList" class="items-grid">
+                        <div class="empty-state">
+                            <i class="fas fa-sticky-note fa-3x text-muted"></i>
+                            <h3>No Notes Yet</h3>
+                            <p>Create your first note to get started</p>
+                            <button class="btn-primary" onclick="createNote()">
+                                <i class="fas fa-plus"></i> Create Note
+                            </button>
+                        </div>
+                    </div>
+                `,
+                banking: `
+                    <div class="module-header">
+                        <h2><i class="fas fa-university"></i> Banking</h2>
+                        <p>Manage your banking information securely</p>
+                    </div>
+                    <div class="module-toolbar">
+                        <input type="text" placeholder="Search banking info..." id="bankingSearch">
+                        <button class="btn-primary" onclick="showAddBankingModal()">
+                            <i class="fas fa-plus"></i> Add Account
+                        </button>
+                    </div>
+                    <div id="bankingList" class="items-grid">
+                        <p class="text-center text-muted">No banking information stored yet.</p>
+                    </div>
+                `,
+                passwords: `
+                    <div class="module-header">
+                        <h2><i class="fas fa-key"></i> Passwords</h2>
+                        <p>Securely store and manage your passwords</p>
+                    </div>
+                    <div class="module-toolbar">
+                        <input type="text" placeholder="Search passwords..." id="passwordsSearch">
+                        <button class="btn-primary" onclick="showAddPasswordModal()">
+                            <i class="fas fa-plus"></i> Add Password
+                        </button>
+                    </div>
+                    <div id="passwordsList" class="items-grid">
+                        <p class="text-center text-muted">No passwords stored yet.</p>
+                    </div>
+                `,
+                documents: `
+                    <div class="module-header">
+                        <h2><i class="fas fa-file-alt"></i> Documents</h2>
+                        <p>Store and organize your important documents</p>
+                    </div>
+                    <div class="module-toolbar">
+                        <input type="text" placeholder="Search documents..." id="documentsSearch">
+                        <button class="btn-primary" onclick="showAddDocumentModal()">
+                            <i class="fas fa-plus"></i> Upload Document
+                        </button>
+                    </div>
+                    <div id="documentsList" class="items-grid">
+                        <p class="text-center text-muted">No documents uploaded yet.</p>
+                    </div>
+                `,
+                creative: `
+                    <div class="module-header">
+                        <h2><i class="fas fa-palette"></i> Creative</h2>
+                        <p>Express your creativity with drawings and ideas</p>
+                    </div>
+                    <div class="module-toolbar">
+                        <button class="btn-primary" onclick="showAddCreativeModal()">
+                            <i class="fas fa-plus"></i> New Project
+                        </button>
+                    </div>
+                    <div id="creativeList" class="items-grid">
+                        <p class="text-center text-muted">No creative projects yet.</p>
+                    </div>
+                `,
+                todos: `
+                    <div class="module-header">
+                        <h2><i class="fas fa-tasks"></i> To-Do</h2>
+                        <p>Organize your tasks and stay productive</p>
+                    </div>
+                    <div class="module-toolbar">
+                        <input type="text" placeholder="Search tasks..." id="todosSearch">
+                        <button class="btn-primary" onclick="showAddTodoModal()">
+                            <i class="fas fa-plus"></i> Add Task
+                        </button>
+                    </div>
+                    <div id="todosList" class="items-grid">
+                        <p class="text-center text-muted">No tasks yet. Add your first task!</p>
+                    </div>
+                `
+            };
+            
+            return moduleTemplates[module] || '<div class="loading">Loading...</div>';
+        }
         
         // Main App Functions
         function showMainApp() {
@@ -1036,6 +1160,15 @@
                 if (user.photoURL) {
                     document.getElementById('userAvatar').innerHTML = `<img src="${user.photoURL}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
                     document.getElementById('userAvatarLarge').innerHTML = `<img src="${user.photoURL}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                }
+                
+                // Initialize storage manager with current user
+                if (window.storageManager) {
+                    window.storageManager.setCurrentUser({
+                        id: user.uid,
+                        email: user.email,
+                        displayName: displayName
+                    });
                 }
             }
         }
@@ -1107,7 +1240,7 @@
                     moduleElement = document.createElement('div');
                     moduleElement.id = module;
                     moduleElement.className = 'module-content';
-                    moduleElement.innerHTML = '<div class="loading">Loading...</div>';
+                    moduleElement.innerHTML = getModuleHTML(module);
                     document.querySelector('.app-main').appendChild(moduleElement);
                 }
                 
@@ -1156,22 +1289,21 @@
         
         // Load modules dynamically
         function loadModule(moduleName) {
-            const moduleContent = document.querySelector(`#${moduleName}`);
-            if (moduleContent && !moduleContent.dataset.loaded) {
-                // Load the appropriate JS file for the module
-                const script = document.createElement('script');
-                script.src = `js/${moduleName}.js`;
-                script.onload = function() {
-                    moduleContent.dataset.loaded = 'true';
-                    if (window[`init${moduleName.charAt(0).toUpperCase() + moduleName.slice(1)}`]) {
-                        window[`init${moduleName.charAt(0).toUpperCase() + moduleName.slice(1)}`]();
-                    }
-                };
-                script.onerror = function() {
-                    console.warn(`Failed to load ${moduleName}.js`);
-                };
-                document.head.appendChild(script);
+            // Check if script already loaded
+            if (document.querySelector(`script[src="js/${moduleName}.js"]`)) {
+                return;
             }
+            
+            // Load the appropriate JS file for the module
+            const script = document.createElement('script');
+            script.src = `js/${moduleName}.js`;
+            script.onload = function() {
+                console.log(`${moduleName}.js loaded successfully`);
+            };
+            script.onerror = function() {
+                console.warn(`Failed to load ${moduleName}.js`);
+            };
+            document.head.appendChild(script);
         }
         
         // Placeholder functions for app features
@@ -1185,6 +1317,73 @@
         
         function showHelp() {
             showToast('Help & support will be available soon', 'info');
+        }
+        
+        // Module action functions
+        function createNote() {
+            loadModule('notes');
+            setTimeout(() => {
+                if (window.notesModule) {
+                    window.notesModule.createNote();
+                } else {
+                    showToast('Notes module is loading...', 'info');
+                }
+            }, 500);
+        }
+        
+        function showAddBankingModal() {
+            loadModule('banking');
+            setTimeout(() => {
+                if (window.bankingModule) {
+                    window.bankingModule.showAddModal();
+                } else {
+                    showToast('Banking functionality will be available soon', 'info');
+                }
+            }, 500);
+        }
+        
+        function showAddPasswordModal() {
+            loadModule('passwords');
+            setTimeout(() => {
+                if (window.passwordsModule) {
+                    window.passwordsModule.showAddModal();
+                } else {
+                    showToast('Passwords functionality will be available soon', 'info');
+                }
+            }, 500);
+        }
+        
+        function showAddDocumentModal() {
+            loadModule('documents');
+            setTimeout(() => {
+                if (window.documentsModule) {
+                    window.documentsModule.showAddModal();
+                } else {
+                    showToast('Documents functionality will be available soon', 'info');
+                }
+            }, 500);
+        }
+        
+        function showAddCreativeModal() {
+            loadModule('creative');
+            setTimeout(() => {
+                if (window.creativeModule) {
+                    window.creativeModule.showAddModal();
+                } else {
+                    showToast('Creative functionality will be available soon', 'info');
+                }
+            }, 500);
+        }
+        
+        function showAddTodoModal() {
+            loadModule('todos');
+            setTimeout(() => {
+                if (window.todosModule) {
+                    window.todosModule.showAddModal();
+                } else {
+                    showToast('To-Do functionality will be available soon', 'info');
+                }
+            }, 500);
         }
         
         
