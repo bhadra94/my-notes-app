@@ -3,1404 +3,667 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ballpenbox - Option 4: Hero Section with Login Overlay</title>
+    <title>ballpenbox</title>
+    <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="styles.css" rel="stylesheet">
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        
-        .hero-section {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .hero-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-            opacity: 0.3;
-        }
-        
-        .hero-content {
-            text-align: center;
-            color: white;
-            z-index: 2;
-            position: relative;
-            max-width: 800px;
-            padding: 2rem;
-        }
-        
-        .logo-icon {
-            width: 100px;
-            height: 100px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 2rem;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            animation: float 6s ease-in-out infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        .logo-icon i {
-            font-size: 3rem;
-            color: white;
-        }
-        
-        .app-name {
-            font-size: 4rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            background: linear-gradient(45deg, #fff, #e0e7ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .tagline {
-            font-size: 1.3rem;
-            opacity: 0.9;
-            margin-bottom: 3rem;
-            font-weight: 300;
-            line-height: 1.6;
-        }
-        
-        .hero-features {
-            display: flex;
-            justify-content: center;
-            gap: 3rem;
-            margin-bottom: 3rem;
-            flex-wrap: wrap;
-        }
-        
-        .hero-feature {
-            text-align: center;
-            max-width: 200px;
-        }
-        
-        .hero-feature i {
-            font-size: 2rem;
-            color: #fbbf24;
-            margin-bottom: 1rem;
-        }
-        
-        .hero-feature h3 {
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .hero-feature p {
-            opacity: 0.8;
-            font-size: 0.9rem;
-        }
-        
-        .cta-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(45deg, #fbbf24, #f59e0b);
-            color: #1f2937;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(251, 191, 36, 0.5);
-        }
-        
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-        }
-        
-        /* Login Modal */
-        .login-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-        }
-        
-        .login-modal.active {
-            display: flex;
-        }
-        
-        .login-container {
-            background: white;
-            border-radius: 20px;
-            padding: 3rem;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            position: relative;
-        }
-        
-        .modal-close {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: #6b7280;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 50%;
-            transition: background-color 0.3s;
-        }
-        
-        .modal-close:hover {
-            background: #f3f4f6;
-        }
-        
-        .login-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        
-        .login-header h2 {
-            font-size: 2rem;
-            color: #1f2937;
-            margin-bottom: 0.5rem;
-        }
-        
-        .login-header p {
-            color: #6b7280;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #374151;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 0.875rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .login-btn {
-            width: 100%;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 0.875rem;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s;
-            margin-bottom: 1rem;
-        }
-        
-        .login-btn:hover {
-            transform: translateY(-2px);
-        }
-        
-        .demo-info {
-            background: #f3f4f6;
-            padding: 1rem;
-            border-radius: 8px;
-            margin: 1.5rem 0;
-            font-size: 0.85rem;
-            color: #374151;
-        }
-        
-        .register-link {
-            text-align: center;
-            color: #6b7280;
-        }
-        
-        .register-link a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        .auth-divider {
-            display: flex;
-            align-items: center;
-            margin: 1.5rem 0;
-            color: #6b7280;
-            font-size: 0.9rem;
-        }
-        
-        .auth-divider::before,
-        .auth-divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: #e5e7eb;
-        }
-        
-        .auth-divider span {
-            padding: 0 1rem;
-        }
-        
-        .social-login {
-            display: flex;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .btn-social {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 0.75rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            background: white;
-            color: #374151;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-        
-        .btn-social:hover {
-            border-color: #d1d5db;
-            background: #f9fafb;
-            transform: translateY(-1px);
-        }
-        
-        .btn-social.google {
-            color: #ea4335;
-        }
-        
-        .btn-social.github {
-            color: #333;
-        }
-        
-        /* Toast Notifications */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 10000;
-            pointer-events: none;
-        }
-        
-        .toast {
-            background: white;
-            border-radius: 8px;
-            padding: 1rem 1.5rem;
-            margin-bottom: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            border-left: 4px solid #667eea;
-            max-width: 300px;
-            pointer-events: auto;
-            animation: slideIn 0.3s ease-out;
-        }
-        
-        .toast.success {
-            border-left-color: #10b981;
-        }
-        
-        .toast.error {
-            border-left-color: #ef4444;
-        }
-        
-        .toast.info {
-            border-left-color: #3b82f6;
-        }
-        
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .app-name {
-                font-size: 3rem;
-            }
-            
-            .hero-features {
-                gap: 2rem;
-            }
-            
-            .cta-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .btn-primary,
-            .btn-secondary {
-                width: 100%;
-                max-width: 300px;
-                justify-content: center;
-            }
-        }
-    </style>
 </head>
 <body>
-    <div class="hero-section">
-        <div class="hero-background"></div>
-        
-        <div class="hero-content">
-            <div class="logo-icon">
-                <i class="fas fa-pen"></i>
-            </div>
-            <h1 class="app-name">ballpenbox</h1>
-            <p class="tagline">Your personal, secure workspace for everything that matters</p>
-            
-            <div class="hero-features">
-                <div class="hero-feature">
-                    <i class="fas fa-shield-alt"></i>
-                    <h3>Bank-Grade Security</h3>
-                    <p>End-to-end encryption keeps your data safe</p>
-                </div>
-                <div class="hero-feature">
-                    <i class="fas fa-cloud"></i>
-                    <h3>Sync Everywhere</h3>
-                    <p>Access your notes from any device, anywhere</p>
-                </div>
-                <div class="hero-feature">
-                    <i class="fas fa-pen-fancy"></i>
-                    <h3>Rich Features</h3>
-                    <p>Notes, passwords, documents, and creative projects</p>
-                </div>
-            </div>
-            
-            <div class="cta-buttons">
-                <button class="btn-primary" onclick="showLoginModal()">
-                    <i class="fas fa-sign-in-alt"></i>
-                    Sign In
-                </button>
-                <button class="btn-secondary" onclick="showSignupModal()">
-                    <i class="fas fa-user-plus"></i>
-                    Get Started Free
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Login Modal -->
-    <div class="login-modal" id="loginModal">
-        <div class="login-container">
-            <button class="modal-close" onclick="hideLoginModal()">
-                <i class="fas fa-times"></i>
-            </button>
-            
-            <div class="login-header">
-                <h2>Welcome Back</h2>
-                <p>Sign in to your ballpenbox account</p>
-            </div>
-            
-            <form onsubmit="handleLogin(event)">
-                <div class="form-group">
-                    <label class="form-label">Email Address</label>
-                    <input type="email" class="form-input" placeholder="Enter your email" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-input" placeholder="Enter your password" required>
-                </div>
-                
-                <button type="submit" class="login-btn">Sign In</button>
-                
-                <div class="auth-divider">
-                    <span>or continue with</span>
-                </div>
-                
-                <div class="social-login">
-                    <button type="button" class="btn-social google" onclick="handleGoogleLogin()">
-                        <i class="fab fa-google"></i>
-                        Google
-                    </button>
-                    <button type="button" class="btn-social github" onclick="handleGitHubLogin()">
-                        <i class="fab fa-github"></i>
-                        GitHub
-                    </button>
-                </div>
-                
-            </form>
-            
-            <div class="register-link">
-                Don't have an account? <a href="#" onclick="showSignupModal()">Sign up</a>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Signup Modal -->
-    <div class="login-modal" id="signupModal">
-        <div class="login-container">
-            <button class="modal-close" onclick="hideSignupModal()">
-                <i class="fas fa-times"></i>
-            </button>
-            
-            <div class="login-header">
-                <h2>Create Account</h2>
-                <p>Join thousands of users who trust ballpenbox</p>
-            </div>
-            
-            <form onsubmit="handleSignup(event)">
-                <div class="form-group">
-                    <label class="form-label">Full Name</label>
-                    <input type="text" class="form-input" placeholder="Enter your full name" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Email Address</label>
-                    <input type="email" class="form-input" placeholder="Enter your email" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-input" placeholder="Create a strong password" required>
-                </div>
-                
-                <button type="submit" class="login-btn">Create Account</button>
-                
-                <div class="auth-divider">
-                    <span>or sign up with</span>
-                </div>
-                
-                <div class="social-login">
-                    <button type="button" class="btn-social google" onclick="handleGoogleSignup()">
-                        <i class="fab fa-google"></i>
-                        Google
-                    </button>
-                    <button type="button" class="btn-social github" onclick="handleGitHubSignup()">
-                        <i class="fab fa-github"></i>
-                        GitHub
-                    </button>
-                </div>
-            </form>
-            
-            <div class="register-link">
-                Already have an account? <a href="#" onclick="showLoginModal()">Sign in</a>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Toast Container -->
-    <div class="toast-container" id="toastContainer"></div>
-    
-    <!-- Main App (Hidden by default) -->
-    <div class="main-app hidden" id="mainApp">
-        <!-- App Header -->
-        <header class="app-header">
-            <div class="header-content">
-                <h1>ballpenbox</h1>
-                <div class="header-actions">
-                    <div class="search-container">
-                        <input type="text" id="globalSearch" placeholder="Search everything...">
-                        <i class="fas fa-search"></i>
-                    </div>
-                    <button class="theme-toggle" onclick="toggleTheme()">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                    <div class="user-menu">
-                        <button class="user-profile-btn" onclick="toggleUserMenu()">
-                            <div class="user-avatar" id="userAvatar">U</div>
-                            <span class="user-name" id="userName">User</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="user-dropdown hidden" id="userDropdown">
-                            <div class="user-info">
-                                <div class="user-avatar-large" id="userAvatarLarge">U</div>
-                                <div class="user-details">
-                                    <div class="user-name-large" id="userNameLarge">User</div>
-                                    <div class="user-email" id="userEmail">user@example.com</div>
+    <div id="app">
+        <!-- Authentication Screen -->
+        <div id="authScreen" class="auth-screen">
+            <!-- Welcome Landing with Split Layout -->
+            <div id="welcomeSection" class="welcome-section">
+                <div class="welcome-split-container">
+                    <!-- Left Side: Branding and Features -->
+                    <div class="welcome-left">
+                        <div class="welcome-content">
+                            <div class="app-branding">
+                                <div class="app-icon">
+                                    <i class="fas fa-pen"></i>
+                                </div>
+                                <h1>ballpenbox</h1>
+                                <p class="tagline">Your personal, secure workspace for everything that matters</p>
+                            </div>
+                            
+                            <div class="feature-highlights">
+                                <div class="feature-item">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <h3>Bank-Grade Security</h3>
+                                    <p>End-to-end encryption keeps your data safe</p>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-cloud"></i>
+                                    <h3>Sync Everywhere</h3>
+                                    <p>Access your notes from any device, anywhere</p>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-pen-fancy"></i>
+                                    <h3>Rich Features</h3>
+                                    <p>Notes, passwords, documents, and creative projects</p>
                                 </div>
                             </div>
-                            <div class="dropdown-divider"></div>
-                            <div class="dropdown-item" onclick="showAccountSettings()">
-                                <i class="fas fa-user-cog"></i>
-                                Account Settings
+                            
+                            <div class="trust-indicators">
+                                <div class="trust-item">
+                                    <i class="fas fa-lock"></i>
+                                    <span>256-bit encryption</span>
+                                </div>
+                                <div class="trust-item">
+                                    <i class="fas fa-user-shield"></i>
+                                    <span>Zero-knowledge architecture</span>
+                                </div>
+                                <div class="trust-item">
+                                    <i class="fas fa-eye-slash"></i>
+                                    <span>Private by design</span>
+                                </div>
                             </div>
-                            <div class="dropdown-item" onclick="showBilling()">
-                                <i class="fas fa-credit-card"></i>
-                                Billing & Plans
+                        </div>
+                    </div>
+                    
+                    <!-- Right Side: Login Form (Always Visible) -->
+                    <div class="welcome-right">
+                        <div class="auth-container">
+                            <div class="auth-header">
+                                <h2>Welcome Back</h2>
+                                <p>Sign in to your ballpenbox account</p>
+                                <div style="background: #f3f4f6; padding: 0.75rem; border-radius: 6px; margin: 1rem 0; font-size: 0.85rem; color: #374151;">
+                                    <strong>Demo Account for Testing:</strong><br>
+                                    Email: demo@ballpenbox.com<br>
+                                    Password: demo123
+                                </div>
                             </div>
-                            <div class="dropdown-item" onclick="showHelp()">
-                                <i class="fas fa-question-circle"></i>
-                                Help & Support
-                            </div>
-                            <div class="dropdown-divider"></div>
-                            <div class="dropdown-item logout" onclick="logoutUser()">
-                                <i class="fas fa-sign-out-alt"></i>
-                                Sign Out
-                            </div>
+                            
+                            <form id="loginForm" class="auth-form">
+                                <div class="form-group">
+                                    <label for="loginEmail" class="form-label">Email Address</label>
+                                    <input type="email" id="loginEmail" class="form-input" placeholder="Enter your email" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="loginPassword" class="form-label">Password</label>
+                                    <div class="password-input-container">
+                                        <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
+                                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('loginPassword')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-options">
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" id="rememberMe">
+                                        <span class="checkmark"></span>
+                                        Remember me
+                                    </label>
+                                    <a href="#" class="forgot-password" onclick="showForgotPassword()">Forgot password?</a>
+                                </div>
+                                
+                                <button type="submit" class="btn-primary full-width" id="loginBtn">
+                                    <span class="btn-text">Sign In</span>
+                                    <div class="btn-spinner hidden">
+                                        <div class="spinner"></div>
+                                    </div>
+                                </button>
+                                
+                                <div class="auth-divider">
+                                    <span>or continue with</span>
+                                </div>
+                                
+                                <div class="social-login">
+                                    <button type="button" class="btn-social google" onclick="loginWithGoogle()">
+                                        <i class="fab fa-google"></i>
+                                        Google
+                                    </button>
+                                    <button type="button" class="btn-social github" onclick="loginWithGitHub()">
+                                        <i class="fab fa-github"></i>
+                                        GitHub
+                                    </button>
+                                </div>
+                                
+                                <div class="auth-switch">
+                                    <p>Don't have an account? <a href="#" onclick="showRegister()">Sign up</a></p>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
-        </header>
-
-        <!-- App Navigation -->
-        <nav class="app-nav">
-            <div class="nav-item active" data-module="dashboard">
-                <i class="fas fa-home"></i>
-                <span>Dashboard</span>
+            
+            <!-- Login Form (now integrated into welcome section above) -->
+            <div id="loginSection" class="auth-form-section hidden">
+                <!-- This section is now unused - login form is in the welcome section -->
             </div>
-            <div class="nav-item" data-module="notes">
-                <i class="fas fa-pen"></i>
-                <span>Notes</span>
-            </div>
-            <div class="nav-item" data-module="banking">
-                <i class="fas fa-university"></i>
-                <span>Banking</span>
-            </div>
-            <div class="nav-item" data-module="passwords">
-                <i class="fas fa-key"></i>
-                <span>Passwords</span>
-            </div>
-            <div class="nav-item" data-module="documents">
-                <i class="fas fa-file-alt"></i>
-                <span>Documents</span>
-            </div>
-            <div class="nav-item" data-module="creative">
-                <i class="fas fa-palette"></i>
-                <span>Creative</span>
-            </div>
-            <div class="nav-item" data-module="todos">
-                <i class="fas fa-tasks"></i>
-                <span>To-Do</span>
-            </div>
-        </nav>
-
-        <!-- Main Content Area -->
-        <main class="app-main">
-            <!-- Dashboard Module -->
-            <div class="module-content active" id="dashboard">
-                <div class="dashboard-grid">
-                    <div class="dashboard-card" data-module="notes">
-                        <div class="card-header">
-                            <i class="fas fa-pen"></i>
-                            <h3>Notes</h3>
-                        </div>
-                        <div class="card-stats">
-                            <span class="stat-number" id="notesCount">0</span>
-                            <span class="stat-label">Total Notes</span>
-                        </div>
-                        <div class="card-recent" id="recentNotes"></div>
+            
+            <!-- Registration Form -->
+            <div id="registerSection" class="auth-form-section hidden">
+                <div class="auth-container">
+                    <div class="auth-header">
+                        <button class="back-btn" onclick="showWelcome()">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <h2>Create Account</h2>
+                        <p>Join thousands of users who trust ballpenbox</p>
                     </div>
                     
-                    <div class="dashboard-card" data-module="banking">
-                        <div class="card-header">
-                            <i class="fas fa-university"></i>
-                            <h3>Banking</h3>
+                    <form id="registerForm" class="auth-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName" class="form-label">First Name</label>
+                                <input type="text" id="firstName" class="form-input" placeholder="John" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName" class="form-label">Last Name</label>
+                                <input type="text" id="lastName" class="form-input" placeholder="Doe" required>
+                            </div>
                         </div>
-                        <div class="card-stats">
-                            <span class="stat-number" id="bankingCount">0</span>
-                            <span class="stat-label">Bank Accounts</span>
+                        
+                        <div class="form-group">
+                            <label for="registerEmail" class="form-label">Email Address</label>
+                            <input type="email" id="registerEmail" class="form-input" placeholder="john@example.com" required>
                         </div>
-                        <div class="card-recent" id="recentBanking"></div>
-                    </div>
-                    
-                    <div class="dashboard-card" data-module="passwords">
-                        <div class="card-header">
-                            <i class="fas fa-key"></i>
-                            <h3>Passwords</h3>
+                        
+                        <div class="form-group">
+                            <label for="registerPassword" class="form-label">Password</label>
+                            <div class="password-input-container">
+                                <input type="password" id="registerPassword" class="form-input" placeholder="Create a strong password" required>
+                                <button type="button" class="password-toggle" onclick="togglePasswordVisibility('registerPassword')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="password-strength" id="registerPasswordStrength" style="display: none;">
+                                <div class="strength-bar">
+                                    <div class="strength-fill"></div>
+                                </div>
+                                <div class="strength-text"></div>
+                            </div>
                         </div>
-                        <div class="card-stats">
-                            <span class="stat-number" id="passwordsCount">0</span>
-                            <span class="stat-label">Saved Passwords</span>
+                        
+                        <div class="form-group">
+                            <label for="confirmPassword" class="form-label">Confirm Password</label>
+                            <div class="password-input-container">
+                                <input type="password" id="confirmPassword" class="form-input" placeholder="Confirm your password" required>
+                                <button type="button" class="password-toggle" onclick="togglePasswordVisibility('confirmPassword')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="card-recent" id="recentPasswords"></div>
-                    </div>
-                    
-                    <div class="dashboard-card" data-module="documents">
-                        <div class="card-header">
-                            <i class="fas fa-file-alt"></i>
-                            <h3>Documents</h3>
+                        
+                        <div class="form-group">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="agreeTerms" required>
+                                <span class="checkmark"></span>
+                                I agree to the <a href="#" onclick="showTerms()">Terms of Service</a> and <a href="#" onclick="showPrivacy()">Privacy Policy</a>
+                            </label>
                         </div>
-                        <div class="card-stats">
-                            <span class="stat-number" id="documentsCount">0</span>
-                            <span class="stat-label">Total Files</span>
+                        
+                        <div class="form-group">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="marketingEmails">
+                                <span class="checkmark"></span>
+                                Send me product updates and tips (optional)
+                            </label>
                         </div>
-                        <div class="card-recent" id="recentDocuments"></div>
-                    </div>
-                    
-                    <div class="dashboard-card" data-module="creative">
-                        <div class="card-header">
-                            <i class="fas fa-palette"></i>
-                            <h3>Creative</h3>
+                        
+                        <button type="submit" class="btn-primary full-width" id="registerBtn">
+                            <span class="btn-text">Create Account</span>
+                            <div class="btn-spinner hidden">
+                                <div class="spinner"></div>
+                            </div>
+                        </button>
+                        
+                        <div class="auth-divider">
+                            <span>or sign up with</span>
                         </div>
-                        <div class="card-stats">
-                            <span class="stat-number" id="creativeCount">0</span>
-                            <span class="stat-label">Projects</span>
+                        
+                        <div class="social-login">
+                            <button type="button" class="btn-social google" onclick="registerWithGoogle()">
+                                <i class="fab fa-google"></i>
+                                Google
+                            </button>
+                            <button type="button" class="btn-social github" onclick="registerWithGitHub()">
+                                <i class="fab fa-github"></i>
+                                GitHub
+                            </button>
                         </div>
-                        <div class="card-recent" id="recentCreative"></div>
-                    </div>
-                    
-                    <div class="dashboard-card" data-module="todos">
-                        <div class="card-header">
-                            <i class="fas fa-tasks"></i>
-                            <h3>To-Do</h3>
+                        
+                        <div class="auth-switch">
+                            <p>Already have an account? <a href="#" onclick="showLogin()">Sign in</a></p>
                         </div>
-                        <div class="card-stats">
-                            <span class="stat-number" id="todosCount">0</span>
-                            <span class="stat-label">Active Tasks</span>
-                        </div>
-                        <div class="card-recent" id="recentTodos"></div>
-                    </div>
+                    </form>
                 </div>
             </div>
-
-            <!-- Other modules will be loaded dynamically -->
-
-        </main>
-    </div>
-
-    <!-- Modal Overlay -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal-content" id="modalContent">
-            <!-- Modal content will be loaded here -->
+            
+            <!-- Forgot Password Form -->
+            <div id="forgotPasswordSection" class="auth-form-section hidden">
+                <div class="auth-container">
+                    <div class="auth-header">
+                        <button class="back-btn" onclick="showLogin()">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <h2>Reset Password</h2>
+                        <p>Enter your email to receive a reset link</p>
+                    </div>
+                    
+                    <form id="forgotPasswordForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="resetEmail" class="form-label">Email Address</label>
+                            <input type="email" id="resetEmail" class="form-input" placeholder="Enter your email" required>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary full-width" id="resetBtn">
+                            <span class="btn-text">Send Reset Link</span>
+                            <div class="btn-spinner hidden">
+                                <div class="spinner"></div>
+                            </div>
+                        </button>
+                        
+                        <div class="auth-switch">
+                            <p>Remember your password? <a href="#" onclick="showLogin()">Sign in</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-    </div>
-    
-    <!-- Firebase Configuration -->
-    <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyDh7tcdyCWbmUcWx0qKTo-AdT4QNO6ZCHc",
-            authDomain: "my-notes-app-a9568.firebaseapp.com",
-            projectId: "my-notes-app-a9568",
-            storageBucket: "my-notes-app-a9568.firebasestorage.app",
-            messagingSenderId: "5575127275",
-            appId: "1:5575127275:web:0aa341a0d811adf3b24eae",
-            measurementId: "G-DXEHTJ4FB8"
-        };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        
-        // Simple toast notification system
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-            
-            container.appendChild(toast);
-            
-            // Auto-remove after 5 seconds
-            setTimeout(() => {
-                if (toast.parentNode) {
-                    toast.parentNode.removeChild(toast);
-                }
-            }, 5000);
-        }
-        
-        // Simplified Firebase authentication
-        let firebaseAuth = null;
-        let googleProvider = null;
-        let githubProvider = null;
-        
-        function initializeFirebase() {
-            try {
-                firebaseAuth = firebase.auth();
-                googleProvider = new firebase.auth.GoogleAuthProvider();
-                githubProvider = new firebase.auth.GithubAuthProvider();
-                
-                // Set up auth state listener
-                firebaseAuth.onAuthStateChanged((user) => {
-                    if (user) {
-                        console.log('User signed in:', user);
-                        showToast(`Welcome, ${user.displayName || user.email}!`, 'success');
-                        hideLoginModal();
-                        hideSignupModal();
-                        showMainApp(); // Show main app after successful login
-                    } else {
-                        console.log('User signed out');
-                    }
-                });
-                
-                console.log('Firebase initialized successfully');
-            } catch (error) {
-                console.error('Firebase initialization error:', error);
-                showToast('Failed to initialize authentication', 'error');
-            }
-        }
-        
-        function showLoginModal() {
-            hideSignupModal();
-            document.getElementById('loginModal').classList.add('active');
-        }
-        
-        function hideLoginModal() {
-            document.getElementById('loginModal').classList.remove('active');
-        }
-        
-        function showSignupModal() {
-            hideLoginModal();
-            document.getElementById('signupModal').classList.add('active');
-        }
-        
-        function hideSignupModal() {
-            document.getElementById('signupModal').classList.remove('active');
-        }
-        
-        function handleLogin(event) {
-            event.preventDefault();
-            const email = event.target.querySelector('input[type="email"]').value;
-            const password = event.target.querySelector('input[type="password"]').value;
-            
-            if (!firebaseAuth) {
-                showToast('Authentication not initialized. Please refresh the page.', 'error');
-                return;
-            }
-            
-            showToast('Signing in...', 'info');
-            
-            firebaseAuth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    showToast('Login successful!', 'success');
-                    hideLoginModal();
-                })
-                .catch((error) => {
-                    console.error('Login error:', error);
-                    let errorMessage = 'Login failed. Please try again.';
-                    
-                    switch (error.code) {
-                        case 'auth/user-not-found':
-                            errorMessage = 'No account found with this email address.';
-                            break;
-                        case 'auth/wrong-password':
-                            errorMessage = 'Invalid password. Please try again.';
-                            break;
-                        case 'auth/invalid-email':
-                            errorMessage = 'Please enter a valid email address.';
-                            break;
-                        case 'auth/too-many-requests':
-                            errorMessage = 'Too many failed attempts. Please try again later.';
-                            break;
-                    }
-                    
-                    showToast(errorMessage, 'error');
-                });
-        }
-        
-        function handleSignup(event) {
-            event.preventDefault();
-            const name = event.target.querySelector('input[type="text"]').value;
-            const email = event.target.querySelector('input[type="email"]').value;
-            const password = event.target.querySelector('input[type="password"]').value;
-            
-            if (!firebaseAuth) {
-                showToast('Authentication not initialized. Please refresh the page.', 'error');
-                return;
-            }
-            
-            showToast('Creating account...', 'info');
-            
-            firebaseAuth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    // Update the user's profile with their name
-                    return userCredential.user.updateProfile({
-                        displayName: name
-                    });
-                })
-                .then(() => {
-                    showToast('Account created successfully!', 'success');
-                    hideSignupModal();
-                })
-                .catch((error) => {
-                    console.error('Signup error:', error);
-                    let errorMessage = 'Signup failed. Please try again.';
-                    
-                    switch (error.code) {
-                        case 'auth/email-already-in-use':
-                            errorMessage = 'An account with this email already exists.';
-                            break;
-                        case 'auth/weak-password':
-                            errorMessage = 'Password is too weak. Please choose a stronger password.';
-                            break;
-                        case 'auth/invalid-email':
-                            errorMessage = 'Please enter a valid email address.';
-                            break;
-                    }
-                    
-                    showToast(errorMessage, 'error');
-                });
-        }
-        
-        function handleGoogleLogin() {
-            if (!firebaseAuth || !googleProvider) {
-                showToast('Authentication not initialized. Please refresh the page.', 'error');
-                return;
-            }
-            
-            showToast('Signing in with Google...', 'info');
-            
-            firebaseAuth.signInWithPopup(googleProvider)
-                .then((result) => {
-                    showToast('Successfully signed in with Google!', 'success');
-                    hideLoginModal();
-                })
-                .catch((error) => {
-                    console.error('Google login error:', error);
-                    let errorMessage = 'Google sign-in failed. Please try again.';
-                    
-                    if (error.code === 'auth/popup-closed-by-user') {
-                        errorMessage = 'Sign-in was cancelled.';
-                    } else if (error.code === 'auth/popup-blocked') {
-                        errorMessage = 'Popup was blocked. Please allow popups and try again.';
-                    }
-                    
-                    showToast(errorMessage, 'error');
-                });
-        }
-        
-        function handleGitHubLogin() {
-            if (!firebaseAuth || !githubProvider) {
-                showToast('Authentication not initialized. Please refresh the page.', 'error');
-                return;
-            }
-            
-            showToast('Signing in with GitHub...', 'info');
-            
-            firebaseAuth.signInWithPopup(githubProvider)
-                .then((result) => {
-                    showToast('Successfully signed in with GitHub!', 'success');
-                    hideLoginModal();
-                })
-                .catch((error) => {
-                    console.error('GitHub login error:', error);
-                    let errorMessage = 'GitHub sign-in failed. Please try again.';
-                    
-                    if (error.code === 'auth/popup-closed-by-user') {
-                        errorMessage = 'Sign-in was cancelled.';
-                    } else if (error.code === 'auth/popup-blocked') {
-                        errorMessage = 'Popup was blocked. Please allow popups and try again.';
-                    }
-                    
-                    showToast(errorMessage, 'error');
-                });
-        }
-        
-        function handleGoogleSignup() {
-            handleGoogleLogin(); // Same function for signup
-        }
-        
-        function handleGitHubSignup() {
-            handleGitHubLogin(); // Same function for signup
-        }
-        
-        // Close modals when clicking outside
-        document.getElementById('loginModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                hideLoginModal();
-            }
-        });
-        
-        document.getElementById('signupModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                hideSignupModal();
-            }
-        });
-        
-        // Close modals with Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                hideLoginModal();
-                hideSignupModal();
-            }
-        });
-        
-        // Initialize Firebase when the page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load essential scripts first
-            const scriptsToLoad = ['crypto.js', 'storage.js', 'auth.js', 'app.js'];
-            let loadedScripts = 0;
-            
-            scriptsToLoad.forEach(scriptName => {
-                const script = document.createElement('script');
-                script.src = `js/${scriptName}`;
-                script.onload = function() {
-                    loadedScripts++;
-                    console.log(`${scriptName} loaded`);
-                    if (loadedScripts === scriptsToLoad.length) {
-                        initializeApp();
-                    }
-                };
-                script.onerror = function() {
-                    console.error(`Failed to load ${scriptName}`);
-                };
-                document.head.appendChild(script);
-            });
-            
-            // Wait a bit for Firebase to be available
-            setTimeout(() => {
-                if (typeof firebase !== 'undefined') {
-                    initializeFirebase();
-                } else {
-                    console.error('Firebase not loaded');
-                    showToast('Failed to load authentication system', 'error');
-                }
-            }, 1000);
-        });
-        
-        function initializeApp() {
-            console.log('All essential scripts loaded');
-        }
-        
-        function getModuleHTML(module) {
-            const moduleTemplates = {
-                notes: `
+        <!-- Main Application -->
+        <div id="mainApp" class="main-app hidden">
+            <!-- Header -->
+            <header class="app-header">
+                <div class="header-content">
+                    <h1><i class="fas fa-pen"></i> ballpenbox</h1>
+                    <div class="header-actions">
+                        <div class="search-container">
+                            <input type="text" id="globalSearch" placeholder="Search everywhere..." />
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <button class="theme-toggle" onclick="toggleTheme()">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <div class="user-menu">
+                            <button class="user-profile-btn" onclick="toggleUserMenu()">
+                                <div class="user-avatar" id="userAvatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <span class="user-name" id="userName">User</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="user-dropdown hidden" id="userDropdown">
+                                <div class="user-info">
+                                    <div class="user-avatar-large">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="user-details">
+                                        <div class="user-name-large" id="userNameLarge">John Doe</div>
+                                        <div class="user-email" id="userEmail">john@example.com</div>
+                                    </div>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <a href="#" class="dropdown-item" onclick="showAccountSettings()">
+                                    <i class="fas fa-cog"></i>
+                                    Account Settings
+                                </a>
+                                <a href="#" class="dropdown-item" onclick="showBilling()">
+                                    <i class="fas fa-credit-card"></i>
+                                    Billing & Plans
+                                </a>
+                                <a href="#" class="dropdown-item" onclick="exportAllData()">
+                                    <i class="fas fa-download"></i>
+                                    Export Data
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a href="#" class="dropdown-item" onclick="showHelp()">
+                                    <i class="fas fa-question-circle"></i>
+                                    Help & Support
+                                </a>
+                                <a href="#" class="dropdown-item logout" onclick="logoutUser()">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    Sign Out
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Navigation -->
+            <nav class="app-nav">
+                <div class="nav-item active" data-module="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" data-module="notes">
+                    <i class="fas fa-pen"></i>
+                    <span>Notes</span>
+                </div>
+                <div class="nav-item" data-module="banking">
+                    <i class="fas fa-university"></i>
+                    <span>Banking</span>
+                </div>
+                <div class="nav-item" data-module="passwords">
+                    <i class="fas fa-key"></i>
+                    <span>Passwords</span>
+                </div>
+                <div class="nav-item" data-module="documents">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Documents</span>
+                </div>
+                <div class="nav-item" data-module="creative">
+                    <i class="fas fa-palette"></i>
+                    <span>Creative</span>
+                </div>
+                <div class="nav-item" data-module="todos">
+                    <i class="fas fa-tasks"></i>
+                    <span>To-Do</span>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="app-main">
+                <!-- Dashboard -->
+                <div id="dashboard" class="module-content active">
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card" data-module="notes">
+                            <div class="card-header">
+                                <i class="fas fa-pen"></i>
+                                <h3>Notes</h3>
+                            </div>
+                            <div class="card-stats">
+                                <span class="stat-number" id="notesCount">0</span>
+                                <span class="stat-label">Total Notes</span>
+                            </div>
+                            <div class="card-recent" id="recentNotes"></div>
+                        </div>
+
+                        <div class="dashboard-card" data-module="banking">
+                            <div class="card-header">
+                                <i class="fas fa-university"></i>
+                                <h3>Banking</h3>
+                            </div>
+                            <div class="card-stats">
+                                <span class="stat-number" id="bankingCount">0</span>
+                                <span class="stat-label">Bank Accounts</span>
+                            </div>
+                            <div class="card-recent" id="recentBanking"></div>
+                        </div>
+
+                        <div class="dashboard-card" data-module="passwords">
+                            <div class="card-header">
+                                <i class="fas fa-key"></i>
+                                <h3>Passwords</h3>
+                            </div>
+                            <div class="card-stats">
+                                <span class="stat-number" id="passwordsCount">0</span>
+                                <span class="stat-label">Saved Passwords</span>
+                            </div>
+                            <div class="card-recent" id="recentPasswords"></div>
+                        </div>
+
+                        <div class="dashboard-card" data-module="documents">
+                            <div class="card-header">
+                                <i class="fas fa-file-alt"></i>
+                                <h3>Documents</h3>
+                            </div>
+                            <div class="card-stats">
+                                <span class="stat-number" id="documentsCount">0</span>
+                                <span class="stat-label">Documents</span>
+                            </div>
+                            <div class="card-recent" id="recentDocuments"></div>
+                        </div>
+
+                        <div class="dashboard-card" data-module="creative">
+                            <div class="card-header">
+                                <i class="fas fa-palette"></i>
+                                <h3>Creative</h3>
+                            </div>
+                            <div class="card-stats">
+                                <span class="stat-number" id="creativeCount">0</span>
+                                <span class="stat-label">Projects</span>
+                            </div>
+                            <div class="card-recent" id="recentCreative"></div>
+                        </div>
+
+                        <div class="dashboard-card" data-module="todos">
+                            <div class="card-header">
+                                <i class="fas fa-tasks"></i>
+                                <h3>To-Do</h3>
+                            </div>
+                            <div class="card-stats">
+                                <span class="stat-number" id="todosCount">0</span>
+                                <span class="stat-label">Active Tasks</span>
+                            </div>
+                            <div class="card-recent" id="recentTodos"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes Module -->
+                <div id="notes" class="module-content">
                     <div class="module-header">
                         <h2><i class="fas fa-pen"></i> Notes</h2>
-                        <p>Create and manage your personal notes</p>
-                    </div>
-                    <div class="module-toolbar">
-                        <input type="text" placeholder="Search notes..." id="notesSearch">
-                        <select id="notesSortBy" class="form-select">
-                            <option value="modified">Sort by Modified</option>
-                            <option value="created">Sort by Created</option>
-                            <option value="title">Sort by Title</option>
-                        </select>
                         <button class="btn-primary" onclick="createNote()">
                             <i class="fas fa-plus"></i> New Note
                         </button>
                     </div>
-                    <div id="notesList" class="items-grid">
-                        <div class="empty-state">
-                            <i class="fas fa-sticky-note fa-3x text-muted"></i>
-                            <h3>No Notes Yet</h3>
-                            <p>Create your first note to get started</p>
-                            <button class="btn-primary" onclick="createNote()">
-                                <i class="fas fa-plus"></i> Create Note
-                            </button>
-                        </div>
+                    <div class="module-toolbar">
+                        <input type="text" id="notesSearch" placeholder="Search notes..." />
+                        <select id="notesSortBy">
+                            <option value="modified">Modified Date</option>
+                            <option value="created">Created Date</option>
+                            <option value="title">Title</option>
+                        </select>
                     </div>
-                `,
-                banking: `
+                    <div id="notesList" class="items-grid"></div>
+                </div>
+
+                <!-- Banking Module -->
+                <div id="banking" class="module-content">
                     <div class="module-header">
                         <h2><i class="fas fa-university"></i> Banking</h2>
-                        <p>Manage your banking information securely</p>
-                    </div>
-                    <div class="module-toolbar">
-                        <input type="text" placeholder="Search banking info..." id="bankingSearch">
-                        <button class="btn-primary" onclick="showAddBankingModal()">
+                        <button class="btn-primary" onclick="createBankAccount()">
                             <i class="fas fa-plus"></i> Add Account
                         </button>
                     </div>
-                    <div id="bankingList" class="items-grid">
-                        <p class="text-center text-muted">No banking information stored yet.</p>
+                    <div class="module-toolbar">
+                        <input type="text" id="bankingSearch" placeholder="Search accounts..." />
                     </div>
-                `,
-                passwords: `
+                    <div id="bankingList" class="items-grid"></div>
+                </div>
+
+                <!-- Passwords Module -->
+                <div id="passwords" class="module-content">
                     <div class="module-header">
                         <h2><i class="fas fa-key"></i> Passwords</h2>
-                        <p>Securely store and manage your passwords</p>
-                    </div>
-                    <div class="module-toolbar">
-                        <input type="text" placeholder="Search passwords..." id="passwordsSearch">
-                        <button class="btn-primary" onclick="showAddPasswordModal()">
+                        <button class="btn-primary" onclick="createPassword()">
                             <i class="fas fa-plus"></i> Add Password
                         </button>
                     </div>
-                    <div id="passwordsList" class="items-grid">
-                        <p class="text-center text-muted">No passwords stored yet.</p>
+                    <div class="module-toolbar">
+                        <input type="text" id="passwordsSearch" placeholder="Search passwords..." />
+                        <select id="passwordsCategory">
+                            <option value="">All Categories</option>
+                            <option value="work">Work</option>
+                            <option value="personal">Personal</option>
+                            <option value="financial">Financial</option>
+                            <option value="shopping">Shopping</option>
+                        </select>
                     </div>
-                `,
-                documents: `
+                    <div id="passwordsList" class="items-grid"></div>
+                </div>
+
+                <!-- Documents Module -->
+                <div id="documents" class="module-content">
                     <div class="module-header">
                         <h2><i class="fas fa-file-alt"></i> Documents</h2>
-                        <p>Store and organize your important documents</p>
+                        <label class="btn-primary file-upload-btn">
+                            <i class="fas fa-upload"></i> Upload Document
+                            <input type="file" id="documentUpload" multiple style="display: none;" />
+                        </label>
                     </div>
                     <div class="module-toolbar">
-                        <input type="text" placeholder="Search documents..." id="documentsSearch">
-                        <button class="btn-primary" onclick="showAddDocumentModal()">
-                            <i class="fas fa-plus"></i> Upload Document
-                        </button>
+                        <input type="text" id="documentsSearch" placeholder="Search documents..." />
+                        <select id="documentsFilter">
+                            <option value="">All Types</option>
+                            <option value="pdf">PDF</option>
+                            <option value="doc">Documents</option>
+                            <option value="image">Images</option>
+                        </select>
                     </div>
-                    <div id="documentsList" class="items-grid">
-                        <p class="text-center text-muted">No documents uploaded yet.</p>
-                    </div>
-                `,
-                creative: `
+                    <div id="documentsList" class="items-grid"></div>
+                </div>
+
+                <!-- Creative Module -->
+                <div id="creative" class="module-content">
                     <div class="module-header">
                         <h2><i class="fas fa-palette"></i> Creative</h2>
-                        <p>Express your creativity with drawings and ideas</p>
-                    </div>
-                    <div class="module-toolbar">
-                        <button class="btn-primary" onclick="showAddCreativeModal()">
+                        <button class="btn-primary" onclick="createCreativeProject()">
                             <i class="fas fa-plus"></i> New Project
                         </button>
                     </div>
-                    <div id="creativeList" class="items-grid">
-                        <p class="text-center text-muted">No creative projects yet.</p>
+                    <div class="module-toolbar">
+                        <input type="text" id="creativeSearch" placeholder="Search projects..." />
                     </div>
-                `,
-                todos: `
+                    <div id="creativeList" class="items-grid"></div>
+                </div>
+
+                <!-- Todos Module -->
+                <div id="todos" class="module-content">
                     <div class="module-header">
                         <h2><i class="fas fa-tasks"></i> To-Do</h2>
-                        <p>Organize your tasks and stay productive</p>
-                    </div>
-                    <div class="module-toolbar">
-                        <input type="text" placeholder="Search tasks..." id="todosSearch">
-                        <button class="btn-primary" onclick="showAddTodoModal()">
-                            <i class="fas fa-plus"></i> Add Task
+                        <button class="btn-primary" onclick="createTodo()">
+                            <i class="fas fa-plus"></i> New Task
                         </button>
                     </div>
-                    <div id="todosList" class="items-grid">
-                        <p class="text-center text-muted">No tasks yet. Add your first task!</p>
+                    <div class="module-toolbar">
+                        <input type="text" id="todosSearch" placeholder="Search tasks..." />
+                        <select id="todosFilter">
+                            <option value="">All Tasks</option>
+                            <option value="pending">Pending</option>
+                            <option value="completed">Completed</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
+                        <select id="todosPriority">
+                            <option value="">All Priorities</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
                     </div>
-                `
-            };
+                    <div id="todosList" class="items-grid"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modalOverlay" class="modal-overlay">
+        <div id="modalContent" class="modal-content"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged,
+            updateProfile,
+            sendPasswordResetEmail,
+            GoogleAuthProvider,
+            GithubAuthProvider,
+            signInWithPopup
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc, 
+            getDoc, 
+            updateDoc, 
+            deleteDoc, 
+            collection, 
+            query, 
+            where, 
+            getDocs,
+            orderBy,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyDh7tcdyCWbmUcWx0qKTo-AdT4QNO6ZCHc",
+          authDomain: "my-notes-app-a9568.firebaseapp.com",
+          projectId: "my-notes-app-a9568",
+          storageBucket: "my-notes-app-a9568.firebasestorage.app",
+          messagingSenderId: "5575127275",
+          appId: "1:5575127275:web:0aa341a0d811adf3b24eae",
+          measurementId: "G-DXEHTJ4FB8"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // Configure Auth providers
+        const googleProvider = new GoogleAuthProvider();
+        const githubProvider = new GithubAuthProvider();
+        
+        // Make Firebase services available globally
+        window.firebaseApp = app;
+        window.firebaseAnalytics = analytics;
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        window.firebaseProviders = {
+            google: googleProvider,
+            github: githubProvider
+        };
+        
+        // Make Firebase functions available globally
+        window.firebaseFunctions = {
+            // Auth functions
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged,
+            updateProfile,
+            sendPasswordResetEmail,
+            signInWithPopup,
             
-            return moduleTemplates[module] || '<div class="loading">Loading...</div>';
-        }
-        
-        // Main App Functions
-        function showMainApp() {
-            document.querySelector('.hero-section').style.display = 'none';
-            document.getElementById('mainApp').classList.remove('hidden');
-            updateUserInterface();
-        }
-        
-        function updateUserInterface() {
-            if (firebaseAuth && firebaseAuth.currentUser) {
-                const user = firebaseAuth.currentUser;
-                const displayName = user.displayName || user.email.split('@')[0];
-                const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-                
-                // Update user info
-                document.getElementById('userName').textContent = displayName;
-                document.getElementById('userNameLarge').textContent = displayName;
-                document.getElementById('userEmail').textContent = user.email;
-                document.getElementById('userAvatar').textContent = initials;
-                document.getElementById('userAvatarLarge').textContent = initials;
-                
-                // Update avatar with photo if available
-                if (user.photoURL) {
-                    document.getElementById('userAvatar').innerHTML = `<img src="${user.photoURL}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
-                    document.getElementById('userAvatarLarge').innerHTML = `<img src="${user.photoURL}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
-                }
-                
-                // Initialize storage manager with current user
-                if (window.storageManager) {
-                    window.storageManager.setCurrentUser({
-                        id: user.uid,
-                        email: user.email,
-                        displayName: displayName
-                    });
-                }
-            }
-        }
-        
-        function toggleUserMenu() {
-            const dropdown = document.getElementById('userDropdown');
-            dropdown.classList.toggle('hidden');
-        }
-        
-        function logoutUser() {
-            if (firebaseAuth) {
-                firebaseAuth.signOut().then(() => {
-                    showToast('Successfully signed out', 'success');
-                    // Show landing page again
-                    document.querySelector('.hero-section').style.display = 'flex';
-                    document.getElementById('mainApp').classList.add('hidden');
-                    // Reset user interface
-                    document.getElementById('userName').textContent = 'User';
-                    document.getElementById('userNameLarge').textContent = 'User';
-                    document.getElementById('userEmail').textContent = 'user@example.com';
-                    document.getElementById('userAvatar').textContent = 'U';
-                    document.getElementById('userAvatarLarge').textContent = 'U';
-                }).catch((error) => {
-                    console.error('Logout error:', error);
-                    showToast('Error signing out', 'error');
-                });
-            }
-        }
-        
-        function toggleTheme() {
-            const html = document.documentElement;
-            const currentTheme = html.getAttribute('data-theme') || 'light';
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            
-            const themeIcon = document.querySelector('.theme-toggle i');
-            if (themeIcon) {
-                themeIcon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-            }
-        }
-        
-        // Navigation
-        document.addEventListener('click', function(e) {
-            if (e.target.closest('.nav-item')) {
-                const navItem = e.target.closest('.nav-item');
-                const module = navItem.dataset.module;
-                
-                // Update active nav item
-                document.querySelectorAll('.nav-item').forEach(item => {
-                    item.classList.remove('active');
-                });
-                navItem.classList.add('active');
-                
-                // Load module dynamically
-                if (module !== 'dashboard') {
-                    loadModule(module);
-                }
-                
-                // Show selected module
-                document.querySelectorAll('.module-content').forEach(content => {
-                    content.classList.remove('active');
-                });
-                
-                let moduleElement = document.getElementById(module);
-                if (!moduleElement && module !== 'dashboard') {
-                    // Create module container if it doesn't exist
-                    moduleElement = document.createElement('div');
-                    moduleElement.id = module;
-                    moduleElement.className = 'module-content';
-                    moduleElement.innerHTML = getModuleHTML(module);
-                    document.querySelector('.app-main').appendChild(moduleElement);
-                }
-                
-                if (moduleElement) {
-                    moduleElement.classList.add('active');
-                }
-            }
-        });
-        
-        // Dashboard card navigation
-        document.addEventListener('click', function(e) {
-            if (e.target.closest('.dashboard-card')) {
-                const card = e.target.closest('.dashboard-card');
-                const module = card.dataset.module;
-                
-                if (module) {
-                    // Update active nav item
-                    document.querySelectorAll('.nav-item').forEach(item => {
-                        item.classList.remove('active');
-                    });
-                    const navItem = document.querySelector(`[data-module="${module}"]`);
-                    if (navItem) navItem.classList.add('active');
-                    
-                    // Load module dynamically
-                    loadModule(module);
-                    
-                    // Show selected module
-                    document.querySelectorAll('.module-content').forEach(content => {
-                        content.classList.remove('active');
-                    });
-                    
-                    let moduleElement = document.getElementById(module);
-                    if (!moduleElement) {
-                        // Create module container if it doesn't exist
-                        moduleElement = document.createElement('div');
-                        moduleElement.id = module;
-                        moduleElement.className = 'module-content';
-                        moduleElement.innerHTML = '<div class="loading">Loading...</div>';
-                        document.querySelector('.app-main').appendChild(moduleElement);
-                    }
-                    
-                    moduleElement.classList.add('active');
-                }
-            }
-        });
-        
-        // Load modules dynamically
-        function loadModule(moduleName) {
-            // Check if script already loaded
-            if (document.querySelector(`script[src="js/${moduleName}.js"]`)) {
-                return;
-            }
-            
-            // Load the appropriate JS file for the module
-            const script = document.createElement('script');
-            script.src = `js/${moduleName}.js`;
-            script.onload = function() {
-                console.log(`${moduleName}.js loaded successfully`);
-            };
-            script.onerror = function() {
-                console.warn(`Failed to load ${moduleName}.js`);
-            };
-            document.head.appendChild(script);
-        }
-        
-        // Placeholder functions for app features
-        function showAccountSettings() {
-            showToast('Account settings will be available soon', 'info');
-        }
-        
-        function showBilling() {
-            showToast('Billing & plans will be available soon', 'info');
-        }
-        
-        function showHelp() {
-            showToast('Help & support will be available soon', 'info');
-        }
-        
-        // Module action functions
-        function createNote() {
-            loadModule('notes');
-            setTimeout(() => {
-                if (window.notesModule) {
-                    window.notesModule.createNote();
-                } else {
-                    showToast('Notes module is loading...', 'info');
-                }
-            }, 500);
-        }
-        
-        function showAddBankingModal() {
-            loadModule('banking');
-            setTimeout(() => {
-                if (window.bankingModule) {
-                    window.bankingModule.showAddModal();
-                } else {
-                    showToast('Banking functionality will be available soon', 'info');
-                }
-            }, 500);
-        }
-        
-        function showAddPasswordModal() {
-            loadModule('passwords');
-            setTimeout(() => {
-                if (window.passwordsModule) {
-                    window.passwordsModule.showAddModal();
-                } else {
-                    showToast('Passwords functionality will be available soon', 'info');
-                }
-            }, 500);
-        }
-        
-        function showAddDocumentModal() {
-            loadModule('documents');
-            setTimeout(() => {
-                if (window.documentsModule) {
-                    window.documentsModule.showAddModal();
-                } else {
-                    showToast('Documents functionality will be available soon', 'info');
-                }
-            }, 500);
-        }
-        
-        function showAddCreativeModal() {
-            loadModule('creative');
-            setTimeout(() => {
-                if (window.creativeModule) {
-                    window.creativeModule.showAddModal();
-                } else {
-                    showToast('Creative functionality will be available soon', 'info');
-                }
-            }, 500);
-        }
-        
-        function showAddTodoModal() {
-            loadModule('todos');
-            setTimeout(() => {
-                if (window.todosModule) {
-                    window.todosModule.showAddModal();
-                } else {
-                    showToast('To-Do functionality will be available soon', 'info');
-                }
-            }, 500);
-        }
-        
-        
-        function closeModal() {
-            document.getElementById('modalOverlay').classList.remove('active');
-        }
-        
-        // Initialize theme on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            
-            const themeIcon = document.querySelector('.theme-toggle i');
-            if (themeIcon) {
-                themeIcon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-            }
-        });
+            // Firestore functions
+            doc,
+            setDoc,
+            getDoc,
+            updateDoc,
+            deleteDoc,
+            collection,
+            query,
+            where,
+            getDocs,
+            orderBy,
+            serverTimestamp
+        };
     </script>
+
+    <script src="js/crypto.js"></script>
+    <!-- Firebase-integrated scripts -->
+    <script src="js/firebase-auth.js"></script>
+    <script src="js/firebase-storage.js"></script>
+    <!-- Simple auth fallback -->
+    <script src="js/simple-auth.js"></script>
+    <!-- Legacy scripts for backward compatibility -->
+    <script src="js/storage.js"></script>
+    <script src="js/auth.js"></script>
+    <!-- Main application -->
+    <script src="js/app.js"></script>
+    <script src="js/notes.js"></script>
+    <script src="js/banking.js"></script>
+    <script src="js/passwords.js"></script>
+    <script src="js/documents.js"></script>
+    <script src="js/creative.js"></script>
+    <script src="js/todos.js"></script>
 </body>
-</html> 
+</html>
