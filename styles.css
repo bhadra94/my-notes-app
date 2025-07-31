@@ -3379,3 +3379,12 @@ body {
         justify-content: flex-end;
     }
 }
+
+/* Rotated Pen Icon */
+.app-icon i.fas.fa-pen,
+.app-header h1 i.fas.fa-pen,
+.nav-item[data-module="notes"] i.fas.fa-pen,
+.module-header h2 i.fas.fa-pen {
+    transform: rotate(45deg);
+    display: inline-block;
+}
