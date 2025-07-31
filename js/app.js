@@ -10,10 +10,26 @@ class NotesApp {
         this.setupEventListeners();
         this.setupTheme();
         
-        // The auth system will handle showing the appropriate screen
-        // Main app will be shown once user is authenticated
+        // Wait for auth manager to be available
+        this.waitForAuthManager();
         
         this.initialized = true;
+    }
+
+    waitForAuthManager() {
+        const checkAuthManager = () => {
+            if (window.firebaseAuthManager && window.firebaseAuthManager.isAuthenticated) {
+                // User is already logged in, show main app
+                this.loadDashboard();
+            } else if (window.firebaseAuthManager) {
+                // Auth manager is ready but user not logged in
+                // Auth manager will handle showing login screen
+            } else {
+                // Wait for auth manager to initialize
+                setTimeout(checkAuthManager, 100);
+            }
+        };
+        checkAuthManager();
     }
 
     setupEventListeners() {

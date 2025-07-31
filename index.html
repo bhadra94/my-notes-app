@@ -66,6 +66,11 @@
                             <div class="auth-header">
                                 <h2>Welcome Back</h2>
                                 <p>Sign in to your ballpenbox account</p>
+                                <div style="background: #f3f4f6; padding: 0.75rem; border-radius: 6px; margin: 1rem 0; font-size: 0.85rem; color: #374151;">
+                                    <strong>Demo Account for Testing:</strong><br>
+                                    Email: demo@ballpenbox.com<br>
+                                    Password: demo123
+                                </div>
                             </div>
                             
                             <form id="loginForm" class="auth-form">
@@ -741,6 +746,8 @@
     <!-- Firebase-integrated scripts -->
     <script src="js/firebase-auth.js"></script>
     <script src="js/firebase-storage.js"></script>
+    <!-- Simple auth fallback -->
+    <script src="js/simple-auth.js"></script>
     <!-- Legacy scripts for backward compatibility -->
     <script src="js/storage.js"></script>
     <script src="js/auth.js"></script>
