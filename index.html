@@ -289,36 +289,38 @@
                             </button>
                             <div class="user-dropdown hidden" id="userDropdown">
                                 <div class="user-info">
-                                    <div class="user-avatar-large">
-                                        <i class="fas fa-user"></i>
-                                    </div>
+                                    <div class="user-avatar-large" id="userAvatarLarge">U</div>
                                     <div class="user-details">
-                                        <div class="user-name-large" id="userNameLarge">John Doe</div>
-                                        <div class="user-email" id="userEmail">john@example.com</div>
+                                        <div class="user-name-large" id="userNameLarge">User</div>
+                                        <div class="user-email" id="userEmail">user@example.com</div>
+                                        <div class="two-factor-status disabled" id="twoFactorStatus">
+                                            <i class="fas fa-shield"></i>
+                                            Disabled
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="dropdown-divider"></div>
-                                <a href="#" class="dropdown-item" onclick="showAccountSettings()">
-                                    <i class="fas fa-cog"></i>
+                                <div class="dropdown-item" onclick="showAccountSettings()">
+                                    <i class="fas fa-user-cog"></i>
                                     Account Settings
-                                </a>
-                                <a href="#" class="dropdown-item" onclick="showBilling()">
+                                </div>
+                                <div class="dropdown-item" onclick="showSecuritySettings()">
+                                    <i class="fas fa-shield-alt"></i>
+                                    Security Settings
+                                </div>
+                                <div class="dropdown-item" onclick="showBilling()">
                                     <i class="fas fa-credit-card"></i>
                                     Billing & Plans
-                                </a>
-                                <a href="#" class="dropdown-item" onclick="exportAllData()">
-                                    <i class="fas fa-download"></i>
-                                    Export Data
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a href="#" class="dropdown-item" onclick="showHelp()">
+                                </div>
+                                <div class="dropdown-item" onclick="showHelp()">
                                     <i class="fas fa-question-circle"></i>
                                     Help & Support
-                                </a>
-                                <a href="#" class="dropdown-item logout" onclick="logoutUser()">
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <div class="dropdown-item logout" onclick="logoutUser()">
                                     <i class="fas fa-sign-out-alt"></i>
                                     Sign Out
-                                </a>
+                                </div>
                             </div>
                         </div>
                     </div>

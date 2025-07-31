@@ -478,6 +478,273 @@ class FirebaseAuthManager {
         }
     }
 
+    // Two-Factor Authentication
+    async setupTwoFactorAuth() {
+        try {
+            const user = this.auth.currentUser;
+            if (!user) {
+                throw new Error('No user is currently signed in');
+            }
+
+            // Generate a new secret for authenticator app
+            const secret = await this.functions.generateSecret(user);
+            
+            // Get the QR code URL for authenticator apps
+            const qrCodeUrl = await this.functions.generateQRCodeURL(secret, user.email);
+            
+            // Store the secret temporarily for verification
+            this.temp2FASecret = secret;
+            
+            this.show2FASetupModal(secret, qrCodeUrl);
+            
+        } catch (error) {
+            console.error('2FA setup error:', error);
+            this.showAuthError('Failed to setup 2FA. Please try again.');
+        }
+    }
+
+    show2FASetupModal(secret, qrCodeUrl) {
+        const modalContent = `
+            <div class="two-factor-setup">
+                <h3><i class="fas fa-shield-alt"></i> Setup Two-Factor Authentication</h3>
+                
+                <div class="setup-options">
+                    <div class="setup-option">
+                        <h4><i class="fas fa-mobile-alt"></i> SMS Verification</h4>
+                        <p>Receive codes via text message</p>
+                        <button class="btn-primary" onclick="setupSMS2FA()">
+                            <i class="fas fa-sms"></i> Setup SMS
+                        </button>
+                    </div>
+                    
+                    <div class="setup-option">
+                        <h4><i class="fas fa-qrcode"></i> Authenticator App</h4>
+                        <p>Use Google Authenticator or Authy</p>
+                        <button class="btn-primary" onclick="setupAuthenticator2FA()">
+                            <i class="fas fa-mobile-alt"></i> Setup App
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="authenticator-setup hidden" id="authenticatorSetup">
+                    <h4>Setup Authenticator App</h4>
+                    <div class="qr-code-container">
+                        <img src="${qrCodeUrl}" alt="QR Code" class="qr-code">
+                    </div>
+                    <p class="manual-code">
+                        <strong>Manual Code:</strong> <code>${secret}</code>
+                    </p>
+                    <p class="setup-instructions">
+                        1. Open your authenticator app (Google Authenticator, Authy, etc.)<br>
+                        2. Scan the QR code or enter the manual code<br>
+                        3. Enter the 6-digit code below to verify
+                    </p>
+                    <div class="verification-input">
+                        <input type="text" id="authenticatorCode" placeholder="Enter 6-digit code" maxlength="6" pattern="[0-9]{6}">
+                        <button class="btn-primary" onclick="verifyAuthenticatorCode()">
+                            <i class="fas fa-check"></i> Verify
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="sms-setup hidden" id="smsSetup">
+                    <h4>Setup SMS Verification</h4>
+                    <div class="phone-input">
+                        <input type="tel" id="phoneNumber" placeholder="+1 (555) 123-4567" pattern="[+]?[0-9\s\-\(\)]+">
+                        <button class="btn-primary" onclick="sendSMSCode()">
+                            <i class="fas fa-paper-plane"></i> Send Code
+                        </button>
+                    </div>
+                    <div class="sms-verification hidden" id="smsVerification">
+                        <input type="text" id="smsCode" placeholder="Enter 6-digit code" maxlength="6" pattern="[0-9]{6}">
+                        <button class="btn-primary" onclick="verifySMSCode()">
+                            <i class="fas fa-check"></i> Verify
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="backup-codes hidden" id="backupCodes">
+                    <h4><i class="fas fa-key"></i> Backup Codes</h4>
+                    <p>Save these codes in a secure location. You can use them to access your account if you lose your 2FA device.</p>
+                    <div class="codes-container">
+                        <div class="backup-code" id="backupCode1"></div>
+                        <div class="backup-code" id="backupCode2"></div>
+                        <div class="backup-code" id="backupCode3"></div>
+                        <div class="backup-code" id="backupCode4"></div>
+                        <div class="backup-code" id="backupCode5"></div>
+                    </div>
+                    <button class="btn-secondary" onclick="downloadBackupCodes()">
+                        <i class="fas fa-download"></i> Download Codes
+                    </button>
+                    <button class="btn-primary" onclick="confirm2FASetup()">
+                        <i class="fas fa-check"></i> Complete Setup
+                    </button>
+                </div>
+            </div>
+        `;
+
+        if (window.app && typeof window.app.showModal === 'function') {
+            window.app.showModal(modalContent);
+        } else {
+            alert('2FA setup modal would appear here');
+        }
+    }
+
+    async setupSMS2FA() {
+        try {
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            if (!phoneNumber) {
+                this.showAuthError('Please enter a valid phone number.');
+                return;
+            }
+
+            const user = this.auth.currentUser;
+            const recaptchaVerifier = new this.functions.RecaptchaVerifier('recaptcha-container', {
+                'size': 'invisible'
+            }, this.auth);
+
+            const confirmationResult = await this.functions.signInWithPhoneNumber(user, phoneNumber, recaptchaVerifier);
+            this.smsConfirmationResult = confirmationResult;
+
+            // Show SMS verification input
+            document.getElementById('smsSetup').classList.add('hidden');
+            document.getElementById('smsVerification').classList.remove('hidden');
+            
+            this.showAuthSuccess('SMS code sent! Please check your phone.');
+            
+        } catch (error) {
+            console.error('SMS 2FA setup error:', error);
+            this.showAuthError('Failed to send SMS code. Please try again.');
+        }
+    }
+
+    async setupAuthenticator2FA() {
+        document.getElementById('authenticatorSetup').classList.remove('hidden');
+        document.getElementById('smsSetup').classList.add('hidden');
+    }
+
+    async verifyAuthenticatorCode() {
+        try {
+            const code = document.getElementById('authenticatorCode').value;
+            if (!code || code.length !== 6) {
+                this.showAuthError('Please enter a valid 6-digit code.');
+                return;
+            }
+
+            // Verify the code with Firebase
+            const user = this.auth.currentUser;
+            const credential = this.functions.PhoneAuthProvider.credential(this.temp2FASecret, code);
+            await this.functions.updatePhoneNumber(user, credential);
+
+            // Generate backup codes
+            await this.generateBackupCodes();
+            
+        } catch (error) {
+            console.error('Authenticator verification error:', error);
+            this.showAuthError('Invalid code. Please try again.');
+        }
+    }
+
+    async verifySMSCode() {
+        try {
+            const code = document.getElementById('smsCode').value;
+            if (!code || code.length !== 6) {
+                this.showAuthError('Please enter a valid 6-digit code.');
+                return;
+            }
+
+            // Verify the SMS code
+            const result = await this.smsConfirmationResult.confirm(code);
+            
+            if (result.user) {
+                // Generate backup codes
+                await this.generateBackupCodes();
+            }
+            
+        } catch (error) {
+            console.error('SMS verification error:', error);
+            this.showAuthError('Invalid code. Please try again.');
+        }
+    }
+
+    async generateBackupCodes() {
+        try {
+            const codes = [];
+            for (let i = 0; i < 5; i++) {
+                codes.push(this.generateSecureCode());
+            }
+
+            // Store backup codes in Firestore
+            const user = this.auth.currentUser;
+            const userDocRef = this.functions.doc(this.db, 'users', user.uid);
+            await this.functions.updateDoc(userDocRef, {
+                backupCodes: codes,
+                twoFactorEnabled: true,
+                twoFactorMethod: this.smsConfirmationResult ? 'sms' : 'authenticator',
+                lastModified: this.functions.serverTimestamp()
+            });
+
+            // Display backup codes
+            this.displayBackupCodes(codes);
+            
+        } catch (error) {
+            console.error('Backup codes generation error:', error);
+            this.showAuthError('Failed to generate backup codes.');
+        }
+    }
+
+    generateSecureCode() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let result = '';
+        for (let i = 0; i < 8; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
+
+    displayBackupCodes(codes) {
+        document.getElementById('authenticatorSetup').classList.add('hidden');
+        document.getElementById('smsVerification').classList.add('hidden');
+        document.getElementById('backupCodes').classList.remove('hidden');
+
+        // Display codes
+        codes.forEach((code, index) => {
+            const element = document.getElementById(`backupCode${index + 1}`);
+            if (element) {
+                element.textContent = code;
+            }
+        });
+    }
+
+    async confirm2FASetup() {
+        try {
+            this.showAuthSuccess('Two-factor authentication setup complete!');
+            
+            // Close modal
+            if (window.app && typeof window.app.closeModal === 'function') {
+                window.app.closeModal();
+            }
+            
+            // Update UI to show 2FA is enabled
+            this.update2FAStatus(true);
+            
+        } catch (error) {
+            console.error('2FA setup confirmation error:', error);
+            this.showAuthError('Failed to complete 2FA setup.');
+        }
+    }
+
+    update2FAStatus(enabled) {
+        const statusElement = document.getElementById('twoFactorStatus');
+        if (statusElement) {
+            statusElement.className = `two-factor-status ${enabled ? 'enabled' : 'disabled'}`;
+            statusElement.innerHTML = `
+                <i class="fas fa-${enabled ? 'shield-alt' : 'shield'}"></i>
+                ${enabled ? 'Enabled' : 'Disabled'}
+            `;
+        }
+    }
+
     async createOrUpdateSocialUserProfile(user, provider) {
         try {
             const userDocRef = this.functions.doc(this.db, 'users', user.uid);
@@ -810,6 +1077,85 @@ class FirebaseAuthManager {
         this.showToast('Account settings will be available soon.');
     }
 
+    showSecuritySettings() {
+        const modalContent = `
+            <div class="security-settings">
+                <h3><i class="fas fa-shield-alt"></i> Security Settings</h3>
+                
+                <div class="security-section">
+                    <h3><i class="fas fa-shield-alt"></i> Two-Factor Authentication</h3>
+                    <div class="security-option">
+                        <div class="option-info">
+                            <h4>Two-Factor Authentication</h4>
+                            <p>Add an extra layer of security to your account</p>
+                        </div>
+                        <button class="btn-secondary" onclick="setupTwoFactorAuth()">
+                            <i class="fas fa-plus"></i> Setup 2FA
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="security-section">
+                    <h3><i class="fas fa-envelope"></i> Email Verification</h3>
+                    <div class="security-option">
+                        <div class="option-info">
+                            <h4>Email Verification</h4>
+                            <p>Verify your email address for enhanced security</p>
+                        </div>
+                        <button class="btn-secondary" onclick="sendEmailVerification()">
+                            <i class="fas fa-paper-plane"></i> Resend
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="security-section">
+                    <h3><i class="fas fa-key"></i> Password</h3>
+                    <div class="security-option">
+                        <div class="option-info">
+                            <h4>Change Password</h4>
+                            <p>Update your account password</p>
+                        </div>
+                        <button class="btn-secondary" onclick="showChangePassword()">
+                            <i class="fas fa-edit"></i> Change
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="security-section">
+                    <h3><i class="fas fa-download"></i> Data Export</h3>
+                    <div class="security-option">
+                        <div class="option-info">
+                            <h4>Export Data</h4>
+                            <p>Download all your data for backup</p>
+                        </div>
+                        <button class="btn-secondary" onclick="exportAllData()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="security-section">
+                    <h3><i class="fas fa-trash"></i> Account</h3>
+                    <div class="security-option">
+                        <div class="option-info">
+                            <h4>Delete Account</h4>
+                            <p>Permanently delete your account and all data</p>
+                        </div>
+                        <button class="btn-danger" onclick="showDeleteAccount()">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        if (window.app && typeof window.app.showModal === 'function') {
+            window.app.showModal(modalContent);
+        } else {
+            alert('Security settings modal would appear here');
+        }
+    }
+
     showBilling() {
         this.showToast('Billing & plans will be available soon.');
     }
@@ -844,6 +1190,7 @@ window.showPrivacy = () => window.firebaseAuthManager?.showPrivacy();
 window.showAccountSettings = () => window.firebaseAuthManager?.showAccountSettings();
 window.showBilling = () => window.firebaseAuthManager?.showBilling();
 window.showHelp = () => window.firebaseAuthManager?.showHelp();
+window.showSecuritySettings = () => window.firebaseAuthManager?.showSecuritySettings();
 
 // Email verification functions
 window.resendVerificationEmail = () => window.firebaseAuthManager?.sendEmailVerification();
@@ -859,6 +1206,17 @@ window.checkVerificationStatus = async () => {
         window.firebaseAuthManager?.showAuthError('Email not verified yet. Please check your inbox and click the verification link.');
     }
 };
+
+// Two-Factor Authentication functions
+window.setupTwoFactorAuth = () => window.firebaseAuthManager?.setupTwoFactorAuth();
+window.setupSMS2FA = () => window.firebaseAuthManager?.setupSMS2FA();
+window.setupAuthenticator2FA = () => window.firebaseAuthManager?.setupAuthenticator2FA();
+window.verifyAuthenticatorCode = () => window.firebaseAuthManager?.verifyAuthenticatorCode();
+window.verifySMSCode = () => window.firebaseAuthManager?.verifySMSCode();
+window.generateBackupCodes = () => window.firebaseAuthManager?.generateBackupCodes();
+window.downloadBackupCodes = () => window.firebaseAuthManager?.downloadBackupCodes();
+window.confirm2FASetup = () => window.firebaseAuthManager?.confirm2FASetup();
+window.update2FAStatus = (enabled) => window.firebaseAuthManager?.update2FAStatus(enabled);
 
 // Initialize Firebase auth manager when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
