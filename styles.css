@@ -7,20 +7,20 @@
     --warning-color: #fbbf24;
     --error-color: #fca5a5;
     
-    --bg-primary: #f7fbff;
-    --bg-secondary: #eef6ff;
-    --bg-tertiary: #e3f0ff;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #f1f5f9;
     --bg-overlay: rgba(0, 0, 0, 0.5);
     
-    --text-primary: #1a5490;
-    --text-secondary: #4a7ab5;
-    --text-muted: #7da3d0;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
     
-    --border-color: #d4e6ff;
+    --border-color: #e2e8f0;
     --border-radius: 12px;
-    --shadow-sm: 0 1px 3px 0 rgba(168, 216, 255, 0.2);
-    --shadow-md: 0 4px 6px -1px rgba(168, 216, 255, 0.3), 0 2px 4px -1px rgba(168, 216, 255, 0.2);
-    --shadow-lg: 0 10px 15px -3px rgba(168, 216, 255, 0.4), 0 4px 6px -2px rgba(168, 216, 255, 0.3);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 /* Dark Theme */
@@ -46,7 +46,7 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background: linear-gradient(135deg, var(--bg-primary) 0%, #f0f8ff 100%);
+    background-color: var(--bg-primary);
     color: var(--text-primary);
     line-height: 1.5;
     min-height: 100vh;
@@ -170,7 +170,7 @@ body {
     align-items: center;
     justify-content: center;
     margin: 0 auto 1.5rem;
-    backdrop-filter: blur(10px);
+
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
@@ -214,7 +214,7 @@ body {
 
 .feature-item {
     background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
+
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 16px;
     padding: 2rem;
@@ -319,15 +319,14 @@ body {
 }
 
 .auth-container {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 245, 255, 0.95) 100%);
+    background: var(--bg-primary);
     border-radius: 20px;
     padding: 3rem;
-    box-shadow: 0 25px 50px rgba(168, 216, 255, 0.3);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
     max-width: 500px;
     width: 100%;
     position: relative;
-    border: 1px solid rgba(168, 216, 255, 0.2);
-    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
 }
 
 .auth-header {
@@ -400,18 +399,18 @@ body {
     padding: 0.875rem 1rem;
     border: 2px solid var(--border-color);
     border-radius: 12px;
-    background: rgba(238, 246, 255, 0.5);
+    background: var(--bg-secondary);
     color: var(--text-primary);
     font-size: 1rem;
     transition: all 0.3s ease;
-    backdrop-filter: blur(5px);
+
 }
 
 .form-input:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(168, 216, 255, 0.3);
-    background: rgba(247, 251, 255, 0.8);
+    box-shadow: 0 0 0 3px rgba(107, 182, 255, 0.1);
+    background: var(--bg-primary);
 }
 
 .password-input-container {
@@ -601,11 +600,11 @@ body {
 
 /* Header */
 .app-header {
-    background: linear-gradient(135deg, rgba(247, 251, 255, 0.95) 0%, rgba(238, 246, 255, 0.95) 100%);
+    background: var(--bg-primary);
     border-bottom: 1px solid var(--border-color);
     padding: 1rem;
-    box-shadow: 0 2px 10px rgba(168, 216, 255, 0.2);
-    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-sm);
+
 }
 
 .header-content {
@@ -634,8 +633,8 @@ body {
 .search-container input {
     padding: 0.5rem 0.75rem 0.5rem 2.5rem;
     border: 2px solid var(--border-color);
-    background: rgba(238, 246, 255, 0.5);
-    backdrop-filter: blur(5px);
+    background: var(--bg-secondary);
+
     border-radius: var(--border-radius);
     background: var(--bg-secondary);
     color: var(--text-primary);
@@ -860,13 +859,13 @@ body {
 }
 
 .dashboard-card {
-    background: linear-gradient(135deg, rgba(238, 246, 255, 0.8) 0%, rgba(227, 240, 255, 0.8) 100%);
+    background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     padding: 1.5rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
+
 }
 
 .dashboard-card:hover {
@@ -1043,12 +1042,12 @@ body {
 }
 
 .item-card {
-    background: linear-gradient(135deg, rgba(238, 246, 255, 0.6) 0%, rgba(227, 240, 255, 0.6) 100%);
+    background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     padding: 1.5rem;
     transition: all 0.3s ease;
-    backdrop-filter: blur(5px);
+
 }
 
 .item-card:hover {
@@ -1193,11 +1192,11 @@ body {
     padding: 0.75rem;
     border: 2px solid var(--border-color);
     border-radius: var(--border-radius);
-    background: rgba(238, 246, 255, 0.5);
+    background: var(--bg-secondary);
     color: var(--text-primary);
     font-size: 1rem;
     transition: all 0.3s ease;
-    backdrop-filter: blur(5px);
+
 }
 
 .form-input:focus,
@@ -1205,8 +1204,8 @@ body {
 .form-select:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(168, 216, 255, 0.3);
-    background: rgba(247, 251, 255, 0.8);
+    box-shadow: 0 0 0 3px rgba(107, 182, 255, 0.1);
+    background: var(--bg-primary);
 }
 
 .form-textarea {
