@@ -355,14 +355,169 @@ class FirebaseAuthManager {
         this.setButtonLoading('resetBtn', true);
 
         try {
-            await this.functions.sendPasswordResetEmail(this.auth, email);
-            this.showAuthSuccess('Password reset email sent! Check your inbox.');
+            // Send password reset email with custom action code settings
+            await this.functions.sendPasswordResetEmail(this.auth, email, {
+                url: window.location.origin + '/reset-password',
+                handleCodeInApp: false
+            });
+            
+            this.showPasswordResetSuccess(email);
             document.getElementById('resetEmail').value = '';
         } catch (error) {
             console.error('Password reset error:', error);
             this.showAuthError(this.getFirebaseErrorMessage(error));
         } finally {
             this.setButtonLoading('resetBtn', false);
+        }
+    }
+
+    showPasswordResetSuccess(email) {
+        const modalContent = `
+            <div class="password-reset-success">
+                <div class="success-icon">
+                    <i class="fas fa-envelope-open"></i>
+                </div>
+                <h3>Reset Email Sent!</h3>
+                <p>We've sent a password reset link to:</p>
+                <div class="email-display">
+                    <strong>${email}</strong>
+                </div>
+                <div class="reset-instructions">
+                    <h4><i class="fas fa-info-circle"></i> What to do next:</h4>
+                    <ol>
+                        <li>Check your email inbox</li>
+                        <li>Click the "Reset Password" link</li>
+                        <li>Create a new strong password</li>
+                        <li>Sign in with your new password</li>
+                    </ol>
+                </div>
+                <div class="reset-actions">
+                    <button class="btn-secondary" onclick="resendResetEmail('${email}')">
+                        <i class="fas fa-paper-plane"></i> Resend Email
+                    </button>
+                    <button class="btn-primary" onclick="closeResetModal()">
+                        <i class="fas fa-check"></i> Got it
+                    </button>
+                </div>
+                <div class="reset-tips">
+                    <p><i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Check your spam folder if you don't see the email within 5 minutes.</p>
+                </div>
+            </div>
+        `;
+
+        if (window.app && typeof window.app.showModal === 'function') {
+            window.app.showModal(modalContent);
+        } else {
+            alert(`Password reset email sent to ${email}. Please check your inbox.`);
+        }
+    }
+
+    async resendResetEmail(email) {
+        try {
+            this.showAuthSuccess('Sending reset email...');
+            
+            await this.functions.sendPasswordResetEmail(this.auth, email, {
+                url: window.location.origin + '/reset-password',
+                handleCodeInApp: false
+            });
+            
+            this.showAuthSuccess('Reset email sent again! Please check your inbox.');
+        } catch (error) {
+            console.error('Resend reset email error:', error);
+            this.showAuthError('Failed to resend email. Please try again.');
+        }
+    }
+
+    // Enhanced Password Reset with Custom Templates
+    async sendCustomPasswordResetEmail(email) {
+        try {
+            // Create custom action code settings
+            const actionCodeSettings = {
+                url: window.location.origin + '/reset-password',
+                handleCodeInApp: false,
+                iOS: {
+                    bundleId: 'com.ballpenbox.app'
+                },
+                android: {
+                    packageName: 'com.ballpenbox.app',
+                    installApp: true,
+                    minimumVersion: '12'
+                },
+                dynamicLinkDomain: 'ballpenbox.page.link'
+            };
+
+            await this.functions.sendPasswordResetEmail(this.auth, email, actionCodeSettings);
+            
+            // Log the reset attempt for security
+            await this.logSecurityEvent('password_reset_requested', {
+                email: email,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                ipAddress: await this.getClientIP()
+            });
+            
+            return true;
+        } catch (error) {
+            console.error('Custom password reset error:', error);
+            throw error;
+        }
+    }
+
+    async logSecurityEvent(eventType, eventData) {
+        try {
+            const user = this.auth.currentUser;
+            const userId = user ? user.uid : 'anonymous';
+            
+            const securityLogRef = this.functions.doc(this.db, 'securityLogs', userId);
+            await this.functions.setDoc(securityLogRef, {
+                events: this.functions.arrayUnion({
+                    type: eventType,
+                    data: eventData,
+                    timestamp: this.functions.serverTimestamp()
+                })
+            }, { merge: true });
+        } catch (error) {
+            console.error('Security logging error:', error);
+        }
+    }
+
+    async getClientIP() {
+        try {
+            const response = await fetch('https://api.ipify.org?format=json');
+            const data = await response.json();
+            return data.ip;
+        } catch (error) {
+            console.error('IP detection error:', error);
+            return 'unknown';
+        }
+    }
+
+    // Password Reset Verification
+    async verifyPasswordResetCode(actionCode) {
+        try {
+            const email = await this.functions.verifyPasswordResetCode(this.auth, actionCode);
+            return email;
+        } catch (error) {
+            console.error('Password reset code verification error:', error);
+            throw error;
+        }
+    }
+
+    async confirmPasswordReset(actionCode, newPassword) {
+        try {
+            await this.functions.confirmPasswordReset(this.auth, actionCode, newPassword);
+            
+            // Log successful password reset
+            await this.logSecurityEvent('password_reset_completed', {
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                ipAddress: await this.getClientIP()
+            });
+            
+            return true;
+        } catch (error) {
+            console.error('Password reset confirmation error:', error);
+            throw error;
         }
     }
 
@@ -1217,6 +1372,24 @@ window.generateBackupCodes = () => window.firebaseAuthManager?.generateBackupCod
 window.downloadBackupCodes = () => window.firebaseAuthManager?.downloadBackupCodes();
 window.confirm2FASetup = () => window.firebaseAuthManager?.confirm2FASetup();
 window.update2FAStatus = (enabled) => window.firebaseAuthManager?.update2FAStatus(enabled);
+
+// Password Reset functions
+window.sendCustomPasswordResetEmail = (email) => window.firebaseAuthManager?.sendCustomPasswordResetEmail(email);
+window.verifyPasswordResetCode = (actionCode) => window.firebaseAuthManager?.verifyPasswordResetCode(actionCode);
+window.confirmPasswordReset = (actionCode, newPassword) => window.firebaseAuthManager?.confirmPasswordReset(actionCode, newPassword);
+window.showPasswordResetSuccess = (email) => window.firebaseAuthManager?.showPasswordResetSuccess(email);
+window.resendResetEmail = (email) => window.firebaseAuthManager?.resendResetEmail(email);
+window.closeResetModal = () => {
+    if (window.app && typeof window.app.closeModal === 'function') {
+        window.app.closeModal();
+    }
+};
+
+// Password Strength Validation
+window.validatePasswordStrength = (password) => window.firebaseAuthManager?.validatePasswordStrength(password);
+window.isCommonPassword = (password) => window.firebaseAuthManager?.isCommonPassword(password);
+window.showPasswordStrengthIndicator = (password) => window.firebaseAuthManager?.showPasswordStrengthIndicator(password);
+window.getPasswordRequirements = (checks) => window.firebaseAuthManager?.getPasswordRequirements(checks);
 
 // Initialize Firebase auth manager when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
