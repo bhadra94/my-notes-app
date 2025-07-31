@@ -634,17 +634,102 @@
                             <div class="documents-content" id="documentsContent">
                                 <div class="documents-empty-state" id="documentsEmptyState">
                                     <div class="file-upload-area" onclick="document.getElementById('documentUpload').click()">
-                                        <i class="fas fa-cloud-upload-alt fa-4x"></i>
+                                        <div class="upload-icon-container">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            <div class="upload-pulse"></div>
+                                        </div>
                                         <h3>No Documents Yet</h3>
                                         <p>Upload your first document or drag & drop files here</p>
-                                        <button class="btn-primary">
-                                            <i class="fas fa-upload"></i> Upload Documents
+                                        <button class="btn-primary modern-btn">
+                                            <i class="fas fa-upload"></i>
+                                            <span>Upload Documents</span>
                                         </button>
                                     </div>
                                 </div>
                                 
                                 <div class="documents-grid hidden" id="documentsGrid"></div>
                                 <div class="documents-list hidden" id="documentsList"></div>
+                            </div>
+                            
+                            <!-- Status Bar -->
+                            <div class="documents-status-bar" id="documentsStatusBar">
+                                <div class="status-left">
+                                    <span class="status-info" id="statusInfo">Ready</span>
+                                </div>
+                                <div class="status-center">
+                                    <div class="selection-info hidden" id="selectionInfo">
+                                        <span id="selectionCount">0</span> items selected
+                                        <div class="selection-actions">
+                                            <button class="status-action" onclick="documentsModule.downloadSelected()" title="Download Selected">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                            <button class="status-action" onclick="documentsModule.deleteSelected()" title="Delete Selected">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            <button class="status-action" onclick="documentsModule.clearSelection()" title="Clear Selection">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="status-right">
+                                    <div class="view-toggle">
+                                        <button class="view-btn active" data-view="grid" onclick="documentsModule.setViewMode('grid')" title="Grid View">
+                                            <i class="fas fa-th"></i>
+                                        </button>
+                                        <button class="view-btn" data-view="list" onclick="documentsModule.setViewMode('list')" title="List View">
+                                            <i class="fas fa-list"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Context Menu -->
+                        <div class="context-menu hidden" id="contextMenu">
+                            <div class="context-menu-item" data-action="open">
+                                <i class="fas fa-eye"></i>
+                                <span>Open</span>
+                            </div>
+                            <div class="context-menu-item" data-action="rename">
+                                <i class="fas fa-edit"></i>
+                                <span>Rename</span>
+                            </div>
+                            <div class="context-menu-item" data-action="download">
+                                <i class="fas fa-download"></i>
+                                <span>Download</span>
+                            </div>
+                            <div class="context-menu-separator"></div>
+                            <div class="context-menu-item" data-action="move">
+                                <i class="fas fa-folder-open"></i>
+                                <span>Move to...</span>
+                            </div>
+                            <div class="context-menu-item" data-action="copy">
+                                <i class="fas fa-copy"></i>
+                                <span>Duplicate</span>
+                            </div>
+                            <div class="context-menu-separator"></div>
+                            <div class="context-menu-item danger" data-action="delete">
+                                <i class="fas fa-trash"></i>
+                                <span>Delete</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Floating Action Button -->
+                        <div class="fab-container" id="fabContainer">
+                            <button class="fab main-fab" onclick="documentsModule.toggleFabMenu()">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <div class="fab-menu hidden" id="fabMenu">
+                                <button class="fab mini-fab" onclick="document.getElementById('documentUpload').click()" title="Upload Files">
+                                    <i class="fas fa-upload"></i>
+                                </button>
+                                <button class="fab mini-fab" onclick="documentsModule.createFolder()" title="New Folder">
+                                    <i class="fas fa-folder-plus"></i>
+                                </button>
+                                <button class="fab mini-fab" onclick="documentsModule.pasteFromClipboard()" title="Paste">
+                                    <i class="fas fa-paste"></i>
+                                </button>
                             </div>
                         </div>
                     </div>

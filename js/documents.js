@@ -104,6 +104,15 @@ class DocumentsModule {
                 this.handleKeyboardShortcuts(e);
             }
         });
+        
+        // Context menu
+        this.setupContextMenu();
+        
+        // Click outside to hide menus
+        document.addEventListener('click', (e) => {
+            this.hideContextMenu();
+            this.hideFabMenu();
+        });
     }
 
     setupDragAndDrop() {
@@ -1095,7 +1104,288 @@ class DocumentsModule {
         
         return date.toLocaleDateString();
     }
-}
+
+    // ===== MODERN UI METHODS =====
+    
+    setupContextMenu() {
+        // Prevent default context menu on documents
+        document.addEventListener('contextmenu', (e) => {
+            const documentCard = e.target.closest('.document-card, .document-list-item');
+            const folderItem = e.target.closest('.folder-item');
+            
+            if (documentCard || folderItem) {
+                e.preventDefault();
+                this.showContextMenu(e, documentCard || folderItem);
+            }
+        });
+        
+        // Context menu item clicks
+        document.addEventListener('click', (e) => {
+            const menuItem = e.target.closest('.context-menu-item');
+            if (menuItem) {
+                e.stopPropagation();
+                this.handleContextMenuAction(menuItem.dataset.action);
+            }
+        });
+    }
+    
+    showContextMenu(event, target) {
+        const contextMenu = document.getElementById('contextMenu');
+        if (!contextMenu) return;
+        
+        this.contextTarget = target;
+        
+        // Update menu items based on target type
+        this.updateContextMenuItems(target);
+        
+        // Position and show menu
+        contextMenu.style.left = event.clientX + 'px';
+        contextMenu.style.top = event.clientY + 'px';
+        contextMenu.classList.remove('hidden');
+        
+        // Adjust position if menu goes off screen
+        const rect = contextMenu.getBoundingClientRect();
+        if (rect.right > window.innerWidth) {
+            contextMenu.style.left = (event.clientX - rect.width) + 'px';
+        }
+        if (rect.bottom > window.innerHeight) {
+            contextMenu.style.top = (event.clientY - rect.height) + 'px';
+        }
+    }
+    
+    hideContextMenu() {
+        const contextMenu = document.getElementById('contextMenu');
+        if (contextMenu) {
+            contextMenu.classList.add('hidden');
+            this.contextTarget = null;
+        }
+    }
+    
+    updateContextMenuItems(target) {
+        const isFolder = target.classList.contains('folder-item');
+        const contextMenu = document.getElementById('contextMenu');
+        
+        // Show/hide items based on target type
+        const openItem = contextMenu.querySelector('[data-action="open"]');
+        const moveItem = contextMenu.querySelector('[data-action="move"]');
+        const downloadItem = contextMenu.querySelector('[data-action="download"]');
+        
+        if (isFolder) {
+            if (openItem) openItem.style.display = 'none';
+            if (downloadItem) downloadItem.style.display = 'none';
+            if (moveItem) moveItem.style.display = 'none';
+        } else {
+            if (openItem) openItem.style.display = 'flex';
+            if (downloadItem) downloadItem.style.display = 'flex';
+            if (moveItem) moveItem.style.display = 'flex';
+        }
+    }
+    
+    async handleContextMenuAction(action) {
+        if (!this.contextTarget) return;
+        
+        const isFolder = this.contextTarget.classList.contains('folder-item');
+        const id = this.contextTarget.dataset.id || this.contextTarget.dataset.folderId;
+        
+        this.hideContextMenu();
+        
+        switch (action) {
+            case 'open':
+                if (!isFolder) {
+                    await this.previewDocument(null, id);
+                }
+                break;
+            case 'rename':
+                if (isFolder) {
+                    await this.renameFolder(null, id);
+                } else {
+                    await this.editDocument(null, id);
+                }
+                break;
+            case 'download':
+                if (!isFolder) {
+                    await this.downloadDocument(null, id);
+                }
+                break;
+            case 'move':
+                if (!isFolder) {
+                    await this.showMoveDialog(id);
+                }
+                break;
+            case 'copy':
+                if (!isFolder) {
+                    await this.duplicateDocument(id);
+                } else {
+                    // TODO: Implement folder duplication
+                }
+                break;
+            case 'delete':
+                if (isFolder) {
+                    await this.deleteFolder(null, id);
+                } else {
+                    await this.deleteDocument(null, id);
+                }
+                break;
+        }
+    }
+    
+    // Status Bar Management
+    updateStatusBar() {
+        const statusInfo = document.getElementById('statusInfo');
+        const selectionInfo = document.getElementById('selectionInfo');
+        const selectionCount = document.getElementById('selectionCount');
+        
+        if (this.selectedItems.size > 0) {
+            if (selectionInfo) selectionInfo.classList.remove('hidden');
+            if (selectionCount) selectionCount.textContent = this.selectedItems.size;
+            if (statusInfo) statusInfo.textContent = `${this.selectedItems.size} item${this.selectedItems.size > 1 ? 's' : ''} selected`;
+        } else {
+            if (selectionInfo) selectionInfo.classList.add('hidden');
+            if (statusInfo) {
+                const count = this.getDocumentCountInFolder(this.currentFolder);
+                statusInfo.textContent = `${count} item${count !== 1 ? 's' : ''}`;
+            }
+        }
+    }
+    
+    setViewMode(mode) {
+        this.viewMode = mode;
+        
+        // Update view toggle buttons
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.view === mode);
+        });
+        
+        // Update view mode selector in toolbar if it exists
+        const viewModeSelect = document.getElementById('documentsViewMode');
+        if (viewModeSelect) {
+            viewModeSelect.value = mode;
+        }
+        
+        this.renderCurrentFolder();
+    }
+    
+    // Floating Action Button
+    toggleFabMenu() {
+        const fabMenu = document.getElementById('fabMenu');
+        const mainFab = document.querySelector('.main-fab i');
+        
+        if (fabMenu) {
+            const isHidden = fabMenu.classList.contains('hidden');
+            fabMenu.classList.toggle('hidden', !isHidden);
+            
+            // Animate main FAB icon
+            if (mainFab) {
+                mainFab.style.transform = isHidden ? 'rotate(45deg)' : 'rotate(0deg)';
+            }
+        }
+    }
+    
+    hideFabMenu() {
+        const fabMenu = document.getElementById('fabMenu');
+        const mainFab = document.querySelector('.main-fab i');
+        
+        if (fabMenu && !fabMenu.classList.contains('hidden')) {
+            fabMenu.classList.add('hidden');
+            if (mainFab) {
+                mainFab.style.transform = 'rotate(0deg)';
+            }
+        }
+    }
+    
+    // Enhanced Selection Methods
+    clearSelection() {
+        this.selectedItems.clear();
+        this.updateSelectionUI();
+        this.updateStatusBar();
+    }
+    
+    async downloadSelected() {
+        if (this.selectedItems.size === 0) return;
+        
+        try {
+            if (this.selectedItems.size === 1) {
+                const id = Array.from(this.selectedItems)[0];
+                await this.downloadDocument(null, id);
+            } else {
+                // Create ZIP for multiple files
+                await this.downloadMultipleAsZip();
+            }
+        } catch (error) {
+            console.error('Error downloading selected files:', error);
+            app.showToast('Error downloading files', 'error');
+        }
+    }
+    
+    async downloadMultipleAsZip() {
+        // This would require a ZIP library like JSZip
+        app.showToast('Multiple file download will be available soon', 'info');
+    }
+    
+    async showMoveDialog(documentId) {
+        const document = await storageManager.getItem('documents', documentId);
+        if (!document) return;
+        
+        const folderOptions = this.generateFolderOptions(document.folderId);
+        
+        const dialogHtml = `
+            <div class="modal-header">
+                <h3>
+                    <i class="fas fa-folder-open"></i>
+                    Move Document
+                </h3>
+                <button class="modal-close" onclick="app.closeModal()">&times;</button>
+            </div>
+            <div class="move-dialog">
+                <p>Move "<strong>${document.name}</strong>" to:</p>
+                <select id="moveToFolder" class="form-select">
+                    ${folderOptions}
+                </select>
+                <div class="form-actions">
+                    <button class="btn-secondary" onclick="app.closeModal()">Cancel</button>
+                    <button class="btn-primary" onclick="documentsModule.executeMove('${documentId}')">
+                        <i class="fas fa-folder-open"></i> Move
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        app.showModal(dialogHtml);
+    }
+    
+    async executeMove(documentId) {
+        const folderId = document.getElementById('moveToFolder')?.value;
+        if (!folderId) return;
+        
+        await this.moveDocumentToFolder(documentId, folderId);
+        app.closeModal();
+    }
+    
+    async pasteFromClipboard() {
+        try {
+            const clipboardItems = await navigator.clipboard.read();
+            const files = [];
+            
+            for (const item of clipboardItems) {
+                for (const type of item.types) {
+                    if (type.startsWith('image/')) {
+                        const blob = await item.getType(type);
+                        const file = new File([blob], `clipboard-image-${Date.now()}.png`, { type });
+                        files.push(file);
+                    }
+                }
+            }
+            
+            if (files.length > 0) {
+                await this.handleFileUpload(files);
+            } else {
+                app.showToast('No files found in clipboard', 'info');
+            }
+        } catch (error) {
+            console.error('Error pasting from clipboard:', error);
+            app.showToast('Unable to access clipboard', 'error');
+        }
+    }
 
     // ===== UI INTERACTION METHODS =====
     
@@ -1136,11 +1426,13 @@ class DocumentsModule {
             item.classList.toggle('selected', isSelected);
             if (checkbox) checkbox.checked = isSelected;
         });
+        
+        // Update status bar
+        this.updateStatusBar();
     }
     
     changeViewMode(mode) {
-        this.viewMode = mode;
-        this.renderCurrentFolder();
+        this.setViewMode(mode);
     }
     
     sortDocuments(sortBy) {
@@ -1215,50 +1507,115 @@ class DocumentsModule {
         } catch (error) {
             console.error('Error deleting documents:', error);
             app.showToast('Error deleting documents', 'error');
+        }
+    }
+    
+    async duplicateDocument(id) {
+        try {
+            const document = await storageManager.getItem('documents', id);
+            if (document) {
+                const duplicatedDocument = {
+                    name: this.getUniqueFileName(document.name),
+                    size: document.size,
+                    type: document.type,
+                    data: document.data,
+                    description: document.description || '',
+                    folderId: document.folderId
+                };
+                
+                await storageManager.saveItem('documents', duplicatedDocument);
+                app.showToast('Document duplicated successfully', 'success');
+                await this.loadDocuments();
+            }
+        } catch (error) {
+            console.error('Error duplicating document:', error);
+            app.showToast('Error duplicating document', 'error');
+        }
+    }
+    
+    getUniqueFileName(originalName) {
+        const extension = originalName.split('.').pop();
+        const nameWithoutExt = originalName.substring(0, originalName.lastIndexOf('.'));
+        
+        let counter = 1;
+        let newName = `${nameWithoutExt} (Copy)${extension ? '.' + extension : ''}`;
+        
+        // Check if name exists in current documents
+        while (this.allDocuments.some(doc => doc.name === newName)) {
+            counter++;
+            newName = `${nameWithoutExt} (Copy ${counter})${extension ? '.' + extension : ''}`;
+        }
+        
+        return newName;
     }
 }
 
 // Initialize documents module
 window.documentsModule = new DocumentsModule();
 
-// Additional CSS for documents module with folder support
+// Modern CSS for cutting-edge file manager interface
 const documentsStyles = `
 /* Documents Manager Container */
 .documents-manager-container {
     display: flex;
     height: calc(100vh - 200px);
     min-height: 600px;
-    background: var(--bg-primary);
-    border-radius: var(--border-radius);
+    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: var(--shadow-lg);
+    box-shadow: 
+        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    backdrop-filter: blur(10px);
+    position: relative;
 }
 
 /* Documents Sidebar */
 .documents-sidebar {
     width: 280px;
     min-width: 250px;
-    background: var(--bg-secondary);
-    border-right: 1px solid var(--border-color);
+    background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+    border-right: 2px solid rgba(255, 255, 255, 0.1);
     display: flex;
     flex-direction: column;
+    backdrop-filter: blur(20px);
+    position: relative;
+}
+
+.documents-sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(107, 182, 255, 0.05) 0%, rgba(168, 216, 255, 0.02) 100%);
+    pointer-events: none;
 }
 
 .documents-sidebar-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem;
-    border-bottom: 1px solid var(--border-color);
-    background: var(--bg-tertiary);
+    padding: 1.5rem 1rem;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(135deg, rgba(107, 182, 255, 0.1) 0%, rgba(168, 216, 255, 0.05) 100%);
+    backdrop-filter: blur(10px);
+    position: relative;
+    z-index: 1;
 }
 
 .documents-sidebar-header h2 {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .sidebar-actions {
@@ -1266,19 +1623,79 @@ const documentsStyles = `
     gap: 0.5rem;
 }
 
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+    color: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(107, 182, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-icon::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-icon:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(107, 182, 255, 0.4);
+}
+
+.btn-icon:hover::before {
+    left: 100%;
+}
+
+.btn-icon:active {
+    transform: scale(0.95);
+}
+
 .documents-sidebar-search {
     padding: 1rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+    position: relative;
+    z-index: 1;
 }
 
 .documents-sidebar-search input {
     width: 100%;
-    padding: 0.5rem;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    background: var(--bg-primary);
+    padding: 0.75rem 1rem;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
     color: var(--text-primary);
     font-size: 0.9rem;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+}
+
+.documents-sidebar-search input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+.documents-sidebar-search input:focus {
+    border-color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 
+        0 0 0 4px rgba(107, 182, 255, 0.1),
+        0 4px 12px rgba(107, 182, 255, 0.15);
+    transform: translateY(-1px);
 }
 
 .documents-sidebar-controls {
@@ -1729,18 +2146,312 @@ const documentsStyles = `
     color: var(--text-muted);
 }
 
+/* Status Bar */
+.documents-status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+    border-top: 2px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    position: relative;
+    z-index: 2;
+}
+
+.status-info {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.selection-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.selection-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.status-action {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: rgba(107, 182, 255, 0.1);
+    color: var(--primary-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.status-action:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: scale(1.05);
+}
+
+.view-toggle {
+    display: flex;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 4px;
+    backdrop-filter: blur(10px);
+}
+
+.view-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.view-btn.active {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 2px 8px rgba(107, 182, 255, 0.3);
+}
+
+/* Context Menu */
+.context-menu {
+    position: fixed;
+    z-index: 10000;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 12px;
+    padding: 8px;
+    box-shadow: 
+        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    min-width: 180px;
+    animation: contextMenuShow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes contextMenuShow {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.context-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.context-menu-item:hover {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+    color: white;
+    transform: translateX(4px);
+}
+
+.context-menu-item.danger:hover {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.context-menu-item i {
+    width: 16px;
+    text-align: center;
+}
+
+.context-menu-separator {
+    height: 1px;
+    background: rgba(0, 0, 0, 0.1);
+    margin: 4px 8px;
+}
+
+/* Floating Action Button */
+.fab-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+}
+
+.fab {
+    width: 56px;
+    height: 56px;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.main-fab {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.main-fab::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.6s ease;
+}
+
+.main-fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 32px rgba(107, 182, 255, 0.4);
+}
+
+.main-fab:hover::before {
+    width: 100px;
+    height: 100px;
+}
+
+.main-fab i {
+    transition: transform 0.3s ease;
+}
+
+.fab-menu {
+    position: absolute;
+    bottom: 70px;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    animation: fabMenuShow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fab-menu.hidden {
+    display: none;
+}
+
+@keyframes fabMenuShow {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mini-fab {
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--primary-color);
+    backdrop-filter: blur(10px);
+    font-size: 1rem;
+    position: relative;
+}
+
+.mini-fab:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Enhanced Upload Area */
+.upload-icon-container {
+    position: relative;
+    display: inline-block;
+}
+
+.upload-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 100px;
+    border: 2px solid var(--primary-color);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+    opacity: 0.3;
+}
+
+@keyframes pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0.3;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0.1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0.3;
+    }
+}
+
+.modern-btn {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 12px rgba(107, 182, 255, 0.3);
+}
+
+.modern-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(107, 182, 255, 0.4);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .documents-manager-container {
         flex-direction: column;
         height: calc(100vh - 120px);
+        border-radius: 12px;
     }
     
     .documents-sidebar {
         width: 100%;
         max-height: 40%;
         border-right: none;
-        border-bottom: 1px solid var(--border-color);
+        border-bottom: 2px solid rgba(255, 255, 255, 0.08);
     }
     
     .documents-main {
@@ -1756,18 +2467,13 @@ const documentsStyles = `
         padding: 0.75rem;
     }
     
-    .file-meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.25rem;
+    .fab-container {
+        bottom: 16px;
+        right: 16px;
     }
     
-    .toolbar-right {
-        gap: 0.25rem;
-    }
-    
-    .file-upload-area {
-        padding: 2rem 1rem;
+    .context-menu {
+        min-width: 160px;
     }
 }
 
