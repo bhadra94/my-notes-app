@@ -435,21 +435,97 @@
 
                 <!-- Notes Module -->
                 <div id="notes" class="module-content">
-                    <div class="module-header">
-                        <h2><i class="fas fa-pen"></i> Notes</h2>
-                        <button class="btn-primary" onclick="createNote()">
-                            <i class="fas fa-plus"></i> New Note
-                        </button>
+                    <div class="notes-app-container">
+                        <!-- Left Sidebar - Notes Navigator -->
+                        <div class="notes-sidebar">
+                            <div class="notes-sidebar-header">
+                                <h2><i class="fas fa-pen"></i> Notes</h2>
+                                <button class="btn-icon" onclick="notesModule.createNote()" title="New Note">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="notes-sidebar-search">
+                                <input type="text" id="notesSearch" placeholder="Search notes..." />
+                            </div>
+                            
+                            <div class="notes-sidebar-controls">
+                                <select id="notesSortBy">
+                                    <option value="modified">Recent</option>
+                                    <option value="created">Date Created</option>
+                                    <option value="title">Title</option>
+                                </select>
+                                <span class="notes-count" id="notesCount">0 notes</span>
+                            </div>
+                            
+                            <div class="notes-list" id="notesList"></div>
+                        </div>
+                        
+                        <!-- Main Content Area -->
+                        <div class="notes-main">
+                            <!-- Top Toolbar -->
+                            <div class="notes-toolbar" id="notesToolbar">
+                                <div class="toolbar-left">
+                                    <button class="toolbar-btn" onclick="notesModule.formatText('bold')" title="Bold">
+                                        <i class="fas fa-bold"></i>
+                                    </button>
+                                    <button class="toolbar-btn" onclick="notesModule.formatText('italic')" title="Italic">
+                                        <i class="fas fa-italic"></i>
+                                    </button>
+                                    <button class="toolbar-btn" onclick="notesModule.formatText('underline')" title="Underline">
+                                        <i class="fas fa-underline"></i>
+                                    </button>
+                                    <div class="toolbar-separator"></div>
+                                    <button class="toolbar-btn" onclick="notesModule.formatText('insertUnorderedList')" title="Bullet List">
+                                        <i class="fas fa-list-ul"></i>
+                                    </button>
+                                    <button class="toolbar-btn" onclick="notesModule.formatText('insertOrderedList')" title="Numbered List">
+                                        <i class="fas fa-list-ol"></i>
+                                    </button>
+                                    <button class="toolbar-btn" onclick="notesModule.insertLink()" title="Link">
+                                        <i class="fas fa-link"></i>
+                                    </button>
+                                </div>
+                                <div class="toolbar-right">
+                                    <button class="toolbar-btn" onclick="notesModule.shareNote()" title="Share">
+                                        <i class="fas fa-share"></i>
+                                    </button>
+                                    <button class="toolbar-btn" onclick="notesModule.exportCurrentNote()" title="Export">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    <button class="toolbar-btn" onclick="notesModule.deleteCurrentNote()" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Note Editor Area -->
+                            <div class="notes-editor-container" id="notesEditorContainer">
+                                <div class="notes-empty-state" id="notesEmptyState">
+                                    <i class="fas fa-sticky-note fa-4x"></i>
+                                    <h3>Select a note to view</h3>
+                                    <p>Choose a note from the sidebar or create a new one</p>
+                                    <button class="btn-primary" onclick="notesModule.createNote()">
+                                        <i class="fas fa-plus"></i> Create Your First Note
+                                    </button>
+                                </div>
+                                
+                                <div class="notes-editor hidden" id="notesEditor">
+                                    <div class="note-title-container">
+                                        <input type="text" id="noteTitle" class="note-title-input" placeholder="Untitled Note..." />
+                                    </div>
+                                    
+                                    <div class="note-tags-container">
+                                        <input type="text" id="noteTags" class="note-tags-input" placeholder="Add tags (comma-separated)..." />
+                                    </div>
+                                    
+                                    <div class="note-content-container">
+                                        <div id="noteContent" class="note-content-editor" contenteditable="true" placeholder="Start typing your note..."></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="module-toolbar">
-                        <input type="text" id="notesSearch" placeholder="Search notes..." />
-                        <select id="notesSortBy">
-                            <option value="modified">Modified Date</option>
-                            <option value="created">Created Date</option>
-                            <option value="title">Title</option>
-                        </select>
-                    </div>
-                    <div id="notesList" class="items-grid"></div>
                 </div>
 
                 <!-- Banking Module -->
