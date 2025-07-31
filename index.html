@@ -565,23 +565,89 @@
 
                 <!-- Documents Module -->
                 <div id="documents" class="module-content">
-                    <div class="module-header">
-                        <h2><i class="fas fa-file-alt"></i> Documents</h2>
-                        <label class="btn-primary file-upload-btn">
-                            <i class="fas fa-upload"></i> Upload Document
-                            <input type="file" id="documentUpload" multiple style="display: none;" />
-                        </label>
+                    <div class="documents-manager-container">
+                        <!-- Left Sidebar - Folder Navigator -->
+                        <div class="documents-sidebar">
+                            <div class="documents-sidebar-header">
+                                <h2><i class="fas fa-file-alt"></i> Documents</h2>
+                                <div class="sidebar-actions">
+                                    <button class="btn-icon" onclick="documentsModule.createFolder()" title="New Folder">
+                                        <i class="fas fa-folder-plus"></i>
+                                    </button>
+                                    <label class="btn-icon" title="Upload Files">
+                                        <i class="fas fa-upload"></i>
+                                        <input type="file" id="documentUpload" multiple style="display: none;" />
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="documents-sidebar-search">
+                                <input type="text" id="documentsSearch" placeholder="Search documents..." />
+                            </div>
+                            
+                            <div class="documents-sidebar-controls">
+                                <select id="documentsFilter">
+                                    <option value="">All Types</option>
+                                    <option value="pdf">PDF</option>
+                                    <option value="doc">Documents</option>
+                                    <option value="image">Images</option>
+                                    <option value="spreadsheet">Spreadsheets</option>
+                                </select>
+                                <span class="documents-count" id="documentsCount">0 items</span>
+                            </div>
+                            
+                            <!-- Folder Tree -->
+                            <div class="folder-tree" id="folderTree">
+                                <div class="folder-item root-folder selected" data-folder-id="root" onclick="documentsModule.selectFolder('root')">
+                                    <div class="folder-content">
+                                        <i class="fas fa-home"></i>
+                                        <span>All Documents</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Main Content Area -->
+                        <div class="documents-main">
+                            <!-- Top Toolbar -->
+                            <div class="documents-toolbar" id="documentsToolbar">
+                                <div class="toolbar-left">
+                                    <div class="breadcrumb" id="documentsBreadcrumb">
+                                        <span class="breadcrumb-item active">All Documents</span>
+                                    </div>
+                                </div>
+                                <div class="toolbar-right">
+                                    <select id="documentsViewMode" onchange="documentsModule.changeViewMode(this.value)">
+                                        <option value="grid">Grid View</option>
+                                        <option value="list">List View</option>
+                                    </select>
+                                    <select id="documentsSortBy" onchange="documentsModule.sortDocuments(this.value)">
+                                        <option value="name">Name</option>
+                                        <option value="date">Date Modified</option>
+                                        <option value="size">Size</option>
+                                        <option value="type">Type</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Documents Grid/List -->
+                            <div class="documents-content" id="documentsContent">
+                                <div class="documents-empty-state" id="documentsEmptyState">
+                                    <div class="file-upload-area" onclick="document.getElementById('documentUpload').click()">
+                                        <i class="fas fa-cloud-upload-alt fa-4x"></i>
+                                        <h3>No Documents Yet</h3>
+                                        <p>Upload your first document or drag & drop files here</p>
+                                        <button class="btn-primary">
+                                            <i class="fas fa-upload"></i> Upload Documents
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="documents-grid hidden" id="documentsGrid"></div>
+                                <div class="documents-list hidden" id="documentsList"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="module-toolbar">
-                        <input type="text" id="documentsSearch" placeholder="Search documents..." />
-                        <select id="documentsFilter">
-                            <option value="">All Types</option>
-                            <option value="pdf">PDF</option>
-                            <option value="doc">Documents</option>
-                            <option value="image">Images</option>
-                        </select>
-                    </div>
-                    <div id="documentsList" class="items-grid"></div>
                 </div>
 
                 <!-- Creative Module -->
