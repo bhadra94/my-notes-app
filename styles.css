@@ -3380,19 +3380,15 @@ body {
     }
 }
 
-/* Rotated Pen Icon */
+/* Pen Icon - Keep all pen icons consistent (no rotation) */
 .app-icon i.fas.fa-pen,
 .app-header h1 i.fas.fa-pen,
 .module-header h2 i.fas.fa-pen,
+.card-header i.fas.fa-pen,
+.nav-item[data-module="notes"] i.fas.fa-pen,
+.nav-item i.fas.fa-pen,
 .feature-item i.fas.fa-pen-fancy,
 .item-actions i.fas.fa-edit {
-    transform: rotate(-45deg) !important;
-    display: inline-block;
-}
-
-/* Navigation pen icon - keep horizontal */
-.nav-item[data-module="notes"] i.fas.fa-pen,
-.nav-item i.fas.fa-pen {
     transform: rotate(0deg) !important;
     display: inline-block;
 }
