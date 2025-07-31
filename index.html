@@ -11,66 +11,18 @@
     <div id="app">
         <!-- Authentication Screen -->
         <div id="authScreen" class="auth-screen">
-            <!-- Welcome Landing with Split Layout -->
+            <!-- Minimalistic Landing Page -->
             <div id="welcomeSection" class="welcome-section">
-                <div class="welcome-split-container">
-                    <!-- Left Side: Branding and Features -->
-                    <div class="welcome-left">
-                        <div class="welcome-content">
-                            <div class="app-branding">
+                <div class="minimal-container">
+                    <!-- Centered Login Form -->
+                    <div class="login-center">
+                        <div class="auth-container">
+                            <div class="auth-header">
                                 <div class="app-icon">
                                     <i class="fas fa-pen"></i>
                                 </div>
                                 <h1>ballpenbox</h1>
-                                <p class="tagline">Your personal, secure workspace for everything that matters</p>
-                            </div>
-                            
-                            <div class="feature-highlights">
-                                <div class="feature-item">
-                                    <i class="fas fa-shield-alt"></i>
-                                    <h3>Bank-Grade Security</h3>
-                                    <p>End-to-end encryption keeps your data safe</p>
-                                </div>
-                                <div class="feature-item">
-                                    <i class="fas fa-cloud"></i>
-                                    <h3>Sync Everywhere</h3>
-                                    <p>Access your notes from any device, anywhere</p>
-                                </div>
-                                <div class="feature-item">
-                                    <i class="fas fa-pen-fancy"></i>
-                                    <h3>Rich Features</h3>
-                                    <p>Notes, passwords, documents, and creative projects</p>
-                                </div>
-                            </div>
-                            
-                            <div class="trust-indicators">
-                                <div class="trust-item">
-                                    <i class="fas fa-lock"></i>
-                                    <span>256-bit encryption</span>
-                                </div>
-                                <div class="trust-item">
-                                    <i class="fas fa-user-shield"></i>
-                                    <span>Zero-knowledge architecture</span>
-                                </div>
-                                <div class="trust-item">
-                                    <i class="fas fa-eye-slash"></i>
-                                    <span>Private by design</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Right Side: Login Form (Always Visible) -->
-                    <div class="welcome-right">
-                        <div class="auth-container">
-                            <div class="auth-header">
-                                <h2>Welcome Back</h2>
-                                <p>Sign in to your ballpenbox account</p>
-                                <div style="background: #f3f4f6; padding: 0.75rem; border-radius: 6px; margin: 1rem 0; font-size: 0.85rem; color: #374151;">
-                                    <strong>Demo Account for Testing:</strong><br>
-                                    Email: demo@ballpenbox.com<br>
-                                    Password: demo123
-                                </div>
+                                <p>Your secure workspace</p>
                             </div>
                             
                             <form id="loginForm" class="auth-form">
@@ -124,6 +76,24 @@
                                     <p>Don't have an account? <a href="#" onclick="showRegister()">Sign up</a></p>
                                 </div>
                             </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Minimalistic Features Below -->
+                    <div class="minimal-features">
+                        <div class="feature-grid">
+                            <div class="feature-item">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Secure</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-cloud"></i>
+                                <span>Sync</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-pen-fancy"></i>
+                                <span>Simple</span>
+                            </div>
                         </div>
                     </div>
                 </div>

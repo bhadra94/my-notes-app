@@ -3379,3 +3379,116 @@ body {
         justify-content: flex-end;
     }
 }
+
+/* Minimalistic Landing Page */
+.minimal-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.login-center {
+    background: var(--bg-primary);
+    border-radius: 20px;
+    padding: 3rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 2rem;
+}
+
+.login-center .auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-center .app-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary-color), #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.login-center h1 {
+    color: var(--text-primary);
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.login-center p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    margin-bottom: 0;
+}
+
+.minimal-features {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.feature-grid {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.feature-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.feature-item i {
+    font-size: 1.2rem;
+    opacity: 0.8;
+}
+
+.feature-item span {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Responsive Design for Minimal Layout */
+@media (max-width: 768px) {
+    .minimal-container {
+        padding: 1rem;
+    }
+    
+    .login-center {
+        padding: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .feature-grid {
+        gap: 1.5rem;
+    }
+    
+    .feature-item {
+        font-size: 0.8rem;
+    }
+    
+    .feature-item i {
+        font-size: 1rem;
+    }
+    
+    .feature-item span {
+        font-size: 0.7rem;
+    }
+}
