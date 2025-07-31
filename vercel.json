@@ -15,14 +15,14 @@
       "use": "@vercel/static"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/js/(.*)",
-      "dest": "/js/$1"
+      "source": "/js/(.*)",
+      "destination": "/js/$1"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [
