@@ -716,7 +716,22 @@ class DocumentsFolderManager {
 
 // Initialize folder manager when documents module is ready
 document.addEventListener('DOMContentLoaded', () => {
-    if (window.documentsModule) {
+    const initializeFolderManager = () => {
+        if (window.documentsModule) {
+            window.documentsModule.folderManager = new DocumentsFolderManager(window.documentsModule);
+            console.log('Documents folder manager initialized');
+        } else {
+            // Wait for documents module to be available
+            setTimeout(initializeFolderManager, 100);
+        }
+    };
+    initializeFolderManager();
+});
+
+// Also make it available globally for easy access
+window.addEventListener('load', () => {
+    if (window.documentsModule && !window.documentsModule.folderManager) {
         window.documentsModule.folderManager = new DocumentsFolderManager(window.documentsModule);
+        console.log('Documents folder manager initialized on window load');
     }
 });

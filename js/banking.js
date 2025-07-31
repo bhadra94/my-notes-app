@@ -540,14 +540,22 @@ class BankingModule {
 
     // Card CRUD Operations
     async createCard() {
-        this.showCardEditor();
+        if (window.cardEditor) {
+            window.cardEditor.showCardEditor();
+        } else {
+            console.error('Card editor not available');
+            app.showToast('Card editor not available', 'error');
+        }
     }
 
     async editCard(id) {
         try {
             const card = await storageManager.getItem('cards', id);
-            if (card) {
-                this.showCardEditor(card);
+            if (card && window.cardEditor) {
+                window.cardEditor.showCardEditor(card);
+            } else if (!window.cardEditor) {
+                console.error('Card editor not available');
+                app.showToast('Card editor not available', 'error');
             }
         } catch (error) {
             console.error('Error loading card:', error);

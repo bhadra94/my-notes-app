@@ -316,10 +316,22 @@ class CardEditor {
     }
 }
 
-// Initialize card editor
-window.cardEditor = new CardEditor(window.bankingModule);
+// Initialize card editor when banking module is ready
+const initializeCardEditor = () => {
+    if (window.bankingModule) {
+        window.cardEditor = new CardEditor(window.bankingModule);
+        window.bankingModule.showCardEditor = (card) => window.cardEditor.showCardEditor(card);
+        console.log('Card editor initialized');
+    } else {
+        // Wait for banking module to be available
+        setTimeout(initializeCardEditor, 100);
+    }
+};
 
-// Add card editor method to banking module
-if (window.bankingModule) {
-    window.bankingModule.showCardEditor = (card) => window.cardEditor.showCardEditor(card);
-}
+// Initialize on DOM ready and window load
+document.addEventListener('DOMContentLoaded', initializeCardEditor);
+window.addEventListener('load', () => {
+    if (!window.cardEditor && window.bankingModule) {
+        initializeCardEditor();
+    }
+});
