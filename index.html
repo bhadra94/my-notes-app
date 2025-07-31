@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ballpenbox - Option 4: Hero Section with Login Overlay</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -444,11 +449,11 @@
                 </div>
                 
                 <div class="social-login">
-                    <button type="button" class="btn-social google" onclick="loginWithGoogle()">
+                    <button type="button" class="btn-social google" onclick="handleGoogleLogin()">
                         <i class="fab fa-google"></i>
                         Google
                     </button>
-                    <button type="button" class="btn-social github" onclick="loginWithGitHub()">
+                    <button type="button" class="btn-social github" onclick="handleGitHubLogin()">
                         <i class="fab fa-github"></i>
                         GitHub
                     </button>
@@ -497,11 +502,11 @@
                 </div>
                 
                 <div class="social-login">
-                    <button type="button" class="btn-social google" onclick="signupWithGoogle()">
+                    <button type="button" class="btn-social google" onclick="handleGoogleSignup()">
                         <i class="fab fa-google"></i>
                         Google
                     </button>
-                    <button type="button" class="btn-social github" onclick="signupWithGitHub()">
+                    <button type="button" class="btn-social github" onclick="handleGitHubSignup()">
                         <i class="fab fa-github"></i>
                         GitHub
                     </button>
@@ -513,6 +518,48 @@
             </div>
         </div>
     </div>
+    
+    <!-- Firebase Configuration -->
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDh7tcdyCWbmUcWx0qKTo-AdT4QNO6ZCHc",
+            authDomain: "my-notes-app-a9568.firebaseapp.com",
+            projectId: "my-notes-app-a9568",
+            storageBucket: "my-notes-app-a9568.firebasestorage.app",
+            messagingSenderId: "5575127275",
+            appId: "1:5575127275:web:0aa341a0d811adf3b24eae",
+            measurementId: "G-DXEHTJ4FB8"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        
+        // Initialize Firebase services
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // Set up Google provider
+        const googleProvider = new firebase.auth.GoogleAuthProvider();
+        googleProvider.addScope('email');
+        googleProvider.addScope('profile');
+        
+        // Set up GitHub provider
+        const githubProvider = new firebase.auth.GithubAuthProvider();
+        githubProvider.addScope('user:email');
+        
+        // Make Firebase services globally available
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        window.firebaseFunctions = firebase;
+        window.firebaseProviders = {
+            google: googleProvider,
+            github: githubProvider
+        };
+    </script>
+    
+    <!-- Load Firebase Auth Manager -->
+    <script src="js/firebase-auth.js"></script>
     
     <script>
         function showLoginModal() {
@@ -538,12 +585,32 @@
             const email = event.target.querySelector('input[type="email"]').value;
             const password = event.target.querySelector('input[type="password"]').value;
             
-            // Demo login check
-            if (email === 'demo@ballpenbox.com' && password === 'demo123') {
-                alert('Login successful! Welcome to ballpenbox.');
-                hideLoginModal();
+            // Use Firebase auth manager if available
+            if (window.firebaseAuthManager) {
+                // Create a mock form event for the Firebase auth manager
+                const mockEvent = {
+                    preventDefault: () => {},
+                    target: {
+                        querySelector: (selector) => {
+                            if (selector === 'input[type="email"]') {
+                                return { value: email };
+                            }
+                            if (selector === 'input[type="password"]') {
+                                return { value: password };
+                            }
+                            return null;
+                        }
+                    }
+                };
+                window.firebaseAuthManager.handleLogin(mockEvent);
             } else {
-                alert('Login functionality will be implemented with backend integration.');
+                // Fallback for demo
+                if (email === 'demo@ballpenbox.com' && password === 'demo123') {
+                    alert('Login successful! Welcome to ballpenbox.');
+                    hideLoginModal();
+                } else {
+                    alert('Login functionality will be implemented with backend integration.');
+                }
             }
         }
         
@@ -553,23 +620,62 @@
             const email = event.target.querySelector('input[type="email"]').value;
             const password = event.target.querySelector('input[type="password"]').value;
             
-            alert('Signup functionality will be implemented with backend integration.');
+            // Use Firebase auth manager if available
+            if (window.firebaseAuthManager) {
+                // Create a mock form event for the Firebase auth manager
+                const mockEvent = {
+                    preventDefault: () => {},
+                    target: {
+                        querySelector: (selector) => {
+                            if (selector === 'input[type="text"]') {
+                                return { value: name };
+                            }
+                            if (selector === 'input[type="email"]') {
+                                return { value: email };
+                            }
+                            if (selector === 'input[type="password"]') {
+                                return { value: password };
+                            }
+                            return null;
+                        }
+                    }
+                };
+                window.firebaseAuthManager.handleRegister(mockEvent);
+            } else {
+                alert('Signup functionality will be implemented with backend integration.');
+            }
         }
         
-        function loginWithGoogle() {
-            alert('Google login will be implemented with OAuth integration.');
+        function handleGoogleLogin() {
+            if (window.firebaseAuthManager) {
+                window.firebaseAuthManager.loginWithGoogle();
+            } else {
+                alert('Google login will be implemented with OAuth integration.');
+            }
         }
         
-        function loginWithGitHub() {
-            alert('GitHub login will be implemented with OAuth integration.');
+        function handleGitHubLogin() {
+            if (window.firebaseAuthManager) {
+                window.firebaseAuthManager.loginWithGitHub();
+            } else {
+                alert('GitHub login will be implemented with OAuth integration.');
+            }
         }
         
-        function signupWithGoogle() {
-            alert('Google signup will be implemented with OAuth integration.');
+        function handleGoogleSignup() {
+            if (window.firebaseAuthManager) {
+                window.firebaseAuthManager.registerWithGoogle();
+            } else {
+                alert('Google signup will be implemented with OAuth integration.');
+            }
         }
         
-        function signupWithGitHub() {
-            alert('GitHub signup will be implemented with OAuth integration.');
+        function handleGitHubSignup() {
+            if (window.firebaseAuthManager) {
+                window.firebaseAuthManager.registerWithGitHub();
+            } else {
+                alert('GitHub signup will be implemented with OAuth integration.');
+            }
         }
         
         // Close modals when clicking outside
