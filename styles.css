@@ -3384,7 +3384,8 @@ body {
 .app-icon i.fas.fa-pen,
 .app-header h1 i.fas.fa-pen,
 .module-header h2 i.fas.fa-pen,
-.feature-item i.fas.fa-pen-fancy {
+.feature-item i.fas.fa-pen-fancy,
+.item-actions i.fas.fa-edit {
     transform: rotate(-45deg) !important;
     display: inline-block;
 }
