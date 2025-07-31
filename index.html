@@ -354,6 +354,50 @@
             color: #333;
         }
         
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            pointer-events: none;
+        }
+        
+        .toast {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-left: 4px solid #667eea;
+            max-width: 300px;
+            pointer-events: auto;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .toast.success {
+            border-left-color: #10b981;
+        }
+        
+        .toast.error {
+            border-left-color: #ef4444;
+        }
+        
+        .toast.info {
+            border-left-color: #3b82f6;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
         @media (max-width: 768px) {
             .app-name {
                 font-size: 3rem;
@@ -519,6 +563,9 @@
         </div>
     </div>
     
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+    
     <!-- Firebase Configuration -->
     <script>
         // Firebase configuration
@@ -535,33 +582,53 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         
-        // Initialize Firebase services
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        // Simple toast notification system
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            
+            container.appendChild(toast);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 5000);
+        }
         
-        // Set up Google provider
-        const googleProvider = new firebase.auth.GoogleAuthProvider();
-        googleProvider.addScope('email');
-        googleProvider.addScope('profile');
+        // Simplified Firebase authentication
+        let firebaseAuth = null;
+        let googleProvider = null;
+        let githubProvider = null;
         
-        // Set up GitHub provider
-        const githubProvider = new firebase.auth.GithubAuthProvider();
-        githubProvider.addScope('user:email');
+        function initializeFirebase() {
+            try {
+                firebaseAuth = firebase.auth();
+                googleProvider = new firebase.auth.GoogleAuthProvider();
+                githubProvider = new firebase.auth.GithubAuthProvider();
+                
+                // Set up auth state listener
+                firebaseAuth.onAuthStateChanged((user) => {
+                    if (user) {
+                        console.log('User signed in:', user);
+                        showToast(`Welcome, ${user.displayName || user.email}!`, 'success');
+                        hideLoginModal();
+                        hideSignupModal();
+                    } else {
+                        console.log('User signed out');
+                    }
+                });
+                
+                console.log('Firebase initialized successfully');
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                showToast('Failed to initialize authentication', 'error');
+            }
+        }
         
-        // Make Firebase services globally available
-        window.firebaseAuth = auth;
-        window.firebaseDb = db;
-        window.firebaseFunctions = firebase;
-        window.firebaseProviders = {
-            google: googleProvider,
-            github: githubProvider
-        };
-    </script>
-    
-    <!-- Load Firebase Auth Manager -->
-    <script src="js/firebase-auth.js"></script>
-    
-    <script>
         function showLoginModal() {
             hideSignupModal();
             document.getElementById('loginModal').classList.add('active');
@@ -585,33 +652,39 @@
             const email = event.target.querySelector('input[type="email"]').value;
             const password = event.target.querySelector('input[type="password"]').value;
             
-            // Use Firebase auth manager if available
-            if (window.firebaseAuthManager) {
-                // Create a mock form event for the Firebase auth manager
-                const mockEvent = {
-                    preventDefault: () => {},
-                    target: {
-                        querySelector: (selector) => {
-                            if (selector === 'input[type="email"]') {
-                                return { value: email };
-                            }
-                            if (selector === 'input[type="password"]') {
-                                return { value: password };
-                            }
-                            return null;
-                        }
-                    }
-                };
-                window.firebaseAuthManager.handleLogin(mockEvent);
-            } else {
-                // Fallback for demo
-                if (email === 'demo@ballpenbox.com' && password === 'demo123') {
-                    alert('Login successful! Welcome to ballpenbox.');
-                    hideLoginModal();
-                } else {
-                    alert('Login functionality will be implemented with backend integration.');
-                }
+            if (!firebaseAuth) {
+                showToast('Authentication not initialized. Please refresh the page.', 'error');
+                return;
             }
+            
+            showToast('Signing in...', 'info');
+            
+            firebaseAuth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    showToast('Login successful!', 'success');
+                    hideLoginModal();
+                })
+                .catch((error) => {
+                    console.error('Login error:', error);
+                    let errorMessage = 'Login failed. Please try again.';
+                    
+                    switch (error.code) {
+                        case 'auth/user-not-found':
+                            errorMessage = 'No account found with this email address.';
+                            break;
+                        case 'auth/wrong-password':
+                            errorMessage = 'Invalid password. Please try again.';
+                            break;
+                        case 'auth/invalid-email':
+                            errorMessage = 'Please enter a valid email address.';
+                            break;
+                        case 'auth/too-many-requests':
+                            errorMessage = 'Too many failed attempts. Please try again later.';
+                            break;
+                    }
+                    
+                    showToast(errorMessage, 'error');
+                });
         }
         
         function handleSignup(event) {
@@ -620,62 +693,104 @@
             const email = event.target.querySelector('input[type="email"]').value;
             const password = event.target.querySelector('input[type="password"]').value;
             
-            // Use Firebase auth manager if available
-            if (window.firebaseAuthManager) {
-                // Create a mock form event for the Firebase auth manager
-                const mockEvent = {
-                    preventDefault: () => {},
-                    target: {
-                        querySelector: (selector) => {
-                            if (selector === 'input[type="text"]') {
-                                return { value: name };
-                            }
-                            if (selector === 'input[type="email"]') {
-                                return { value: email };
-                            }
-                            if (selector === 'input[type="password"]') {
-                                return { value: password };
-                            }
-                            return null;
-                        }
-                    }
-                };
-                window.firebaseAuthManager.handleRegister(mockEvent);
-            } else {
-                alert('Signup functionality will be implemented with backend integration.');
+            if (!firebaseAuth) {
+                showToast('Authentication not initialized. Please refresh the page.', 'error');
+                return;
             }
+            
+            showToast('Creating account...', 'info');
+            
+            firebaseAuth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Update the user's profile with their name
+                    return userCredential.user.updateProfile({
+                        displayName: name
+                    });
+                })
+                .then(() => {
+                    showToast('Account created successfully!', 'success');
+                    hideSignupModal();
+                })
+                .catch((error) => {
+                    console.error('Signup error:', error);
+                    let errorMessage = 'Signup failed. Please try again.';
+                    
+                    switch (error.code) {
+                        case 'auth/email-already-in-use':
+                            errorMessage = 'An account with this email already exists.';
+                            break;
+                        case 'auth/weak-password':
+                            errorMessage = 'Password is too weak. Please choose a stronger password.';
+                            break;
+                        case 'auth/invalid-email':
+                            errorMessage = 'Please enter a valid email address.';
+                            break;
+                    }
+                    
+                    showToast(errorMessage, 'error');
+                });
         }
         
         function handleGoogleLogin() {
-            if (window.firebaseAuthManager) {
-                window.firebaseAuthManager.loginWithGoogle();
-            } else {
-                alert('Google login will be implemented with OAuth integration.');
+            if (!firebaseAuth || !googleProvider) {
+                showToast('Authentication not initialized. Please refresh the page.', 'error');
+                return;
             }
+            
+            showToast('Signing in with Google...', 'info');
+            
+            firebaseAuth.signInWithPopup(googleProvider)
+                .then((result) => {
+                    showToast('Successfully signed in with Google!', 'success');
+                    hideLoginModal();
+                })
+                .catch((error) => {
+                    console.error('Google login error:', error);
+                    let errorMessage = 'Google sign-in failed. Please try again.';
+                    
+                    if (error.code === 'auth/popup-closed-by-user') {
+                        errorMessage = 'Sign-in was cancelled.';
+                    } else if (error.code === 'auth/popup-blocked') {
+                        errorMessage = 'Popup was blocked. Please allow popups and try again.';
+                    }
+                    
+                    showToast(errorMessage, 'error');
+                });
         }
         
         function handleGitHubLogin() {
-            if (window.firebaseAuthManager) {
-                window.firebaseAuthManager.loginWithGitHub();
-            } else {
-                alert('GitHub login will be implemented with OAuth integration.');
+            if (!firebaseAuth || !githubProvider) {
+                showToast('Authentication not initialized. Please refresh the page.', 'error');
+                return;
             }
+            
+            showToast('Signing in with GitHub...', 'info');
+            
+            firebaseAuth.signInWithPopup(githubProvider)
+                .then((result) => {
+                    showToast('Successfully signed in with GitHub!', 'success');
+                    hideLoginModal();
+                })
+                .catch((error) => {
+                    console.error('GitHub login error:', error);
+                    let errorMessage = 'GitHub sign-in failed. Please try again.';
+                    
+                    if (error.code === 'auth/popup-closed-by-user') {
+                        errorMessage = 'Sign-in was cancelled.';
+                    } else if (error.code === 'auth/popup-blocked') {
+                        errorMessage = 'Popup was blocked. Please allow popups and try again.';
+                    }
+                    
+                    showToast(errorMessage, 'error');
+                });
         }
         
         function handleGoogleSignup() {
-            if (window.firebaseAuthManager) {
-                window.firebaseAuthManager.registerWithGoogle();
-            } else {
-                alert('Google signup will be implemented with OAuth integration.');
-            }
+            handleGoogleLogin(); // Same function for signup
         }
         
         function handleGitHubSignup() {
-            if (window.firebaseAuthManager) {
-                window.firebaseAuthManager.registerWithGitHub();
-            } else {
-                alert('GitHub signup will be implemented with OAuth integration.');
-            }
+            handleGitHubLogin(); // Same function for signup
         }
         
         // Close modals when clicking outside
@@ -697,6 +812,19 @@
                 hideLoginModal();
                 hideSignupModal();
             }
+        });
+        
+        // Initialize Firebase when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait a bit for Firebase to be available
+            setTimeout(() => {
+                if (typeof firebase !== 'undefined') {
+                    initializeFirebase();
+                } else {
+                    console.error('Firebase not loaded');
+                    showToast('Failed to load authentication system', 'error');
+                }
+            }, 1000);
         });
     </script>
 </body>
