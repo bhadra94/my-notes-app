@@ -273,6 +273,50 @@ GET /api/files/:fileId
 DELETE /api/files/:fileId
 ```
 
+## 🚀 Deployment
+
+### Vercel Deployment (Recommended)
+
+1. **Install Vercel CLI**:
+   ```bash
+   npm install -g vercel
+   ```
+
+2. **Login to Vercel**:
+   ```bash
+   vercel login
+   ```
+
+3. **Deploy from your project directory**:
+   ```bash
+   cd my-notes-app
+   vercel
+   ```
+
+4. **Follow the prompts**:
+   - Link to existing project or create new
+   - Set project name (e.g., "ballpenbox")
+   - Confirm deployment settings
+
+5. **Your app will be live** at `https://your-project-name.vercel.app`
+
+### Alternative Deployment Options
+
+**GitHub Pages**:
+- Push to GitHub
+- Enable GitHub Pages in repository settings
+- Set source to main branch
+
+**Netlify**:
+- Drag and drop your project folder to Netlify
+- Or connect your GitHub repository
+- Automatic deployments on push
+
+**Manual Upload**:
+- Upload files to any web server
+- Ensure `index.html` is in the root directory
+- Configure server for SPA routing if needed
+
 ## Contributing
 
 This is a modern client-side application ready for backend integration:
