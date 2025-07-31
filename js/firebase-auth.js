@@ -239,6 +239,7 @@ class FirebaseAuthManager {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 email: formData.email,
+                emailVerified: false,
                 settings: {
                     theme: 'light',
                     notifications: true,
@@ -248,8 +249,16 @@ class FirebaseAuthManager {
                 lastLoginAt: this.functions.serverTimestamp()
             });
             
-            this.showAuthSuccess('Account created successfully! Welcome to ballpenbox!');
+            // Send email verification
+            await this.sendEmailVerification();
+            
+            this.showAuthSuccess('Account created successfully! Please check your email for verification.');
             this.clearForm('registerForm');
+            
+            // Show email verification prompt
+            setTimeout(() => {
+                this.showEmailVerificationPrompt();
+            }, 1000);
             
         } catch (error) {
             console.error('Registration error:', error);
@@ -387,6 +396,85 @@ class FirebaseAuthManager {
         } catch (error) {
             console.error('GitHub login error:', error);
             this.showAuthError(this.getFirebaseErrorMessage(error));
+        }
+    }
+
+    // Email Verification
+    async sendEmailVerification() {
+        try {
+            const user = this.auth.currentUser;
+            if (!user) {
+                throw new Error('No user is currently signed in');
+            }
+
+            await this.functions.sendEmailVerification(user, {
+                url: window.location.origin + '/dashboard',
+                handleCodeInApp: false
+            });
+
+            this.showAuthSuccess('Verification email sent! Please check your inbox.');
+        } catch (error) {
+            console.error('Email verification error:', error);
+            this.showAuthError('Failed to send verification email. Please try again.');
+        }
+    }
+
+    async checkEmailVerification() {
+        try {
+            const user = this.auth.currentUser;
+            if (!user) {
+                return false;
+            }
+
+            // Reload user to get latest verification status
+            await this.functions.reload(user);
+            
+            return user.emailVerified;
+        } catch (error) {
+            console.error('Email verification check error:', error);
+            return false;
+        }
+    }
+
+    async requireEmailVerification() {
+        const isVerified = await this.checkEmailVerification();
+        
+        if (!isVerified) {
+            this.showAuthError('Please verify your email address before continuing.');
+            this.showEmailVerificationPrompt();
+            return false;
+        }
+        
+        return true;
+    }
+
+    showEmailVerificationPrompt() {
+        // Create a modal to prompt for email verification
+        const modalContent = `
+            <div class="email-verification-prompt">
+                <h3><i class="fas fa-envelope"></i> Verify Your Email</h3>
+                <p>We've sent a verification email to your inbox. Please check your email and click the verification link.</p>
+                <div class="verification-actions">
+                    <button class="btn-primary" onclick="resendVerificationEmail()">
+                        <i class="fas fa-paper-plane"></i> Resend Email
+                    </button>
+                    <button class="btn-secondary" onclick="checkVerificationStatus()">
+                        <i class="fas fa-check"></i> I've Verified
+                    </button>
+                </div>
+                <p class="verification-note">
+                    <i class="fas fa-info-circle"></i>
+                    Check your spam folder if you don't see the email.
+                </p>
+            </div>
+        `;
+
+        // Show the modal
+        if (window.app && typeof window.app.showModal === 'function') {
+            window.app.showModal(modalContent);
+        } else {
+            // Fallback to alert
+            alert('Please check your email for verification link. Check spam folder if not found.');
         }
     }
 
@@ -756,6 +844,21 @@ window.showPrivacy = () => window.firebaseAuthManager?.showPrivacy();
 window.showAccountSettings = () => window.firebaseAuthManager?.showAccountSettings();
 window.showBilling = () => window.firebaseAuthManager?.showBilling();
 window.showHelp = () => window.firebaseAuthManager?.showHelp();
+
+// Email verification functions
+window.resendVerificationEmail = () => window.firebaseAuthManager?.sendEmailVerification();
+window.checkVerificationStatus = async () => {
+    const isVerified = await window.firebaseAuthManager?.checkEmailVerification();
+    if (isVerified) {
+        window.firebaseAuthManager?.showAuthSuccess('Email verified successfully!');
+        // Close modal if it exists
+        if (window.app && typeof window.app.closeModal === 'function') {
+            window.app.closeModal();
+        }
+    } else {
+        window.firebaseAuthManager?.showAuthError('Email not verified yet. Please check your inbox and click the verification link.');
+    }
+};
 
 // Initialize Firebase auth manager when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {

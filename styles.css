@@ -1608,3 +1608,101 @@ body {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+/* Email Verification Prompt */
+.email-verification-prompt {
+    text-align: center;
+    padding: 2rem;
+}
+
+.email-verification-prompt h3 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.email-verification-prompt p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.verification-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.verification-actions .btn-primary,
+.verification-actions .btn-secondary {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.verification-actions .btn-primary {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+}
+
+.verification-actions .btn-primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.verification-actions .btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+}
+
+.verification-actions .btn-secondary:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--primary-color);
+}
+
+.verification-note {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    background: var(--bg-secondary);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--warning-color);
+}
+
+.verification-note i {
+    color: var(--warning-color);
+    margin-right: 0.5rem;
+}
+
+/* Email verification status indicator */
+.email-verification-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.email-verification-status.verified {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success-color);
+}
+
+.email-verification-status.unverified {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning-color);
+}
+
+.email-verification-status i {
+    font-size: 0.75rem;
+}
