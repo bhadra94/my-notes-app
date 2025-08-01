@@ -974,26 +974,32 @@
     <script>
         // Navigation functions
         function navigateToModule(module) {
-            // Hide all modules
-            const modules = document.querySelectorAll('.module-content');
-            modules.forEach(m => m.classList.remove('active'));
-            
-            // Show selected module
-            const selectedModule = document.getElementById(module);
-            if (selectedModule) {
-                selectedModule.classList.add('active');
-            }
-            
-            // Show/hide back button
-            const backBtn = document.getElementById('backToDashboard');
-            if (module === 'dashboard') {
-                backBtn.style.display = 'none';
+            // Use the app's navigation system if available
+            if (window.app && window.app.switchModule) {
+                window.app.switchModule(module);
             } else {
-                backBtn.style.display = 'flex';
+                // Fallback to basic navigation
+                // Hide all modules
+                const modules = document.querySelectorAll('.module-content');
+                modules.forEach(m => m.classList.remove('active'));
+                
+                // Show selected module
+                const selectedModule = document.getElementById(module);
+                if (selectedModule) {
+                    selectedModule.classList.add('active');
+                }
+                
+                // Show/hide back button
+                const backBtn = document.getElementById('backToDashboard');
+                if (module === 'dashboard') {
+                    backBtn.style.display = 'none';
+                } else {
+                    backBtn.style.display = 'flex';
+                }
+                
+                // Update navigation state
+                window.currentModule = module;
             }
-            
-            // Update navigation state
-            window.currentModule = module;
         }
         
         function navigateToDashboard() {

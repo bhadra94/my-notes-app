@@ -111,6 +111,8 @@ class NotesApp {
     }
 
     switchModule(moduleName) {
+        console.log('App.switchModule called with:', moduleName);
+        
         // Update navigation
         document.querySelectorAll('.nav-item').forEach(item => {
             item.classList.toggle('active', item.dataset.module === moduleName);
@@ -122,33 +124,69 @@ class NotesApp {
         });
         
         this.currentModule = moduleName;
+        console.log('Current module set to:', this.currentModule);
         
         // Load module data
+        console.log('Loading module data for:', moduleName);
         this.loadModuleData(moduleName);
     }
 
     async loadModuleData(moduleName) {
+        console.log('App.loadModuleData called with:', moduleName);
+        
         switch (moduleName) {
             case 'dashboard':
+                console.log('Loading dashboard...');
                 await this.loadDashboard();
                 break;
             case 'notes':
-                if (window.notesModule) window.notesModule.loadNotes();
+                console.log('Loading notes module...');
+                if (window.notesModule) {
+                    window.notesModule.loadNotes();
+                } else {
+                    console.error('notesModule not available');
+                }
                 break;
             case 'banking':
-                if (window.bankingModule) window.bankingModule.loadBankAccounts();
+                console.log('Loading banking module...');
+                if (window.bankingModule) {
+                    window.bankingModule.loadBankAccounts();
+                } else {
+                    console.error('bankingModule not available');
+                }
                 break;
             case 'passwords':
-                if (window.passwordsModule) window.passwordsModule.loadPasswords();
+                console.log('Loading passwords module...');
+                if (window.passwordsModule) {
+                    console.log('passwordsModule found, calling loadPasswords()');
+                    window.passwordsModule.loadPasswords();
+                } else {
+                    console.error('passwordsModule not available');
+                }
                 break;
             case 'documents':
-                if (window.documentsModule) window.documentsModule.loadDocuments();
+                console.log('Loading documents module...');
+                if (window.documentsModule) {
+                    window.documentsModule.loadDocuments();
+                } else {
+                    console.error('documentsModule not available');
+                }
                 break;
             case 'creative':
-                if (window.creativeModule) window.creativeModule.loadProjects();
+                console.log('Loading creative module...');
+                if (window.creativeModule) {
+                    window.creativeModule.loadProjects();
+                } else {
+                    console.error('creativeModule not available');
+                }
                 break;
             case 'todos':
-                if (window.todosModule) window.todosModule.loadTodos();
+                console.log('Loading todos module...');
+                if (window.todosModule) {
+                    window.todosModule.loadTodos();
+                } else {
+                    console.error('todosModule not available');
+                }
                 break;
         }
     }

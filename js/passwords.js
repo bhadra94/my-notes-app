@@ -26,15 +26,52 @@ class PasswordsModule {
     }
 
     async loadPasswords() {
+        console.log('PasswordsModule.loadPasswords() called');
+        
+        // Show loading state
+        const container = document.getElementById('passwordsList');
+        if (container) {
+            container.innerHTML = `
+                <div class="loading-state">
+                    <i class="fas fa-spinner fa-spin fa-2x"></i>
+                    <p>Loading passwords...</p>
+                </div>
+            `;
+        }
+        
         try {
+            console.log('Loading passwords from storage...');
             const passwords = await storageManager.loadData('passwords');
+            console.log('Passwords loaded:', passwords);
+            
             const sortedPasswords = passwords.sort((a, b) => 
                 new Date(b.modified || b.created) - new Date(a.modified || a.created)
             );
+            console.log('Sorted passwords:', sortedPasswords);
+            
+            console.log('Rendering passwords...');
             this.renderPasswords(sortedPasswords);
+            console.log('Passwords rendered successfully');
         } catch (error) {
             console.error('Error loading passwords:', error);
-            app.showToast('Error loading passwords', 'error');
+            
+            // Show error state
+            if (container) {
+                container.innerHTML = `
+                    <div class="error-state">
+                        <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+                        <h3>Error Loading Passwords</h3>
+                        <p>${error.message}</p>
+                        <button class="btn-primary" onclick="passwordsModule.loadPasswords()">
+                            <i class="fas fa-refresh"></i> Try Again
+                        </button>
+                    </div>
+                `;
+            }
+            
+            if (window.app && window.app.showToast) {
+                window.app.showToast('Error loading passwords', 'error');
+            }
         }
     }
 
@@ -63,9 +100,17 @@ class PasswordsModule {
     }
 
     renderPasswords(passwords) {
+        console.log('renderPasswords called with:', passwords);
         const container = document.getElementById('passwordsList');
+        console.log('Container element:', container);
+        
+        if (!container) {
+            console.error('passwordsList container not found!');
+            return;
+        }
         
         if (passwords.length === 0) {
+            console.log('No passwords to render, showing empty state');
             container.innerHTML = `
                 <div class="empty-state">
                     <i class="fas fa-key fa-3x text-muted"></i>
@@ -79,7 +124,9 @@ class PasswordsModule {
             return;
         }
 
+        console.log('Rendering', passwords.length, 'passwords');
         container.innerHTML = passwords.map(password => this.renderPasswordCard(password)).join('');
+        console.log('Passwords rendered to DOM');
     }
 
     renderPasswordCard(password) {
@@ -170,7 +217,7 @@ class PasswordsModule {
                     
                     ${password.url ? `
                         <a href="${password.url}" target="_blank" class="website-link">
-                            ${new URL(password.url).hostname}
+                            ${this.getValidHostname(password.url)}
                         </a>
                     ` : ''}
                 </div>
@@ -458,13 +505,34 @@ class PasswordsModule {
             const website = document.getElementById('passwordWebsite').value.trim();
             const username = document.getElementById('passwordUsername').value.trim();
             const passwordValue = document.getElementById('passwordValue').value.trim();
-            const url = document.getElementById('passwordUrl').value.trim();
+            let url = document.getElementById('passwordUrl').value.trim();
             const category = document.getElementById('passwordCategory').value;
             const notes = document.getElementById('passwordNotes').value.trim();
             
             if (!website || !passwordValue) {
-                app.showToast('Please fill in website name and password', 'warning');
+                if (window.app && window.app.showToast) {
+                    window.app.showToast('Please fill in website name and password', 'warning');
+                }
                 return;
+            }
+            
+            // Validate and format URL if provided
+            if (url) {
+                try {
+                    // Add protocol if missing
+                    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                        url = 'https://' + url;
+                    }
+                    // Validate URL
+                    new URL(url);
+                } catch (error) {
+                    console.warn('Invalid URL provided:', url, error);
+                    if (window.app && window.app.showToast) {
+                        window.app.showToast('Invalid URL format. Please check the URL.', 'warning');
+                    }
+                    // Clear invalid URL
+                    url = '';
+                }
             }
             
             const passwordData = {
@@ -482,13 +550,17 @@ class PasswordsModule {
             
             await storageManager.saveItem('passwords', passwordData);
             
-            app.closeModal();
-            app.showToast('Password saved successfully', 'success');
+            if (window.app) {
+                window.app.closeModal();
+                window.app.showToast('Password saved successfully', 'success');
+            }
             await this.loadPasswords();
             
         } catch (error) {
             console.error('Error saving password:', error);
-            app.showToast('Error saving password', 'error');
+            if (window.app && window.app.showToast) {
+                window.app.showToast('Error saving password', 'error');
+            }
         }
     }
 
@@ -534,10 +606,28 @@ class PasswordsModule {
     }
 
     openWebsite(url) {
-        if (url) {
-            window.open(url, '_blank');
-        } else {
-            app.showToast('No URL specified', 'warning');
+        if (!url) {
+            if (window.app && window.app.showToast) {
+                window.app.showToast('No URL specified', 'warning');
+            }
+            return;
+        }
+        
+        try {
+            // Add protocol if missing
+            let validUrl = url;
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                validUrl = 'https://' + url;
+            }
+            
+            // Validate URL
+            new URL(validUrl);
+            window.open(validUrl, '_blank');
+        } catch (error) {
+            console.warn('Invalid URL:', url, error);
+            if (window.app && window.app.showToast) {
+                window.app.showToast('Invalid URL format', 'error');
+            }
         }
     }
 
@@ -573,6 +663,23 @@ class PasswordsModule {
             }
         } catch (error) {
             console.error('Error toggling password visibility:', error);
+        }
+    }
+
+    getValidHostname(url) {
+        try {
+            // Add protocol if missing
+            let validUrl = url;
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                validUrl = 'https://' + url;
+            }
+            
+            const urlObj = new URL(validUrl);
+            return urlObj.hostname;
+        } catch (error) {
+            console.warn('Invalid URL:', url, error);
+            // Return a safe fallback
+            return url.length > 30 ? url.substring(0, 30) + '...' : url;
         }
     }
 
@@ -798,6 +905,36 @@ const passwordsStyles = `
 
 .copy-btn:hover {
     background: #059669;
+}
+
+.loading-state,
+.error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.loading-state i,
+.error-state i {
+    margin-bottom: 1rem;
+}
+
+.error-state {
+    color: var(--text-primary);
+}
+
+.error-state h3 {
+    margin-bottom: 0.5rem;
+    color: var(--danger-color);
+}
+
+.error-state p {
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
 }
 
 @media (max-width: 768px) {

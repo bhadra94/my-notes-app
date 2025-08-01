@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Fixes Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 8px; }
+        .success { color: green; }
+        .error { color: red; }
+        .warning { color: orange; }
+        .info { color: blue; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+        button { margin: 5px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>URL Handling Fixes Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: URL Validation</h2>
+        <button onclick="testUrlValidation()">Test URL Validation</button>
+        <div id="urlValidationResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Hostname Extraction</h2>
+        <button onclick="testHostnameExtraction()">Test Hostname Extraction</button>
+        <div id="hostnameResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Password Rendering with Invalid URLs</h2>
+        <button onclick="testPasswordRendering()">Test Password Rendering</button>
+        <div id="renderingResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 4: URL Opening</h2>
+        <button onclick="testUrlOpening()">Test URL Opening</button>
+        <div id="openingResult"></div>
+    </div>
+
+    <script src="js/crypto.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/passwords.js"></script>
+    
+    <script>
+        // Mock app object for testing
+        window.app = {
+            showToast: function(message, type) {
+                console.log(`Toast [${type}]:`, message);
+            },
+            closeModal: function() {
+                console.log('Modal closed');
+            }
+        };
+        
+        function testUrlValidation() {
+            const result = document.getElementById('urlValidationResult');
+            result.innerHTML = '';
+            
+            const testUrls = [
+                'https://example.com',
+                'http://test.com',
+                'example.com',
+                'invalid-url',
+                'https://',
+                'ftp://example.com',
+                'https://example.com/path?param=value',
+                '',
+                null,
+                undefined
+            ];
+            
+            let html = '<h3>URL Validation Results:</h3>';
+            
+            testUrls.forEach(url => {
+                try {
+                    let validUrl = url;
+                    if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+                        validUrl = 'https://' + url;
+                    }
+                    
+                    if (url) {
+                        new URL(validUrl);
+                        html += `<div class="success">✓ "${url}" → Valid</div>`;
+                    } else {
+                        html += `<div class="warning">⚠ "${url}" → Empty/Null</div>`;
+                    }
+                } catch (error) {
+                    html += `<div class="error">✗ "${url}" → Invalid: ${error.message}</div>`;
+                }
+            });
+            
+            result.innerHTML = html;
+        }
+        
+        function testHostnameExtraction() {
+            const result = document.getElementById('hostnameResult');
+            result.innerHTML = '';
+            
+            const testUrls = [
+                'https://example.com',
+                'http://test.com',
+                'example.com',
+                'invalid-url',
+                'https://',
+                'https://subdomain.example.com',
+                'https://example.com/path?param=value',
+                '',
+                null
+            ];
+            
+            let html = '<h3>Hostname Extraction Results:</h3>';
+            
+            testUrls.forEach(url => {
+                try {
+                    const hostname = window.passwordsModule.getValidHostname(url);
+                    html += `<div class="success">✓ "${url}" → "${hostname}"</div>`;
+                } catch (error) {
+                    html += `<div class="error">✗ "${url}" → Error: ${error.message}</div>`;
+                }
+            });
+            
+            result.innerHTML = html;
+        }
+        
+        function testPasswordRendering() {
+            const result = document.getElementById('renderingResult');
+            result.innerHTML = '';
+            
+            // Create test passwords with various URL formats
+            const testPasswords = [
+                {
+                    id: '1',
+                    website: 'Valid HTTPS',
+                    username: 'user1',
+                    password: 'pass1',
+                    url: 'https://example.com',
+                    category: 'personal',
+                    created: new Date().toISOString()
+                },
+                {
+                    id: '2',
+                    website: 'Valid HTTP',
+                    username: 'user2',
+                    password: 'pass2',
+                    url: 'http://test.com',
+                    category: 'work',
+                    created: new Date().toISOString()
+                },
+                {
+                    id: '3',
+                    website: 'No Protocol',
+                    username: 'user3',
+                    password: 'pass3',
+                    url: 'example.com',
+                    category: 'personal',
+                    created: new Date().toISOString()
+                },
+                {
+                    id: '4',
+                    website: 'Invalid URL',
+                    username: 'user4',
+                    password: 'pass4',
+                    url: 'invalid-url',
+                    category: 'work',
+                    created: new Date().toISOString()
+                },
+                {
+                    id: '5',
+                    website: 'No URL',
+                    username: 'user5',
+                    password: 'pass5',
+                    url: '',
+                    category: 'personal',
+                    created: new Date().toISOString()
+                }
+            ];
+            
+            let html = '<h3>Password Rendering Test:</h3>';
+            
+            try {
+                // Test rendering each password
+                testPasswords.forEach(password => {
+                    try {
+                        const cardHtml = window.passwordsModule.renderPasswordCard(password);
+                        html += `<div class="success">✓ "${password.website}" → Rendered successfully</div>`;
+                        html += `<pre>${cardHtml.substring(0, 200)}...</pre>`;
+                    } catch (error) {
+                        html += `<div class="error">✗ "${password.website}" → Error: ${error.message}</div>`;
+                    }
+                });
+                
+                result.innerHTML = html;
+            } catch (error) {
+                result.innerHTML = `<div class="error">Rendering test failed: ${error.message}</div>`;
+            }
+        }
+        
+        function testUrlOpening() {
+            const result = document.getElementById('openingResult');
+            result.innerHTML = '';
+            
+            const testUrls = [
+                'https://example.com',
+                'http://test.com',
+                'example.com',
+                'invalid-url',
+                '',
+                null
+            ];
+            
+            let html = '<h3>URL Opening Test:</h3>';
+            
+            testUrls.forEach(url => {
+                try {
+                    window.passwordsModule.openWebsite(url);
+                    html += `<div class="success">✓ "${url}" → Opened successfully</div>`;
+                } catch (error) {
+                    html += `<div class="error">✗ "${url}" → Error: ${error.message}</div>`;
+                }
+            });
+            
+            result.innerHTML = html;
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('URL fixes test page loaded');
+            
+            // Set up a test user for storage manager
+            const testUser = {
+                id: 'test-user-url',
+                email: 'test@example.com',
+                displayName: 'Test User'
+            };
+            
+            if (window.storageManager) {
+                window.storageManager.setCurrentUser(testUser);
+            }
+        });
+    </script>
+</body>
+</html> 
