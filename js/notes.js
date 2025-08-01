@@ -30,6 +30,9 @@ class NotesModule {
 
         // Auto-save on editor changes
         this.setupAutoSave();
+        
+        // Setup swipe functionality
+        this.setupSwipeFunctionality();
     }
 
     async loadNotes() {
@@ -91,6 +94,9 @@ class NotesModule {
         }
 
         container.innerHTML = notes.map(note => this.renderNoteListItem(note)).join('');
+        
+        // Reset any active swipes when list is refreshed
+        this.resetActiveSwipes();
     }
 
     renderNoteListItem(note) {
@@ -105,10 +111,15 @@ class NotesModule {
         return `
             <div class="note-list-item ${isSelected ? 'selected' : ''}" 
                  data-id="${note.id}" 
-                 onclick="notesModule.selectNote('${note.id}')">
-                <div class="note-list-title">${note.title || 'Untitled Note'}</div>
-                <div class="note-list-time">${timeAgo}</div>
-                <div class="note-list-preview">${preview}</div>
+                 data-note-id="${note.id}">
+                <div class="note-list-item-content" onclick="notesModule.selectNote('${note.id}')">
+                    <div class="note-list-title">${note.title || 'Untitled Note'}</div>
+                    <div class="note-list-time">${timeAgo}</div>
+                    <div class="note-list-preview">${preview}</div>
+                </div>
+                <button class="note-delete-button" onclick="notesModule.showDeleteConfirmation('${note.id}')">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
         `;
     }
@@ -317,17 +328,7 @@ class NotesModule {
             return;
         }
         
-        if (confirm('Are you sure you want to delete this note? This action cannot be undone.')) {
-            try {
-                await storageManager.deleteItem('notes', this.currentNote.id);
-                app.showToast('Note deleted successfully', 'success');
-                this.hideNoteEditor();
-                await this.loadNotes();
-            } catch (error) {
-                console.error('Error deleting note:', error);
-                app.showToast('Error deleting note', 'error');
-            }
-        }
+        this.showDeleteConfirmation(this.currentNote.id);
     }
 
     async shareNote() {
@@ -364,16 +365,7 @@ class NotesModule {
     }
 
     async deleteNote(id) {
-        if (confirm('Are you sure you want to delete this note? This action cannot be undone.')) {
-            try {
-                await storageManager.deleteItem('notes', id);
-                app.showToast('Note deleted successfully', 'success');
-                await this.loadNotes();
-            } catch (error) {
-                console.error('Error deleting note:', error);
-                app.showToast('Error deleting note', 'error');
-            }
-        }
+        this.showDeleteConfirmation(id);
     }
 
     async duplicateNote(id) {
@@ -453,6 +445,326 @@ class NotesModule {
         if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} days ago`;
         
         return date.toLocaleDateString();
+    }
+
+    // Swipe-to-Delete Functionality
+    setupSwipeFunctionality() {
+        this.swipeThreshold = 80;
+        this.swipeTimeout = null;
+        this.activeSwipe = null;
+        
+        // Add touch event listeners to the notes list
+        const notesList = document.getElementById('notesList');
+        if (notesList) {
+            notesList.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
+            notesList.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
+            notesList.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false });
+            
+            // Add keyboard support for accessibility
+            notesList.addEventListener('keydown', this.handleKeyDown.bind(this));
+        }
+    }
+
+    handleTouchStart(e) {
+        const noteItem = e.target.closest('.note-list-item');
+        if (!noteItem) return;
+
+        const touch = e.touches[0];
+        this.touchStartX = touch.clientX;
+        this.touchStartY = touch.clientY;
+        this.touchStartTime = Date.now();
+        this.activeSwipe = noteItem;
+        
+        // Add swiping class to prevent transitions during swipe
+        noteItem.classList.add('swiping');
+    }
+
+    handleTouchMove(e) {
+        if (!this.activeSwipe) return;
+        
+        const touch = e.touches[0];
+        const deltaX = touch.clientX - this.touchStartX;
+        const deltaY = Math.abs(touch.clientY - this.touchStartY);
+        
+        // Only allow horizontal swipes with minimal vertical movement
+        if (Math.abs(deltaX) < Math.abs(deltaY) * 2) return;
+        
+        e.preventDefault();
+        
+        // Limit swipe to left direction only
+        if (deltaX > 0) return;
+        
+        const swipeDistance = Math.min(Math.abs(deltaX), this.swipeThreshold);
+        const transform = `translateX(-${swipeDistance}px)`;
+        
+        this.activeSwipe.style.transform = transform;
+        this.activeSwipe.querySelector('.note-list-item-content').style.transform = transform;
+    }
+
+    handleTouchEnd(e) {
+        if (!this.activeSwipe) return;
+        
+        const touch = e.changedTouches[0];
+        const deltaX = touch.clientX - this.touchStartX;
+        const swipeTime = Date.now() - this.touchStartTime;
+        
+        // Remove swiping class
+        this.activeSwipe.classList.remove('swiping');
+        
+        // Determine if swipe should be completed
+        const shouldComplete = Math.abs(deltaX) > this.swipeThreshold / 2 || 
+                             (Math.abs(deltaX) > 30 && swipeTime < 300);
+        
+        if (shouldComplete && deltaX < 0) {
+            // Complete the swipe
+            this.activeSwipe.classList.add('swiped');
+            this.activeSwipe.style.transform = '';
+            this.activeSwipe.querySelector('.note-list-item-content').style.transform = '';
+            
+            // Add haptic feedback
+            this.triggerHapticFeedback();
+        } else {
+            // Reset the swipe
+            this.activeSwipe.style.transform = '';
+            this.activeSwipe.querySelector('.note-list-item-content').style.transform = '';
+        }
+        
+        this.activeSwipe = null;
+    }
+
+    handleKeyDown(e) {
+        const noteItem = e.target.closest('.note-list-item');
+        if (!noteItem) return;
+        
+        const noteId = noteItem.getAttribute('data-note-id');
+        if (!noteId) return;
+        
+        // Handle Delete key for keyboard users
+        if (e.key === 'Delete' || e.key === 'Backspace') {
+            e.preventDefault();
+            this.showDeleteConfirmation(noteId);
+        }
+        
+        // Handle Enter key to select note
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            this.selectNote(noteId);
+        }
+    }
+
+    triggerHapticFeedback() {
+        // Simulate haptic feedback with CSS animation
+        const noteItem = this.activeSwipe;
+        if (noteItem) {
+            noteItem.classList.add('haptic-feedback');
+            setTimeout(() => {
+                noteItem.classList.remove('haptic-feedback');
+            }, 100);
+        }
+        
+        // Try to use native haptic feedback if available
+        if (navigator.vibrate) {
+            navigator.vibrate(50);
+        }
+    }
+
+    resetActiveSwipes() {
+        // Reset any active swipes
+        const swipedItems = document.querySelectorAll('.note-list-item.swiped');
+        swipedItems.forEach(item => {
+            item.classList.remove('swiped');
+            item.style.transform = '';
+            const content = item.querySelector('.note-list-item-content');
+            if (content) {
+                content.style.transform = '';
+            }
+        });
+        
+        // Clear active swipe reference
+        this.activeSwipe = null;
+    }
+
+    // Delete Confirmation Methods
+    showDeleteConfirmation(noteId) {
+        const note = this.allNotes.find(n => n.id === noteId);
+        if (!note) return;
+
+        const overlay = document.createElement('div');
+        overlay.className = 'delete-confirmation-overlay';
+        overlay.innerHTML = `
+            <div class="delete-confirmation-dialog">
+                <div class="delete-confirmation-header">
+                    <div class="delete-confirmation-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 class="delete-confirmation-title">Delete Note</h3>
+                </div>
+                <p class="delete-confirmation-message">
+                    Are you sure you want to delete "<strong>${note.title || 'Untitled Note'}</strong>"? 
+                    This action cannot be undone.
+                </p>
+                <div class="delete-confirmation-actions">
+                    <button class="btn-secondary" onclick="notesModule.hideDeleteConfirmation()">
+                        Cancel
+                    </button>
+                    <button class="btn-danger" onclick="notesModule.confirmDeleteNote('${noteId}')">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+        
+        // Add haptic feedback
+        this.triggerHapticFeedback();
+        
+        // Close on overlay click
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                this.hideDeleteConfirmation();
+            }
+        });
+    }
+
+    hideDeleteConfirmation() {
+        const overlay = document.querySelector('.delete-confirmation-overlay');
+        if (overlay) {
+            overlay.remove();
+        }
+    }
+
+    async confirmDeleteNote(noteId) {
+        try {
+            // Hide confirmation dialog
+            this.hideDeleteConfirmation();
+            
+            // Store note for potential undo
+            const noteToDelete = this.allNotes.find(n => n.id === noteId);
+            if (!noteToDelete) return;
+            
+            // Delete the note
+            await storageManager.deleteItem('notes', noteId);
+            
+            // Show undo toast
+            this.showUndoToast(noteToDelete);
+            
+            // Refresh notes list
+            await this.loadNotes();
+            
+            // If the deleted note was selected, hide the editor
+            if (this.currentNote && this.currentNote.id === noteId) {
+                this.hideNoteEditor();
+            }
+            
+        } catch (error) {
+            console.error('Error deleting note:', error);
+            app.showToast('Error deleting note', 'error');
+        }
+    }
+
+    showUndoToast(deletedNote) {
+        const toast = document.createElement('div');
+        toast.className = 'undo-toast';
+        toast.innerHTML = `
+            <div>
+                <div class="undo-toast-message">Note deleted</div>
+                <div class="undo-toast-timer">Undo available for 3 seconds</div>
+            </div>
+            <button class="undo-toast-button" onclick="notesModule.undoDeleteNote('${deletedNote.id}')">
+                Undo
+            </button>
+        `;
+
+        document.body.appendChild(toast);
+        
+        // Auto-remove toast after 3 seconds
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.remove();
+            }
+        }, 3000);
+        
+        // Update timer countdown
+        let timeLeft = 3;
+        const timerElement = toast.querySelector('.undo-toast-timer');
+        const countdown = setInterval(() => {
+            timeLeft--;
+            if (timerElement) {
+                timerElement.textContent = `Undo available for ${timeLeft} second${timeLeft !== 1 ? 's' : ''}`;
+            }
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }
+        }, 1000);
+        
+        // Store the deleted note for potential undo
+        this.deletedNote = deletedNote;
+        this.undoTimeout = setTimeout(() => {
+            this.deletedNote = null;
+        }, 3000);
+    }
+
+    async undoDeleteNote(noteId) {
+        if (!this.deletedNote) return;
+        
+        try {
+            // Restore the note
+            await storageManager.saveItem('notes', this.deletedNote);
+            
+            // Remove undo toast
+            const toast = document.querySelector('.undo-toast');
+            if (toast) {
+                toast.remove();
+            }
+            
+            // Clear undo timeout
+            if (this.undoTimeout) {
+                clearTimeout(this.undoTimeout);
+                this.undoTimeout = null;
+            }
+            
+            // Refresh notes list
+            await this.loadNotes();
+            
+            // Show success message
+            app.showToast('Note restored', 'success');
+            
+            // Clear deleted note reference
+            this.deletedNote = null;
+            
+        } catch (error) {
+            console.error('Error restoring note:', error);
+            app.showToast('Error restoring note', 'error');
+        }
+    }
+
+    // Enhanced delete method with animation
+    async deleteNoteWithAnimation(noteId) {
+        const noteElement = document.querySelector(`[data-note-id="${noteId}"]`);
+        if (!noteElement) return;
+
+        // Add slide-out animation
+        noteElement.style.animation = 'slideOut 0.3s ease-out forwards';
+        
+        // Wait for animation to complete
+        setTimeout(async () => {
+            try {
+                await storageManager.deleteItem('notes', noteId);
+                await this.loadNotes();
+                
+                // If the deleted note was selected, hide the editor
+                if (this.currentNote && this.currentNote.id === noteId) {
+                    this.hideNoteEditor();
+                }
+            } catch (error) {
+                console.error('Error deleting note:', error);
+                app.showToast('Error deleting note', 'error');
+            }
+        }, 300);
     }
 }
 

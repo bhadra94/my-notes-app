@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swipe-to-Delete Test</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .test-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .test-header h1 {
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+        
+        .test-header p {
+            color: #6b7280;
+            margin: 0;
+        }
+        
+        .test-notes-list {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .test-instructions {
+            background: #f3f4f6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .test-instructions h3 {
+            margin: 0 0 10px 0;
+            color: #1f2937;
+        }
+        
+        .test-instructions ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #4b5563;
+        }
+        
+        .test-instructions li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>Swipe-to-Delete Test</h1>
+            <p>Test the swipe functionality for notes</p>
+        </div>
+        
+        <div class="test-instructions">
+            <h3>How to test:</h3>
+            <ul>
+                <li><strong>Mobile/Tablet:</strong> Swipe left on any note to reveal the delete button</li>
+                <li><strong>Desktop:</strong> Use the delete button that appears on hover</li>
+                <li><strong>Keyboard:</strong> Focus on a note and press Delete or Backspace</li>
+                <li><strong>Touch:</strong> Tap the red delete button to show confirmation dialog</li>
+            </ul>
+        </div>
+        
+        <div class="test-notes-list">
+            <div class="note-list-item" data-note-id="test1">
+                <div class="note-list-item-content">
+                    <div class="note-list-title">Sample Note 1</div>
+                    <div class="note-list-time">2 minutes ago</div>
+                    <div class="note-list-preview">This is a sample note to test the swipe-to-delete functionality...</div>
+                </div>
+                <button class="note-delete-button" onclick="showDeleteConfirmation('test1')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            
+            <div class="note-list-item" data-note-id="test2">
+                <div class="note-list-item-content">
+                    <div class="note-list-title">Sample Note 2</div>
+                    <div class="note-list-time">5 minutes ago</div>
+                    <div class="note-list-preview">Another sample note with different content to test the functionality...</div>
+                </div>
+                <button class="note-delete-button" onclick="showDeleteConfirmation('test2')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            
+            <div class="note-list-item" data-note-id="test3">
+                <div class="note-list-item-content">
+                    <div class="note-list-title">Sample Note 3</div>
+                    <div class="note-list-time">10 minutes ago</div>
+                    <div class="note-list-preview">A third sample note to ensure the swipe functionality works consistently...</div>
+                </div>
+                <button class="note-delete-button" onclick="showDeleteConfirmation('test3')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simplified test implementation
+        let activeSwipe = null;
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartTime = 0;
+        const swipeThreshold = 80;
+
+        function handleTouchStart(e) {
+            const noteItem = e.target.closest('.note-list-item');
+            if (!noteItem) return;
+
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            touchStartTime = Date.now();
+            activeSwipe = noteItem;
+            
+            noteItem.classList.add('swiping');
+        }
+
+        function handleTouchMove(e) {
+            if (!activeSwipe) return;
+            
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - touchStartX;
+            const deltaY = Math.abs(touch.clientY - touchStartY);
+            
+            if (Math.abs(deltaX) < Math.abs(deltaY) * 2) return;
+            
+            e.preventDefault();
+            
+            if (deltaX > 0) return;
+            
+            const swipeDistance = Math.min(Math.abs(deltaX), swipeThreshold);
+            const transform = `translateX(-${swipeDistance}px)`;
+            
+            activeSwipe.style.transform = transform;
+            activeSwipe.querySelector('.note-list-item-content').style.transform = transform;
+        }
+
+        function handleTouchEnd(e) {
+            if (!activeSwipe) return;
+            
+            const touch = e.changedTouches[0];
+            const deltaX = touch.clientX - touchStartX;
+            const swipeTime = Date.now() - touchStartTime;
+            
+            activeSwipe.classList.remove('swiping');
+            
+            const shouldComplete = Math.abs(deltaX) > swipeThreshold / 2 || 
+                                 (Math.abs(deltaX) > 30 && swipeTime < 300);
+            
+            if (shouldComplete && deltaX < 0) {
+                activeSwipe.classList.add('swiped');
+                activeSwipe.style.transform = '';
+                activeSwipe.querySelector('.note-list-item-content').style.transform = '';
+                
+                // Haptic feedback
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            } else {
+                activeSwipe.style.transform = '';
+                activeSwipe.querySelector('.note-list-item-content').style.transform = '';
+            }
+            
+            activeSwipe = null;
+        }
+
+        function showDeleteConfirmation(noteId) {
+            const overlay = document.createElement('div');
+            overlay.className = 'delete-confirmation-overlay';
+            overlay.innerHTML = `
+                <div class="delete-confirmation-dialog">
+                    <div class="delete-confirmation-header">
+                        <div class="delete-confirmation-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3 class="delete-confirmation-title">Delete Note</h3>
+                    </div>
+                    <p class="delete-confirmation-message">
+                        Are you sure you want to delete this note? This action cannot be undone.
+                    </p>
+                    <div class="delete-confirmation-actions">
+                        <button class="btn-secondary" onclick="hideDeleteConfirmation()">
+                            Cancel
+                        </button>
+                        <button class="btn-danger" onclick="confirmDeleteNote('${noteId}')">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+            
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+            
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    hideDeleteConfirmation();
+                }
+            });
+        }
+
+        function hideDeleteConfirmation() {
+            const overlay = document.querySelector('.delete-confirmation-overlay');
+            if (overlay) {
+                overlay.remove();
+            }
+        }
+
+        function confirmDeleteNote(noteId) {
+            hideDeleteConfirmation();
+            
+            const noteElement = document.querySelector(`[data-note-id="${noteId}"]`);
+            if (noteElement) {
+                noteElement.style.animation = 'slideOut 0.3s ease-out forwards';
+                setTimeout(() => {
+                    noteElement.remove();
+                }, 300);
+            }
+            
+            // Show undo toast
+            showUndoToast(noteId);
+        }
+
+        function showUndoToast(noteId) {
+            const toast = document.createElement('div');
+            toast.className = 'undo-toast';
+            toast.innerHTML = `
+                <div>
+                    <div class="undo-toast-message">Note deleted</div>
+                    <div class="undo-toast-timer">Undo available for 3 seconds</div>
+                </div>
+                <button class="undo-toast-button" onclick="undoDeleteNote('${noteId}')">
+                    Undo
+                </button>
+            `;
+
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 3000);
+            
+            let timeLeft = 3;
+            const timerElement = toast.querySelector('.undo-toast-timer');
+            const countdown = setInterval(() => {
+                timeLeft--;
+                if (timerElement) {
+                    timerElement.textContent = `Undo available for ${timeLeft} second${timeLeft !== 1 ? 's' : ''}`;
+                }
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }
+            }, 1000);
+        }
+
+        function undoDeleteNote(noteId) {
+            const toast = document.querySelector('.undo-toast');
+            if (toast) {
+                toast.remove();
+            }
+            
+            // In a real app, this would restore the note from storage
+            alert('Note would be restored in the real application');
+        }
+
+        // Setup event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const notesList = document.querySelector('.test-notes-list');
+            if (notesList) {
+                notesList.addEventListener('touchstart', handleTouchStart, { passive: false });
+                notesList.addEventListener('touchmove', handleTouchMove, { passive: false });
+                notesList.addEventListener('touchend', handleTouchEnd, { passive: false });
+            }
+        });
+    </script>
+</body>
+</html> 

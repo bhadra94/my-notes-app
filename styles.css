@@ -37,6 +37,336 @@
     --border-color: #374151;
 }
 
+/* Swipe-to-Delete Styles */
+.note-list-item {
+    position: relative;
+    overflow: hidden;
+    transform: translateX(0);
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    touch-action: pan-y;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.note-list-item.swiping {
+    transition: none;
+}
+
+.note-list-item.swiped {
+    transform: translateX(-80px);
+}
+
+.note-list-item-content {
+    position: relative;
+    z-index: 2;
+    background: var(--bg-primary);
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    border-radius: 8px;
+    margin: 2px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.note-list-item.swiped .note-list-item-content {
+    transform: translateX(-80px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.note-list-item.swiped {
+    transform: translateX(-80px);
+    background: linear-gradient(90deg, transparent 0%, rgba(239, 68, 68, 0.05) 100%);
+}
+
+.note-delete-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80px;
+    height: 100%;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1;
+    transition: background-color 0.2s ease;
+    font-size: 1.2rem;
+    box-shadow: inset 2px 0 4px rgba(0, 0, 0, 0.1);
+    border-radius: 0 8px 8px 0;
+    outline: none;
+}
+
+.note-delete-button:focus {
+    box-shadow: inset 2px 0 4px rgba(0, 0, 0, 0.1), 0 0 0 3px rgba(239, 68, 68, 0.3);
+}
+
+.note-delete-button:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+.note-delete-button:active {
+    background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+    transform: scale(0.95);
+}
+
+/* Confirmation Dialog Styles */
+.delete-confirmation-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease-out;
+}
+
+.delete-confirmation-dialog {
+    background: var(--bg-primary);
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    animation: slideUp 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    border: 1px solid var(--border-color);
+}
+
+.delete-confirmation-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.delete-confirmation-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.delete-confirmation-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.delete-confirmation-message {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+.delete-confirmation-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.delete-confirmation-actions .btn-secondary {
+    flex: 1;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.delete-confirmation-actions .btn-secondary:hover {
+    background: var(--bg-tertiary);
+}
+
+.delete-confirmation-actions .btn-danger {
+    flex: 1;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.delete-confirmation-actions .btn-danger:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Undo Toast Styles */
+.undo-toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    z-index: 10001;
+    animation: slideUp 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    max-width: 400px;
+    width: 90%;
+}
+
+.undo-toast-message {
+    flex: 1;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.undo-toast-timer {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.undo-toast-button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+}
+
+.undo-toast-button:hover {
+    background: var(--primary-hover);
+}
+
+/* Animation Keyframes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes slideOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+        height: auto;
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-100%);
+        height: 0;
+        margin: 0;
+        padding: 0;
+    }
+}
+
+/* Haptic Feedback Simulation */
+.haptic-feedback {
+    animation: hapticPulse 0.1s ease-out;
+}
+
+@keyframes hapticPulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(0.98);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Mobile-specific swipe improvements */
+@media (max-width: 768px) {
+    .note-list-item {
+        touch-action: pan-x;
+    }
+    
+    .note-delete-button {
+        width: 70px;
+        font-size: 1.1rem;
+    }
+    
+    .note-list-item.swiped {
+        transform: translateX(-70px);
+    }
+    
+    .note-list-item.swiped .note-list-item-content {
+        transform: translateX(-70px);
+    }
+    
+    .delete-confirmation-dialog {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+    
+    .delete-confirmation-actions {
+        flex-direction: column;
+    }
+    
+    .undo-toast {
+        bottom: 1rem;
+        left: 1rem;
+        right: 1rem;
+        transform: none;
+        width: auto;
+    }
+}
+
+/* Dark theme adjustments for swipe elements */
+[data-theme="dark"] .note-delete-button {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    box-shadow: inset 2px 0 4px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .note-delete-button:hover {
+    background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+}
+
+[data-theme="dark"] .delete-confirmation-dialog {
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .undo-toast {
+    border-color: var(--border-color);
+}
+
 /* Dark mode icon styling */
 [data-theme="dark"] .item-icon {
     background: #111111; /* Match the dark theme background */
@@ -568,45 +898,44 @@ body {
 
 .social-login {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
 }
 
 .btn-social {
     flex: 1;
-    padding: 0.875rem;
-    border: 2px solid var(--border-color);
-    border-radius: 12px;
-    background: var(--bg-secondary);
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: transparent;
     color: var(--text-primary);
-    font-weight: 500;
+    font-weight: 400;
+    font-size: 0.875rem;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    box-shadow: none;
 }
 
 .btn-social:hover {
     background: var(--bg-tertiary);
-    border-color: #64748b;
+    border-color: var(--primary-color);
     color: var(--text-primary);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: none;
+    box-shadow: none;
 }
 
 .btn-social.google:hover {
-    background: var(--bg-tertiary);
-    border-color: #64748b;
-    color: var(--text-primary);
+    background: rgba(234, 67, 53, 0.05);
+    border-color: #ea4335;
 }
 
 .btn-social.github:hover {
-    background: var(--bg-tertiary);
-    border-color: #64748b;
-    color: var(--text-primary);
+    background: rgba(36, 41, 46, 0.05);
+    border-color: #24292e;
 }
 
 .auth-switch {
@@ -1537,7 +1866,7 @@ body {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 2rem;
 }
@@ -1554,7 +1883,8 @@ body {
 }
 
 .dashboard-item:hover {
-    transform: translateY(-5px);
+    opacity: 0.85;
+    transition: opacity 0.2s ease;
 }
 
 .item-icon {
@@ -1596,8 +1926,9 @@ body {
 }
 
 .dashboard-item:hover .item-icon {
-    transform: scale(1.1);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    background: var(--bg-tertiary);
+    border-color: var(--primary-color);
+    transition: all 0.2s ease;
 }
 
 .item-label {
@@ -2511,10 +2842,11 @@ body {
         padding: clamp(1.25rem, 4vw, 1.75rem);
         width: 100%;
         max-width: min(360px, calc(100vw - 2rem));
-        border-radius: 16px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        border-radius: 0;
+        box-shadow: none;
         margin: 0;
         min-height: auto;
+        background: transparent;
     }
     
     /* Enhanced touch-friendly auth header */
@@ -2560,14 +2892,17 @@ body {
     }
     
     .btn-social {
-        min-height: calc(var(--min-touch-target) - 4px);
-        padding: 0.875rem 1rem;
-        font-size: clamp(0.9rem, 2.5vw, 1rem);
-        border-radius: 10px;
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
+        border: 1px solid var(--border-color);
+        background: transparent;
+        font-weight: 400;
     }
     
     /* Enhanced password toggle with better touch support */
@@ -2604,12 +2939,14 @@ body {
         flex-direction: row;
         gap: 0.75rem;
         width: 100%;
+        margin-bottom: 1.5rem;
     }
     
     .btn-social {
         flex: 1;
         min-width: 0;
         text-align: center;
+        font-size: 0.875rem;
     }
     
     .form-options {
@@ -2649,9 +2986,11 @@ body {
     /* Enhanced auth containers */
     .auth-container {
         padding: clamp(1.25rem, 4vw, 1.75rem);
-        margin: 0.5rem;
-        border-radius: 16px;
+        margin: 0;
+        border-radius: 0;
         min-height: auto;
+        background: transparent;
+        box-shadow: none;
     }
     
     /* Enhanced app header mobile optimization with safe area support */
@@ -3009,10 +3348,12 @@ body {
         --container-padding: var(--desktop-padding);
     }
     
-    /* Three-column dashboard */
+    /* Three-column dashboard for medium desktops */
     .dashboard-grid {
         grid-template-columns: repeat(3, 1fr);
         gap: 1.5rem;
+        max-width: 1000px;
+        margin: 0 auto;
     }
     
     /* Multi-column items grid */
@@ -3040,11 +3381,11 @@ body {
         --container-padding: calc(var(--desktop-padding) * 1.25);
     }
     
-    /* Four-column dashboard for large screens */
+    /* Three-column dashboard for large screens (better for 6 items) */
     .dashboard-grid {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 2rem;
-        max-width: 1600px;
+        max-width: 1200px;
         margin: 0 auto;
     }
     
