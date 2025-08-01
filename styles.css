@@ -646,7 +646,7 @@ body {
 
 /* Back Button */
 .back-btn {
-    display: flex;
+    display: none; /* Hidden by default, shown via JavaScript */
     align-items: center;
     justify-content: center;
     background: var(--bg-secondary);
@@ -673,6 +673,11 @@ body {
 
 .back-btn i {
     font-size: 1rem;
+}
+
+/* Show back button when JavaScript sets display: flex */
+.back-btn[style*="display: flex"] {
+    display: flex !important;
 }
 
 .header-actions {
@@ -2637,7 +2642,7 @@ body {
     
     /* Enhanced back button with better touch support - positioned on the left */
     .back-btn {
-        display: flex !important;
+        display: none; /* Hidden by default, shown via JavaScript */
         order: -1; /* Ensure it's first (leftmost) */
         min-height: var(--min-touch-target);
         min-width: auto;
@@ -2646,6 +2651,11 @@ body {
         transition: all 0.3s ease;
         flex-shrink: 0;
         font-size: 0.9rem;
+    }
+    
+    /* Show back button when it has display: flex (set by JavaScript) */
+    .back-btn[style*="display: flex"] {
+        display: flex !important;
     }
     
     .back-btn:hover,
