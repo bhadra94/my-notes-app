@@ -152,7 +152,7 @@ SecureNotes has been completely redesigned to support multiple users with indivi
 ## File Structure
 
 ```
-my-notes-app/
+ballpenbox/
 ├── index.html          # Main application with authentication UI
 ├── styles.css          # Modern styles with authentication screens
 ├── js/
@@ -289,7 +289,7 @@ DELETE /api/files/:fileId
 
 3. **Deploy from your project directory**:
    ```bash
-   cd my-notes-app
+   cd ballpenbox
    vercel
    ```
 
