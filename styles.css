@@ -1259,146 +1259,142 @@ body {
 
 /* Mobile-First Responsive Design */
 @media (max-width: 768px) {
-    /* Mobile-first: Login form takes priority */
-    .welcome-split-container {
-        grid-template-columns: 1fr;
-        grid-template-rows: 1fr auto;
+    /* Prevent horizontal scrolling */
+    body {
+        overflow-x: hidden;
+        -webkit-text-size-adjust: 100%;
     }
     
-    /* Login form comes first on mobile */
+    /* Mobile-optimized welcome layout */
+    .welcome-split-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+        min-height: 100vh;
+        width: 100vw;
+    }
+    
+    /* Compact branding at top */
+    .welcome-left {
+        order: 1;
+        padding: 1rem 1rem 0.5rem;
+        min-height: auto;
+        background: linear-gradient(135deg, #6bb6ff 0%, #87c5ff 50%, #a8d8ff 100%);
+    }
+    
+    /* Login form takes most space */
     .welcome-right {
-        order: -1;
+        order: 2;
         padding: 1rem;
-        min-height: 85vh;
+        min-height: calc(100vh - 120px);
         display: flex;
         align-items: flex-start;
         justify-content: center;
-        padding-top: 2rem;
+        padding-top: 1rem;
     }
     
-    /* Branding section minimized on mobile */
-    .welcome-left {
-        order: 1;
-        padding: 1rem;
-        min-height: auto;
-        max-height: 15vh;
-        overflow: hidden;
-    }
-    
-    /* Hide feature cards on mobile */
-    .welcome-left .feature-highlights {
-        display: none;
-    }
-    
-    /* Hide trust indicators on mobile */
-    .welcome-left .trust-indicators {
-        display: none;
-    }
-    
-    /* Minimal branding on mobile */
+    /* Compact branding */
     .welcome-left .app-branding {
         margin-bottom: 0.5rem;
         text-align: center;
     }
     
     .welcome-left .app-branding h1 {
-        font-size: 1.8rem;
+        font-size: 1.75rem;
         margin-bottom: 0.25rem;
+        line-height: 1.2;
     }
     
     .welcome-left .app-branding .tagline {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         margin-bottom: 0;
+        opacity: 0.95;
     }
     
     .welcome-left .app-icon {
-        width: 40px;
-        height: 40px;
+        width: 35px;
+        height: 35px;
         margin: 0 auto 0.5rem;
+        border-radius: 12px;
     }
     
     .welcome-left .app-icon i {
-        font-size: 1.25rem;
+        font-size: 1.1rem;
         transform: rotate(-45deg);
     }
     
-    /* Login form optimizations for mobile */
+    /* Hide feature cards and trust indicators on mobile */
+    .welcome-left .feature-highlights,
+    .welcome-left .trust-indicators {
+        display: none;
+    }
+    
+    /* Mobile-optimized auth container */
     .welcome-right .auth-container {
         padding: 1.5rem;
         width: 100%;
-        max-width: 350px;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        max-width: 360px;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        margin: 0;
     }
     
-    /* Auth form mobile optimizations */
+    /* Touch-friendly auth header */
     .auth-header h2 {
         font-size: 1.5rem;
-        margin-bottom: 0.25rem;
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
     }
     
     .auth-header p {
         font-size: 0.9rem;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.4;
     }
     
-    /* Mobile touch-friendly inputs */
+    /* Touch-friendly form inputs */
     .form-input {
-        padding: 1rem;
-        font-size: 16px; /* Prevents zoom on iOS */
-        border-radius: 8px;
-        min-height: 48px; /* Touch-friendly height */
+        padding: 1rem 1rem;
+        font-size: 16px; /* Prevents iOS zoom */
+        border-radius: 12px;
+        min-height: 52px; /* Better touch target */
+        -webkit-appearance: none; /* Remove iOS styling */
     }
     
+    /* Touch-friendly buttons */
     .btn-primary {
-        min-height: 48px;
+        min-height: 52px;
         font-size: 1rem;
-        padding: 0.875rem 1.5rem;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
     }
     
     .btn-social {
         min-height: 48px;
-        padding: 1rem;
+        padding: 0.875rem 1rem;
         font-size: 0.95rem;
+        border-radius: 10px;
     }
     
+    /* Better password toggle */
     .password-toggle {
-        padding: 0.75rem;
+        padding: 1rem;
         right: 0.75rem;
+        min-height: 44px;
+        min-width: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     
     .password-toggle i {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
     }
     
-    .feature-highlights {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
-    
-    .cta-buttons {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .btn-primary.large,
-    .btn-secondary.large {
-        width: 100%;
-        max-width: 300px;
-    }
-    
-    .trust-indicators {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .auth-container {
-        padding: 2rem 1.5rem;
-        margin: 1rem;
-    }
-    
+    /* Form layout improvements */
     .form-row {
         grid-template-columns: 1fr;
+        gap: 1rem;
     }
     
     .social-login {
@@ -1417,23 +1413,52 @@ body {
         gap: 1rem;
     }
     
-    /* App responsive */
-    .app-main {
-        padding: 1rem;
+    /* Better checkbox and link touch targets */
+    .checkbox-container {
+        padding: 0.75rem 0;
+        min-height: 48px;
+        align-items: center;
+    }
+    
+    .forgot-password {
+        padding: 0.75rem 0;
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+    }
+    
+    /* Auth containers */
+    .auth-container {
+        padding: 1.5rem;
+        margin: 0.5rem;
+        border-radius: 16px;
+    }
+    
+    /* App header mobile optimization */
+    .app-header {
+        padding: 0.75rem 1rem;
     }
     
     .header-content {
-        flex-direction: column;
+        flex-direction: row;
         gap: 1rem;
+        align-items: center;
+    }
+    
+    .header-content h1 {
+        font-size: 1.25rem;
     }
     
     .header-actions {
-        width: 100%;
-        justify-content: space-between;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
     }
     
     .search-container input {
-        width: 200px;
+        width: 180px;
+        padding: 0.5rem 0.5rem 0.5rem 2rem;
+        font-size: 14px;
     }
     
     .user-name {
@@ -1443,40 +1468,83 @@ body {
     .user-dropdown {
         right: 0;
         left: auto;
-        min-width: 250px;
+        min-width: 280px;
+        margin-top: 0.75rem;
     }
     
+    /* Navigation improvements */
+    .app-nav {
+        padding: 0.5rem 1rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .nav-item {
+        white-space: nowrap;
+        padding: 0.75rem 1rem;
+        min-width: max-content;
+    }
+    
+    /* Main content area */
+    .app-main {
+        padding: 1rem;
+    }
+    
+    /* Dashboard improvements */
     .dashboard-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
     }
     
+    .dashboard-card {
+        padding: 1.25rem;
+    }
+    
+    /* Items grid */
     .items-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
     }
     
+    /* Module headers */
     .module-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
+        padding-bottom: 0.75rem;
     }
     
     .module-toolbar {
         flex-direction: column;
+        gap: 0.75rem;
     }
     
     .module-toolbar input,
     .module-toolbar select {
         min-width: unset;
         width: 100%;
+        min-height: 48px;
+        padding: 0.75rem;
+        font-size: 16px;
     }
     
+    /* Modal improvements */
     .modal-content {
-        padding: 1rem;
+        padding: 1.25rem;
         margin: 1rem;
+        max-width: calc(100vw - 2rem);
+        border-radius: 16px;
     }
     
     .form-actions {
         flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .form-actions .btn-primary,
+    .form-actions .btn-secondary {
+        width: 100%;
+        min-height: 48px;
     }
 }
 
@@ -1565,39 +1633,88 @@ body {
     background: rgba(37, 99, 235, 0.1);
 }
 
-/* Mobile viewport optimization */
-@media (max-width: 768px) {
-    /* Ensure no horizontal scrolling */
-    body {
-        overflow-x: hidden;
+/* Small mobile devices (320px - 480px) */
+@media (max-width: 480px) {
+    /* Ultra-compact branding for small phones */
+    .welcome-left .app-branding h1 {
+        font-size: 1.5rem;
     }
     
-    /* Optimize auth screen for mobile */
+    .welcome-left .app-branding .tagline {
+        font-size: 0.8rem;
+    }
+    
+    .welcome-left .app-icon {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .welcome-left .app-icon i {
+        font-size: 1rem;
+    }
+    
+    /* Smaller auth container for tiny screens */
+    .welcome-right .auth-container {
+        max-width: 320px;
+        padding: 1.25rem;
+    }
+    
+    .auth-header h2 {
+        font-size: 1.35rem;
+    }
+    
+    /* Adjust input sizes for very small screens */
+    .form-input {
+        padding: 0.875rem;
+        min-height: 48px;
+    }
+    
+    .btn-primary {
+        min-height: 48px;
+        padding: 0.875rem 1.25rem;
+    }
+    
+    /* Stack social login buttons on tiny screens */
+    .social-login {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .btn-social {
+        width: 100%;
+    }
+    
+    /* Smaller modals for tiny screens */
+    .modal-content {
+        margin: 0.5rem;
+        padding: 1rem;
+    }
+}
+
+/* Mobile viewport optimization - Merged and improved */
+@media (max-width: 768px) {
+    /* Viewport and scrolling fixes */
+    html {
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+    }
+    
+    body {
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Safe area optimization for notched devices */
     .auth-screen {
         padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
     
-    /* Login form visibility priority on mobile */
     .welcome-section {
         padding: 0;
         min-height: 100vh;
     }
     
-    /* Improve touch targets */
-    .checkbox-container {
-        padding: 0.5rem 0;
-        min-height: 44px;
-        align-items: center;
-    }
-    
-    .forgot-password {
-        padding: 0.5rem 0;
-        min-height: 44px;
-        display: flex;
-        align-items: center;
-    }
-    
-    /* Better mobile form spacing */
+    /* Form spacing and touch targets */
     .form-group {
         margin-bottom: 1.25rem;
     }
@@ -1606,20 +1723,22 @@ body {
         margin: 1.5rem 0;
     }
     
-    /* Mobile auth switch */
     .auth-switch {
         padding: 1rem 0;
         font-size: 0.95rem;
     }
     
     .auth-switch a {
-        padding: 0.25rem 0.5rem;
-        border-radius: 4px;
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
         transition: background-color 0.2s ease;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
     }
     
     .auth-switch a:hover {
-        background-color: rgba(37, 99, 235, 0.1);
+        background-color: rgba(107, 182, 255, 0.1);
     }
 }
 
