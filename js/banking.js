@@ -15,6 +15,14 @@ class BankingModule {
                 }, 300);
             });
         }
+
+        // Filter functionality
+        const filterSelect = document.getElementById('bankingFilter');
+        if (filterSelect) {
+            filterSelect.addEventListener('change', (e) => {
+                this.filterBankAccounts(e.target.value);
+            });
+        }
     }
 
     async loadBankAccounts() {
@@ -39,12 +47,34 @@ class BankingModule {
         }
     }
 
+    async filterBankAccounts(filterType) {
+        try {
+            if (!filterType) {
+                // Show all accounts
+                await this.loadBankAccounts();
+                return;
+            }
+
+            const accounts = await storageManager.loadData('banking');
+            const filteredAccounts = accounts.filter(account => account.accountType === filterType);
+            this.renderBankAccounts(filteredAccounts);
+        } catch (error) {
+            console.error('Error filtering bank accounts:', error);
+        }
+    }
+
     renderBankAccounts(accounts) {
         const container = document.getElementById('bankingList');
+        const countElement = document.getElementById('bankingCount');
+        
+        // Update count
+        if (countElement) {
+            countElement.textContent = `${accounts.length} account${accounts.length !== 1 ? 's' : ''}`;
+        }
         
         if (accounts.length === 0) {
             container.innerHTML = `
-                <div class="empty-state">
+                <div class="banking-empty-state">
                     <i class="fas fa-university fa-3x text-muted"></i>
                     <h3>No Bank Accounts Yet</h3>
                     <p>Add your first bank account to get started</p>
@@ -56,7 +86,88 @@ class BankingModule {
             return;
         }
 
-        container.innerHTML = accounts.map(account => this.renderBankCard(account)).join('');
+        container.innerHTML = accounts.map(account => this.renderBankItem(account)).join('');
+        
+        // Add click handlers to items
+        container.querySelectorAll('.banking-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const accountId = item.dataset.id;
+                this.selectBankAccount(accountId);
+            });
+        });
+    }
+
+    renderBankItem(account) {
+        const timeAgo = this.getTimeAgo(new Date(account.modified || account.created));
+        
+        // Get icon based on account type
+        const getAccountIcon = (type) => {
+            switch(type) {
+                case 'credit': return 'fas fa-credit-card';
+                case 'savings': return 'fas fa-piggy-bank';
+                case 'investment': return 'fas fa-chart-line';
+                case 'loan': return 'fas fa-hand-holding-usd';
+                default: return 'fas fa-university';
+            }
+        };
+
+        return `
+            <div class="banking-item" data-id="${account.id}">
+                <div class="banking-item-icon">
+                    <i class="${getAccountIcon(account.accountType)}"></i>
+                </div>
+                <div class="banking-item-content">
+                    <div class="banking-item-name">${account.bankName}</div>
+                    <div class="banking-item-type">${account.accountType} • ${timeAgo}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    async selectBankAccount(accountId) {
+        try {
+            const account = await storageManager.getItem('banking', accountId);
+            if (!account) return;
+
+            // Update selected state in list
+            document.querySelectorAll('.banking-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            document.querySelector(`[data-id="${accountId}"]`).classList.add('selected');
+
+            // Show account details
+            this.showAccountDetails(account);
+
+        } catch (error) {
+            console.error('Error selecting bank account:', error);
+            app.showToast('Error loading account details', 'error');
+        }
+    }
+
+    showAccountDetails(account) {
+        const emptyState = document.getElementById('bankingEmptyState');
+        const detailsContainer = document.getElementById('bankingDetails');
+
+        // Hide empty state, show details
+        emptyState.classList.add('hidden');
+        detailsContainer.classList.remove('hidden');
+
+        // Update account information
+        document.getElementById('selectedAccountName').textContent = account.bankName;
+        document.getElementById('selectedAccountType').textContent = account.accountType;
+
+        // Update detail cards
+        document.getElementById('accountCardNumber').textContent = 
+            cryptoManager.maskSensitiveData(account.accountNumber, 4);
+        document.getElementById('accountExpiry').textContent = account.expiryDate || 'N/A';
+        document.getElementById('accountCVV').textContent = account.cvv ? '***' : 'N/A';
+        document.getElementById('accountHolder').textContent = account.cardholderName || 'N/A';
+        document.getElementById('accountBank').textContent = account.bankName;
+        document.getElementById('accountPhone').textContent = account.phoneNumber || 'N/A';
+        document.getElementById('accountNotes').textContent = account.notes || 'No notes available';
+
+        // Store current account ID for edit/delete operations
+        detailsContainer.dataset.accountId = account.id;
     }
 
     renderBankCard(account) {
@@ -150,6 +261,22 @@ class BankingModule {
         } catch (error) {
             console.error('Error loading bank account:', error);
             app.showToast('Error loading bank account', 'error');
+        }
+    }
+
+    editBankAccount() {
+        const detailsContainer = document.getElementById('bankingDetails');
+        const accountId = detailsContainer.dataset.accountId;
+        if (accountId) {
+            this.editBankAccount(accountId);
+        }
+    }
+
+    deleteBankAccount() {
+        const detailsContainer = document.getElementById('bankingDetails');
+        const accountId = detailsContainer.dataset.accountId;
+        if (accountId) {
+            this.deleteBankAccount(accountId);
         }
     }
 
@@ -253,11 +380,16 @@ class BankingModule {
                 accountData.id = id;
             }
             
-            await storageManager.saveItem('banking', accountData);
+            const savedAccount = await storageManager.saveItem('banking', accountData);
             
             app.closeModal();
             app.showToast('Bank account saved successfully', 'success');
             await this.loadBankAccounts();
+            
+            // Select the saved account
+            if (savedAccount && savedAccount.id) {
+                this.selectBankAccount(savedAccount.id);
+            }
             
         } catch (error) {
             console.error('Error saving bank account:', error);

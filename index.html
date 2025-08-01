@@ -265,16 +265,12 @@
             <!-- Header -->
             <header class="app-header">
                 <div class="header-content">
-                    <!-- Mobile hamburger menu button -->
-                    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
-                        <div class="hamburger">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                        </div>
-                    </button>
+                                    <!-- Back Button (hidden on dashboard) -->
+                <button class="back-btn" id="backToDashboard" onclick="navigateToDashboard()" style="display: none;">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
                     
-                    <h1 class="app-logo" onclick="event.stopPropagation(); if(window.app) window.app.switchModule('dashboard');" style="cursor: pointer;"><i class="fas fa-sticky-note"></i> ballpenbox</h1>
+                    <h1 class="app-logo" onclick="navigateToDashboard()" style="cursor: pointer;"><i class="fas fa-sticky-note"></i> ballpenbox</h1>
                     <div class="header-actions">
                         <div class="search-container">
                             <input type="text" id="globalSearch" placeholder="Search everywhere..." />
@@ -301,10 +297,6 @@
                                     <div class="user-details">
                                         <div class="user-name-large" id="userNameLarge">User</div>
                                         <div class="user-email" id="userEmail">user@example.com</div>
-                                        <div class="two-factor-status disabled" id="twoFactorStatus">
-                                            <i class="fas fa-shield"></i>
-                                            Disabled
-                                        </div>
                                     </div>
                                 </div>
                                 <div class="dropdown-divider"></div>
@@ -335,100 +327,7 @@
                 </div>
             </header>
 
-            <!-- Desktop Navigation -->
-            <nav class="app-nav desktop-nav">
-                <div class="nav-item active" data-module="dashboard">
-                    <i class="fas fa-home"></i>
-                    <span>Dashboard</span>
-                </div>
-                <div class="nav-item" data-module="notes">
-                    <i class="fas fa-pen"></i>
-                    <span>Notes</span>
-                </div>
-                <div class="nav-item" data-module="banking">
-                    <i class="fas fa-university"></i>
-                    <span>Banking</span>
-                </div>
-                <div class="nav-item" data-module="passwords">
-                    <i class="fas fa-key"></i>
-                    <span>Passwords</span>
-                </div>
-                <div class="nav-item" data-module="documents">
-                    <i class="fas fa-file-alt"></i>
-                    <span>Documents</span>
-                </div>
-                <div class="nav-item" data-module="creative">
-                    <i class="fas fa-palette"></i>
-                    <span>Creative</span>
-                </div>
-                <div class="nav-item" data-module="todos">
-                    <i class="fas fa-tasks"></i>
-                    <span>To-Do</span>
-                </div>
-            </nav>
 
-            <!-- Mobile Navigation Overlay -->
-            <div class="mobile-nav-overlay" id="mobileNavOverlay">
-                <div class="mobile-nav-content">
-                    <div class="mobile-nav-header">
-                        <h2 class="app-logo-mobile" onclick="event.stopPropagation(); if(window.app) window.app.switchModule('dashboard');" style="cursor: pointer;"><i class="fas fa-sticky-note"></i> ballpenbox</h2>
-                        <button class="mobile-nav-close" onclick="toggleMobileMenu()" aria-label="Close menu">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    
-                    <nav class="mobile-nav">
-                        <div class="mobile-nav-item active" data-module="dashboard" onclick="navigateToModule('dashboard')">
-                            <i class="fas fa-home"></i>
-                            <span>Dashboard</span>
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-                        <div class="mobile-nav-item" data-module="notes" onclick="navigateToModule('notes')">
-                            <i class="fas fa-pen"></i>
-                            <span>Notes</span>
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-                        <div class="mobile-nav-item" data-module="banking" onclick="navigateToModule('banking')">
-                            <i class="fas fa-university"></i>
-                            <span>Banking</span>
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-                        <div class="mobile-nav-item" data-module="passwords" onclick="navigateToModule('passwords')">
-                            <i class="fas fa-key"></i>
-                            <span>Passwords</span>
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-                        <div class="mobile-nav-item" data-module="documents" onclick="navigateToModule('documents')">
-                            <i class="fas fa-file-alt"></i>
-                            <span>Documents</span>
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-                        <div class="mobile-nav-item" data-module="creative" onclick="navigateToModule('creative')">
-                            <i class="fas fa-palette"></i>
-                            <span>Creative</span>
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-                        <div class="mobile-nav-item" data-module="todos" onclick="navigateToModule('todos')">
-                            <i class="fas fa-tasks"></i>
-                            <span>To-Do</span>
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-                    </nav>
-
-                    <div class="mobile-nav-footer">
-                        <div class="mobile-nav-actions">
-                            <button class="mobile-action-btn" onclick="toggleTheme()">
-                                <i class="fas fa-moon"></i>
-                                <span>Theme</span>
-                            </button>
-                            <button class="mobile-action-btn logout" onclick="logoutUser()">
-                                <i class="fas fa-sign-out-alt"></i>
-                                <span>Sign Out</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- Mobile Search Overlay -->
             <div class="mobile-search-overlay" id="mobileSearchOverlay">
@@ -505,77 +404,54 @@
             <main class="app-main">
                 <!-- Dashboard -->
                 <div id="dashboard" class="module-content active">
+                    <!-- Dashboard Grid -->
                     <div class="dashboard-grid">
-                        <div class="dashboard-card" data-module="notes">
-                            <div class="card-header">
-                                <i class="fas fa-pen"></i>
-                                <h3>Notes</h3>
-                            </div>
-                            <div class="card-stats">
-                                <span class="stat-number" id="notesCount">0</span>
-                                <span class="stat-label">Total Notes</span>
-                            </div>
-                            <div class="card-recent" id="recentNotes"></div>
-                        </div>
-
-                        <div class="dashboard-card" data-module="banking">
-                            <div class="card-header">
-                                <i class="fas fa-university"></i>
-                                <h3>Banking</h3>
-                            </div>
-                            <div class="card-stats">
-                                <span class="stat-number" id="bankingCount">0</span>
-                                <span class="stat-label">Bank Accounts</span>
-                            </div>
-                            <div class="card-recent" id="recentBanking"></div>
-                        </div>
-
-                        <div class="dashboard-card" data-module="passwords">
-                            <div class="card-header">
-                                <i class="fas fa-key"></i>
-                                <h3>Passwords</h3>
-                            </div>
-                            <div class="card-stats">
-                                <span class="stat-number" id="passwordsCount">0</span>
-                                <span class="stat-label">Saved Passwords</span>
-                            </div>
-                            <div class="card-recent" id="recentPasswords"></div>
-                        </div>
-
-                        <div class="dashboard-card" data-module="documents">
-                            <div class="card-header">
+                        <!-- Notes -->
+                        <div class="dashboard-item" onclick="navigateToModule('notes')">
+                            <div class="item-icon notes">
                                 <i class="fas fa-file-alt"></i>
-                                <h3>Documents</h3>
                             </div>
-                            <div class="card-stats">
-                                <span class="stat-number" id="documentsCount">0</span>
-                                <span class="stat-label">Documents</span>
-                            </div>
-                            <div class="card-recent" id="recentDocuments"></div>
+                            <span class="item-label">Notes</span>
                         </div>
 
-                        <div class="dashboard-card" data-module="creative">
-                            <div class="card-header">
-                                <i class="fas fa-palette"></i>
-                                <h3>Creative</h3>
+                        <!-- Bank Details -->
+                        <div class="dashboard-item" onclick="navigateToModule('banking')">
+                            <div class="item-icon banking">
+                                <i class="fas fa-credit-card"></i>
                             </div>
-                            <div class="card-stats">
-                                <span class="stat-number" id="creativeCount">0</span>
-                                <span class="stat-label">Projects</span>
-                            </div>
-                            <div class="card-recent" id="recentCreative"></div>
+                            <span class="item-label">Bank Details</span>
                         </div>
 
-                        <div class="dashboard-card" data-module="todos">
-                            <div class="card-header">
-                                <i class="fas fa-tasks"></i>
-                                <h3>To-Do</h3>
+                        <!-- Passwords -->
+                        <div class="dashboard-item" onclick="navigateToModule('passwords')">
+                            <div class="item-icon passwords">
+                                <i class="fas fa-key"></i>
                             </div>
-                            <div class="card-stats">
-                                <span class="stat-number" id="todosCount">0</span>
-                                <span class="stat-label">Active Tasks</span>
+                            <span class="item-label">Passwords</span>
+                        </div>
+
+                        <!-- Documents -->
+                        <div class="dashboard-item" onclick="navigateToModule('documents')">
+                            <div class="item-icon documents">
+                                <i class="fas fa-folder"></i>
                             </div>
-                            <div class="card-recent" id="recentTodos"></div>
+                            <span class="item-label">Documents</span>
+                        </div>
+
+                        <!-- Creative -->
+                        <div class="dashboard-item" onclick="navigateToModule('creative')">
+                            <div class="item-icon creative">
+                                <i class="fas fa-pen-nib"></i>
+                            </div>
+                            <span class="item-label">Creative</span>
+                        </div>
+
+                        <!-- To-Do -->
+                        <div class="dashboard-item" onclick="navigateToModule('todos')">
+                            <div class="item-icon todos">
+                                <i class="fas fa-check-square"></i>
+                            </div>
+                            <span class="item-label">To-Do</span>
                         </div>
                     </div>
                 </div>
@@ -677,16 +553,99 @@
 
                 <!-- Banking Module -->
                 <div id="banking" class="module-content">
-                    <div class="module-header">
-                        <h2><i class="fas fa-university"></i> Banking</h2>
-                        <button class="btn-primary" onclick="createBankAccount()">
-                            <i class="fas fa-plus"></i> Add Account
-                        </button>
+                    <div class="banking-container">
+                        <!-- Left Sidebar - Account List -->
+                        <div class="banking-sidebar">
+                            <div class="banking-sidebar-header">
+                                <h2><i class="fas fa-university"></i> Bank Details</h2>
+                                <button class="btn-primary" onclick="createBankAccount()">
+                                    <i class="fas fa-plus"></i> Add Account
+                                </button>
+                            </div>
+                            
+                            <div class="banking-sidebar-search">
+                                <input type="text" id="bankingSearch" placeholder="Search accounts..." />
+                            </div>
+                            
+                            <div class="banking-sidebar-controls">
+                                <select id="bankingFilter">
+                                    <option value="">All Accounts</option>
+                                    <option value="savings">Savings</option>
+                                    <option value="checking">Checking</option>
+                                    <option value="credit">Credit Cards</option>
+                                    <option value="investment">Investment</option>
+                                </select>
+                                <span class="banking-count" id="bankingCount">0 accounts</span>
+                            </div>
+                            
+                            <div class="banking-list" id="bankingList">
+                                <!-- Account items will be populated here -->
+                            </div>
+                        </div>
+                        
+                        <!-- Main Content Area -->
+                        <div class="banking-main">
+                            <!-- Empty State -->
+                            <div class="banking-empty-state" id="bankingEmptyState">
+                                <i class="fas fa-university fa-4x"></i>
+                                <h3>No Account Selected</h3>
+                                <p>Choose an account from the list to view details</p>
+                                <button class="btn-primary" onclick="createBankAccount()">
+                                    <i class="fas fa-plus"></i> Add Your First Account
+                                </button>
+                            </div>
+                            
+                            <!-- Account Details -->
+                            <div class="banking-details hidden" id="bankingDetails">
+                                <div class="account-header">
+                                    <div class="account-info">
+                                        <h3 id="selectedAccountName">Account Name</h3>
+                                        <p id="selectedAccountType">Account Type</p>
+                                    </div>
+                                    <div class="account-actions">
+                                        <button class="btn-secondary" onclick="editBankAccount()">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        <button class="btn-danger" onclick="deleteBankAccount()">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="account-details-grid">
+                                    <div class="detail-card">
+                                        <h4><i class="fas fa-credit-card"></i> Card Number</h4>
+                                        <p id="accountCardNumber">**** **** **** ****</p>
+                                    </div>
+                                    <div class="detail-card">
+                                        <h4><i class="fas fa-calendar"></i> Expiry Date</h4>
+                                        <p id="accountExpiry">MM/YY</p>
+                                    </div>
+                                    <div class="detail-card">
+                                        <h4><i class="fas fa-shield-alt"></i> CVV</h4>
+                                        <p id="accountCVV">***</p>
+                                    </div>
+                                    <div class="detail-card">
+                                        <h4><i class="fas fa-user"></i> Cardholder</h4>
+                                        <p id="accountHolder">Cardholder Name</p>
+                                    </div>
+                                    <div class="detail-card">
+                                        <h4><i class="fas fa-university"></i> Bank Name</h4>
+                                        <p id="accountBank">Bank Name</p>
+                                    </div>
+                                    <div class="detail-card">
+                                        <h4><i class="fas fa-phone"></i> Phone</h4>
+                                        <p id="accountPhone">Phone Number</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="account-notes">
+                                    <h4><i class="fas fa-sticky-note"></i> Notes</h4>
+                                    <p id="accountNotes">No notes available</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="module-toolbar">
-                        <input type="text" id="bankingSearch" placeholder="Search accounts..." />
-                    </div>
-                    <div id="bankingList" class="items-grid"></div>
                 </div>
 
                 <!-- Passwords Module -->
@@ -1036,5 +995,55 @@
     <script src="js/documents.js"></script>
     <script src="js/creative.js"></script>
     <script src="js/todos.js"></script>
+    
+    <script>
+        // Navigation functions
+        function navigateToModule(module) {
+            // Hide all modules
+            const modules = document.querySelectorAll('.module-content');
+            modules.forEach(m => m.classList.remove('active'));
+            
+            // Show selected module
+            const selectedModule = document.getElementById(module);
+            if (selectedModule) {
+                selectedModule.classList.add('active');
+            }
+            
+            // Show/hide back button
+            const backBtn = document.getElementById('backToDashboard');
+            if (module === 'dashboard') {
+                backBtn.style.display = 'none';
+            } else {
+                backBtn.style.display = 'flex';
+            }
+            
+            // Update navigation state
+            window.currentModule = module;
+        }
+        
+        function navigateToDashboard() {
+            navigateToModule('dashboard');
+        }
+        
+        function navigateToModuleAndClose(module) {
+            navigateToModule(module);
+            closeMobileSearch();
+        }
+        
+        // Initialize navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set initial state
+            window.currentModule = 'dashboard';
+            
+            // Add click handlers for dashboard items
+            const dashboardItems = document.querySelectorAll('.dashboard-item');
+            dashboardItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const module = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+                    navigateToModule(module);
+                });
+            });
+        });
+    </script>
 </body>
 </html>
