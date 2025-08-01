@@ -620,6 +620,21 @@ body {
     font-size: 1.5rem;
 }
 
+/* Logo hover effects */
+.app-logo:hover,
+.app-logo-mobile:hover {
+    color: var(--primary-hover);
+    transition: color 0.2s ease;
+}
+
+.app-logo {
+    transition: color 0.2s ease;
+}
+
+.app-logo-mobile {
+    transition: color 0.2s ease;
+}
+
 .header-actions {
     display: flex;
     align-items: center;
