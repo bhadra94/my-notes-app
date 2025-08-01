@@ -480,10 +480,188 @@ document.addEventListener('click', (e) => {
 // Handle escape key to close mobile menu
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-        const overlay = document.getElementById('mobileNavOverlay');
-        if (overlay && overlay.classList.contains('active')) {
+        const navOverlay = document.getElementById('mobileNavOverlay');
+        const searchOverlay = document.getElementById('mobileSearchOverlay');
+        
+        if (searchOverlay && searchOverlay.classList.contains('active')) {
+            window.closeMobileSearch();
+        } else if (navOverlay && navOverlay.classList.contains('active')) {
             window.toggleMobileMenu();
         }
+    }
+});
+
+// Mobile Search Functions
+window.openMobileSearch = () => {
+    const overlay = document.getElementById('mobileSearchOverlay');
+    const searchInput = document.getElementById('mobileSearchInput');
+    const body = document.body;
+    
+    if (overlay) {
+        overlay.classList.add('active');
+        body.style.overflow = 'hidden'; // Prevent background scrolling
+        
+        // Auto-focus the search input after animation
+        setTimeout(() => {
+            if (searchInput) {
+                searchInput.focus();
+            }
+        }, 100);
+        
+        // Show suggestions by default
+        showMobileSearchSuggestions();
+    }
+};
+
+window.closeMobileSearch = () => {
+    const overlay = document.getElementById('mobileSearchOverlay');
+    const searchInput = document.getElementById('mobileSearchInput');
+    const body = document.body;
+    
+    if (overlay) {
+        overlay.classList.remove('active');
+        body.style.overflow = '';
+        
+        // Clear search input
+        if (searchInput) {
+            searchInput.value = '';
+            handleMobileSearchInput();
+        }
+    }
+};
+
+window.clearMobileSearch = () => {
+    const searchInput = document.getElementById('mobileSearchInput');
+    if (searchInput) {
+        searchInput.value = '';
+        searchInput.focus();
+        handleMobileSearchInput();
+    }
+};
+
+window.navigateToModuleAndClose = (module) => {
+    // Close search overlay first
+    window.closeMobileSearch();
+    
+    // Navigate to module
+    if (window.app) {
+        window.app.switchModule(module);
+    }
+};
+
+function handleMobileSearchInput() {
+    const searchInput = document.getElementById('mobileSearchInput');
+    const clearBtn = document.getElementById('mobileSearchClear');
+    const suggestions = document.getElementById('mobileSearchSuggestions');
+    const results = document.getElementById('mobileSearchResults');
+    const empty = document.getElementById('mobileSearchEmpty');
+    
+    if (!searchInput) return;
+    
+    const query = searchInput.value.trim();
+    
+    // Show/hide clear button
+    if (clearBtn) {
+        clearBtn.style.display = query.length > 0 ? 'flex' : 'none';
+    }
+    
+    if (query.length === 0) {
+        // Show suggestions when no search query
+        showMobileSearchSuggestions();
+    } else if (query.length >= 2) {
+        // Perform search when query is 2+ characters
+        performMobileSearch(query);
+    } else {
+        // Hide all sections for queries 1 character long
+        hideAllMobileSearchSections();
+    }
+}
+
+function showMobileSearchSuggestions() {
+    const suggestions = document.getElementById('mobileSearchSuggestions');
+    const results = document.getElementById('mobileSearchResults');
+    const empty = document.getElementById('mobileSearchEmpty');
+    
+    if (suggestions) suggestions.classList.remove('hidden');
+    if (results) results.classList.add('hidden');
+    if (empty) empty.classList.add('hidden');
+}
+
+function hideAllMobileSearchSections() {
+    const suggestions = document.getElementById('mobileSearchSuggestions');
+    const results = document.getElementById('mobileSearchResults');
+    const empty = document.getElementById('mobileSearchEmpty');
+    
+    if (suggestions) suggestions.classList.add('hidden');
+    if (results) results.classList.add('hidden');
+    if (empty) empty.classList.add('hidden');
+}
+
+function performMobileSearch(query) {
+    const suggestions = document.getElementById('mobileSearchSuggestions');
+    const results = document.getElementById('mobileSearchResults');
+    const empty = document.getElementById('mobileSearchEmpty');
+    const resultsList = document.getElementById('mobileSearchResultsList');
+    
+    // Hide suggestions
+    if (suggestions) suggestions.classList.add('hidden');
+    
+    // Simulate search (replace with actual search logic)
+    const mockResults = [
+        {
+            title: `Note about ${query}`,
+            description: `This is a sample note that contains information about ${query}...`,
+            module: 'Notes',
+            icon: 'fas fa-pen'
+        },
+        {
+            title: `Password for ${query}`,
+            description: `Saved password entry for ${query} account`,
+            module: 'Passwords',
+            icon: 'fas fa-key'
+        }
+    ];
+    
+    if (mockResults.length > 0) {
+        // Show results
+        if (results) results.classList.remove('hidden');
+        if (empty) empty.classList.add('hidden');
+        
+        // Populate results
+        if (resultsList) {
+            resultsList.innerHTML = mockResults.map(result => `
+                <div class="mobile-search-result-item" onclick="selectMobileSearchResult('${result.module}')">
+                    <div class="mobile-search-result-icon">
+                        <i class="${result.icon}"></i>
+                    </div>
+                    <div class="mobile-search-result-content">
+                        <div class="mobile-search-result-title">${result.title}</div>
+                        <div class="mobile-search-result-description">${result.description}</div>
+                        <div class="mobile-search-result-module">${result.module}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    } else {
+        // Show empty state
+        if (results) results.classList.add('hidden');
+        if (empty) empty.classList.remove('hidden');
+    }
+}
+
+function selectMobileSearchResult(module) {
+    // Close search and navigate to module
+    window.closeMobileSearch();
+    if (window.app && module) {
+        window.app.switchModule(module.toLowerCase());
+    }
+}
+
+// Add event listener for mobile search input
+document.addEventListener('DOMContentLoaded', () => {
+    const mobileSearchInput = document.getElementById('mobileSearchInput');
+    if (mobileSearchInput) {
+        mobileSearchInput.addEventListener('input', handleMobileSearchInput);
     }
 });
 

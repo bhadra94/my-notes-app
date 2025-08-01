@@ -280,6 +280,10 @@
                             <input type="text" id="globalSearch" placeholder="Search everywhere..." />
                             <i class="fas fa-search"></i>
                         </div>
+                        <!-- Mobile search icon (hidden on desktop) -->
+                        <button class="mobile-search-icon" onclick="openMobileSearch()" aria-label="Search" style="display: none;">
+                            <i class="fas fa-search"></i>
+                        </button>
                         <button class="theme-toggle" onclick="toggleTheme()">
                             <i class="fas fa-moon"></i>
                         </button>
@@ -435,6 +439,77 @@
                                 <i class="fas fa-sign-out-alt"></i>
                                 <span>Sign Out</span>
                             </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Search Overlay -->
+            <div class="mobile-search-overlay" id="mobileSearchOverlay">
+                <div class="mobile-search-container">
+                    <div class="mobile-search-header">
+                        <div class="mobile-search-input-container">
+                            <i class="fas fa-search mobile-search-input-icon"></i>
+                            <input type="text" id="mobileSearchInput" class="mobile-search-input" placeholder="Search everywhere..." autocomplete="off" />
+                            <button class="mobile-search-clear" id="mobileSearchClear" onclick="clearMobileSearch()" style="display: none;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <button class="mobile-search-cancel" onclick="closeMobileSearch()">Cancel</button>
+                    </div>
+                    
+                    <div class="mobile-search-content">
+                        <div class="mobile-search-suggestions" id="mobileSearchSuggestions">
+                            <div class="mobile-search-section">
+                                <h3><i class="fas fa-clock"></i> Recent Searches</h3>
+                                <div class="mobile-search-recent" id="mobileSearchRecent">
+                                    <div class="mobile-search-item">
+                                        <i class="fas fa-history"></i>
+                                        <span>Banking documents</span>
+                                        <button class="mobile-search-remove"><i class="fas fa-times"></i></button>
+                                    </div>
+                                    <div class="mobile-search-item">
+                                        <i class="fas fa-history"></i>
+                                        <span>Password manager</span>
+                                        <button class="mobile-search-remove"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mobile-search-section">
+                                <h3><i class="fas fa-star"></i> Quick Access</h3>
+                                <div class="mobile-search-quick">
+                                    <div class="mobile-search-item" onclick="navigateToModuleAndClose('notes')">
+                                        <i class="fas fa-pen"></i>
+                                        <span>Create new note</span>
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                    <div class="mobile-search-item" onclick="navigateToModuleAndClose('passwords')">
+                                        <i class="fas fa-key"></i>
+                                        <span>Add new password</span>
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                    <div class="mobile-search-item" onclick="navigateToModuleAndClose('documents')">
+                                        <i class="fas fa-file-alt"></i>
+                                        <span>Upload document</span>
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mobile-search-results hidden" id="mobileSearchResults">
+                            <div class="mobile-search-results-list" id="mobileSearchResultsList">
+                                <!-- Search results will be populated here -->
+                            </div>
+                        </div>
+                        
+                        <div class="mobile-search-empty hidden" id="mobileSearchEmpty">
+                            <div class="mobile-search-empty-content">
+                                <i class="fas fa-search fa-3x"></i>
+                                <h3>No results found</h3>
+                                <p>Try adjusting your search terms</p>
+                            </div>
                         </div>
                     </div>
                 </div>
