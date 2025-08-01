@@ -1,8 +1,8 @@
 /* CSS Variables for Theming */
 :root {
-    --primary-color: #6bb6ff;
-    --primary-hover: #87c5ff;
-    --secondary-color: #a8d8ff;
+    --primary-color: #64748b;
+    --primary-hover: #94a3b8;
+    --secondary-color: #cbd5e1;
     --success-color: #7dd3c0;
     --warning-color: #fbbf24;
     --error-color: #fca5a5;
@@ -39,8 +39,8 @@
 
 /* Dark mode icon styling */
 [data-theme="dark"] .item-icon {
-    background: #1e1e1e; /* Dark grey background for dark mode */
-    border-color: #6b7280; /* Light gray border for dark mode */
+    background: #111111; /* Match the dark theme background */
+    border-color: #374151; /* Use the dark theme border color */
     color: #ffffff; /* White text for dark mode */
 }
 
@@ -49,6 +49,32 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+}
+
+/* Remove focus outline from all buttons and interactive elements */
+*:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+button:focus,
+.btn-primary:focus,
+.btn-secondary:focus,
+.btn-danger:focus,
+.btn-social:focus,
+.theme-toggle:focus,
+.user-profile-btn:focus,
+.mobile-search-icon:focus,
+.back-btn:focus,
+.password-toggle:focus,
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus,
+select:focus,
+input:focus,
+textarea:focus {
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 body {
@@ -71,7 +97,7 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
     z-index: 1000;
     overflow-y: auto;
 }
@@ -104,7 +130,7 @@ body {
 }
 
 .welcome-left {
-    background: linear-gradient(135deg, #6bb6ff 0%, #87c5ff 50%, #a8d8ff 100%);
+    background: linear-gradient(135deg, #64748b 0%, #94a3b8 50%, #cbd5e1 100%);
     padding: 3rem;
     display: flex;
     align-items: center;
@@ -196,7 +222,7 @@ body {
     font-size: 3.5rem;
     font-weight: 700;
     margin-bottom: 1rem;
-    background: linear-gradient(45deg, #fff, #e0e7ff);
+    background: linear-gradient(45deg, #fff, #f1f5f9);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -237,7 +263,7 @@ body {
 .feature-item i {
     font-size: 2.5rem;
     margin-bottom: 1rem;
-    color: #fbbf24;
+    color: #64748b;
 }
 
 .feature-item h3 {
@@ -270,31 +296,31 @@ body {
 }
 
 .btn-primary.large {
-    background: linear-gradient(135deg, #a8d8ff 0%, #87c5ff 50%, #6bb6ff 100%);
-    color: #1a5490;
-    border: 2px solid rgba(168, 216, 255, 0.3);
-    box-shadow: 0 4px 15px rgba(168, 216, 255, 0.4);
+    background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 50%, #64748b 100%);
+    color: #1e293b;
+    border: 2px solid rgba(203, 213, 225, 0.3);
+    box-shadow: 0 4px 15px rgba(203, 213, 225, 0.4);
 }
 
 .btn-primary.large:hover {
-    background: linear-gradient(135deg, #b8e0ff 0%, #97d0ff 50%, #7bc1ff 100%);
-    color: #0d4377;
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
+    color: #0f172a;
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(168, 216, 255, 0.5);
+    box-shadow: 0 8px 25px rgba(203, 213, 225, 0.5);
 }
 
 .btn-secondary.large {
-    background: linear-gradient(135deg, #a8d8ff 0%, #87c5ff 50%, #6bb6ff 100%);
-    color: #1a5490;
-    border: 2px solid rgba(168, 216, 255, 0.3);
-    box-shadow: 0 2px 8px rgba(168, 216, 255, 0.3);
+    background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 50%, #64748b 100%);
+    color: #1e293b;
+    border: 2px solid rgba(203, 213, 225, 0.3);
+    box-shadow: 0 2px 8px rgba(203, 213, 225, 0.3);
 }
 
 .btn-secondary.large:hover {
-    background: linear-gradient(135deg, #b8e0ff 0%, #97d0ff 50%, #7bc1ff 100%);
-    color: #0d4377;
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
+    color: #0f172a;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(168, 216, 255, 0.4);
+    box-shadow: 0 4px 12px rgba(203, 213, 225, 0.4);
 }
 
 .trust-indicators {
@@ -313,7 +339,7 @@ body {
 }
 
 .trust-item i {
-    color: #10b981;
+    color: #64748b;
 }
 
 /* Auth Form Sections */
@@ -345,8 +371,8 @@ body {
     position: absolute;
     top: 1.5rem;
     left: 1.5rem;
-    background: linear-gradient(135deg, #a8d8ff 0%, #87c5ff 50%, #6bb6ff 100%);
-    border: 2px solid rgba(168, 216, 255, 0.3);
+    background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 50%, #64748b 100%);
+    border: 2px solid rgba(203, 213, 225, 0.3);
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -354,17 +380,17 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: #1a5490;
+    color: #1e293b;
     font-weight: 500;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(168, 216, 255, 0.3);
+    box-shadow: 0 2px 8px rgba(203, 213, 225, 0.3);
 }
 
 .back-btn:hover {
-    background: linear-gradient(135deg, #b8e0ff 0%, #97d0ff 50%, #7bc1ff 100%);
-    color: #0d4377;
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
+    color: #0f172a;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(168, 216, 255, 0.4);
+    box-shadow: 0 4px 12px rgba(203, 213, 225, 0.4);
 }
 
 .auth-header h2 {
@@ -415,8 +441,8 @@ body {
 
 .form-input:focus {
     outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(107, 182, 255, 0.1);
+    border-color: #64748b;
+    box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.1);
     background: var(--bg-primary);
 }
 
@@ -476,8 +502,8 @@ body {
 }
 
 .checkbox-container input[type="checkbox"]:checked + .checkmark {
-    background: var(--primary-color);
-    border-color: var(--primary-color);
+    background: #64748b;
+    border-color: #64748b;
 }
 
 .checkbox-container input[type="checkbox"]:checked + .checkmark::after {
@@ -488,7 +514,7 @@ body {
 }
 
 .forgot-password {
-    color: var(--primary-color);
+    color: #64748b;
     text-decoration: none;
     font-size: 0.9rem;
     font-weight: 500;
@@ -496,7 +522,7 @@ body {
 }
 
 .forgot-password:hover {
-    color: var(--primary-hover);
+    color: #94a3b8;
 }
 
 .full-width {
@@ -565,7 +591,7 @@ body {
 
 .btn-social:hover {
     background: var(--bg-tertiary);
-    border-color: var(--primary-color);
+    border-color: #64748b;
     color: var(--text-primary);
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
@@ -573,13 +599,13 @@ body {
 
 .btn-social.google:hover {
     background: var(--bg-tertiary);
-    border-color: var(--primary-color);
+    border-color: #64748b;
     color: var(--text-primary);
 }
 
 .btn-social.github:hover {
     background: var(--bg-tertiary);
-    border-color: var(--primary-color);
+    border-color: #64748b;
     color: var(--text-primary);
 }
 
@@ -589,14 +615,14 @@ body {
 }
 
 .auth-switch a {
-    color: var(--primary-color);
+    color: #64748b;
     text-decoration: none;
     font-weight: 600;
     transition: color 0.3s ease;
 }
 
 .auth-switch a:hover {
-    color: var(--primary-hover);
+    color: #94a3b8;
 }
 
 /* Main App Layout */
@@ -637,7 +663,48 @@ body {
 }
 
 .app-logo {
-    transition: color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.app-logo:hover {
+    transform: scale(1.02);
+}
+
+.app-logo-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, #64748b 50%, #94a3b8 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(100, 116, 139, 0.3);
+    box-shadow: 0 2px 8px rgba(100, 116, 139, 0.2);
+}
+
+.app-logo-icon i {
+    font-size: 1.2rem;
+    color: white;
+    transform: rotate(-45deg);
+    transition: transform 0.3s ease;
+}
+
+.app-logo:hover .app-logo-icon i {
+    transform: rotate(-40deg) scale(1.1);
+}
+
+.app-logo h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    background: linear-gradient(45deg, var(--primary-color), #64748b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .app-logo-mobile {
@@ -876,7 +943,7 @@ body {
 }
 
 .mobile-menu-toggle:hover {
-    background: rgba(107, 182, 255, 0.1);
+    background: rgba(100, 116, 139, 0.1);
 }
 
 .hamburger {
@@ -960,11 +1027,11 @@ body {
     justify-content: space-between;
     padding: 1rem 1.5rem;
     border-bottom: 1px solid var(--border-color);
-    background: linear-gradient(135deg, #a8d8ff 0%, #87c5ff 50%, #6bb6ff 100%);
+    background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 50%, #64748b 100%);
 }
 
 .mobile-nav-header h2 {
-    color: #1a5490;
+    color: #1e293b;
     font-size: 1.25rem;
     font-weight: 700;
     display: flex;
@@ -975,7 +1042,7 @@ body {
 .mobile-nav-close {
     background: none;
     border: none;
-    color: #1a5490;
+    color: #1e293b;
     font-size: 1.25rem;
     cursor: pointer;
     padding: 0.5rem;
@@ -989,7 +1056,7 @@ body {
 }
 
 .mobile-nav-close:hover {
-    background: rgba(26, 84, 144, 0.1);
+    background: rgba(30, 41, 59, 0.1);
 }
 
 .mobile-nav {
@@ -1167,7 +1234,7 @@ body {
 }
 
 .mobile-search-input-container:focus-within {
-    border-color: var(--primary-color);
+    border-color: #64748b;
     background: var(--bg-primary);
 }
 
@@ -1230,7 +1297,7 @@ body {
 }
 
 .mobile-search-cancel:hover {
-    background: rgba(107, 182, 255, 0.1);
+    background: rgba(100, 116, 139, 0.1);
 }
 
 .mobile-search-content {
@@ -1435,17 +1502,17 @@ body {
 }
 
 .nav-item:hover {
-    background: rgba(168, 216, 255, 0.1);
-    color: #1a5490;
-    border-color: rgba(168, 216, 255, 0.3);
+    background: rgba(203, 213, 225, 0.1);
+    color: #1e293b;
+    border-color: rgba(203, 213, 225, 0.3);
 }
 
 .nav-item.active {
-    background: linear-gradient(135deg, #a8d8ff 0%, #87c5ff 50%, #6bb6ff 100%);
-    color: #1a5490;
+    background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 50%, #64748b 100%);
+    color: #1e293b;
     font-weight: 500;
-    border: 2px solid rgba(168, 216, 255, 0.3);
-    box-shadow: 0 2px 8px rgba(168, 216, 255, 0.3);
+    border: 2px solid rgba(203, 213, 225, 0.3);
+    box-shadow: 0 2px 8px rgba(203, 213, 225, 0.3);
 }
 
 /* Main Content */
@@ -1613,7 +1680,7 @@ body {
 
 .banking-sidebar-search input:focus {
     outline: none;
-    border-color: var(--primary-color);
+    border-color: #64748b;
 }
 
 .banking-sidebar-controls {
@@ -1925,7 +1992,7 @@ body {
 .module-toolbar input:focus,
 .module-toolbar select:focus {
     outline: none;
-    border-color: var(--primary-color);
+    border-color: #64748b;
 }
 
 /* Buttons */
@@ -1977,9 +2044,9 @@ body {
 }
 
 .btn-danger {
-    background: linear-gradient(135deg, #a8d8ff 0%, #87c5ff 50%, #6bb6ff 100%);
-    color: #1a5490;
-    border: 2px solid rgba(168, 216, 255, 0.3);
+    background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 50%, #64748b 100%);
+    color: #1e293b;
+    border: 2px solid rgba(203, 213, 225, 0.3);
     padding: 0.5rem 1rem;
     border-radius: var(--border-radius);
     cursor: pointer;
@@ -1989,7 +2056,7 @@ body {
     align-items: center;
     gap: 0.5rem;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(168, 216, 255, 0.3);
+    box-shadow: 0 2px 8px rgba(203, 213, 225, 0.3);
 }
 
 .btn-danger:hover {
@@ -2174,8 +2241,8 @@ body {
 .form-textarea:focus,
 .form-select:focus {
     outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(107, 182, 255, 0.1);
+    border-color: #64748b;
+    box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.1);
     background: var(--bg-primary);
 }
 
@@ -2382,7 +2449,7 @@ body {
         order: 1;
         padding: max(1rem, var(--safe-area-top)) 1rem 0.75rem;
         min-height: auto;
-        background: linear-gradient(135deg, #6bb6ff 0%, #87c5ff 50%, #a8d8ff 100%);
+        background: linear-gradient(135deg, #64748b 0%, #94a3b8 50%, #cbd5e1 100%);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -2519,6 +2586,8 @@ body {
     .password-toggle:hover,
     .password-toggle:focus {
         background: rgba(107, 182, 255, 0.1);
+        outline: none !important;
+        box-shadow: none !important;
     }
     
     .password-toggle i {
@@ -2569,11 +2638,13 @@ body {
     }
     
     .forgot-password:hover,
-    .forgot-password:focus {
-        background: rgba(107, 182, 255, 0.1);
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
-    }
+.forgot-password:focus {
+    background: rgba(100, 116, 139, 0.1);
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    outline: none !important;
+    box-shadow: none !important;
+}
     
     /* Enhanced auth containers */
     .auth-container {
@@ -2609,6 +2680,27 @@ body {
         text-overflow: ellipsis;
         white-space: nowrap;
         order: 0; /* Center logo between hamburger (-1) and actions (1) */
+    }
+    
+    .app-logo {
+        gap: 0.5rem;
+        flex: 1;
+        justify-content: center;
+        order: 0;
+    }
+    
+    .app-logo-icon {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .app-logo-icon i {
+        font-size: 1rem;
+    }
+    
+    .app-logo h1 {
+        font-size: clamp(1.15rem, 4vw, 1.35rem);
+        margin: 0;
     }
     
     .header-actions {
@@ -2659,10 +2751,12 @@ body {
     }
     
     .back-btn:hover,
-    .back-btn:focus {
-        background: rgba(107, 182, 255, 0.1);
-        transform: scale(1.05);
-    }
+.back-btn:focus {
+    background: rgba(100, 116, 139, 0.1);
+    transform: scale(1.05);
+    outline: none !important;
+    box-shadow: none !important;
+}
     
     /* Hide desktop navigation on mobile */
     .app-nav.desktop-nav {
@@ -2687,11 +2781,13 @@ body {
     }
     
     .mobile-search-icon:hover,
-    .mobile-search-icon:focus {
-        background: rgba(107, 182, 255, 0.1);
-        color: var(--primary-color);
-        transform: scale(1.05);
-    }
+.mobile-search-icon:focus {
+    background: rgba(100, 116, 139, 0.1);
+    color: #64748b;
+    transform: scale(1.05);
+    outline: none !important;
+    box-shadow: none !important;
+}
     
     /* Enhanced theme toggle */
     .theme-toggle {
