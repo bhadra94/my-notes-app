@@ -408,6 +408,85 @@ class NotesApp {
 window.toggleTheme = () => window.app.toggleTheme();
 window.exportAllData = () => window.app.exportAllData();
 
+// Mobile navigation functions
+window.toggleMobileMenu = () => {
+    const overlay = document.getElementById('mobileNavOverlay');
+    const menuToggle = document.querySelector('.mobile-menu-toggle');
+    const body = document.body;
+    
+    if (overlay.classList.contains('active')) {
+        // Close menu
+        overlay.classList.remove('active');
+        menuToggle.classList.remove('active');
+        body.style.overflow = '';
+    } else {
+        // Open menu
+        overlay.classList.add('active');
+        menuToggle.classList.add('active');
+        body.style.overflow = 'hidden'; // Prevent background scrolling
+        
+        // Sync mobile nav with current active module
+        syncMobileNavState();
+    }
+};
+
+window.navigateToModule = (module) => {
+    // Close mobile menu first
+    window.toggleMobileMenu();
+    
+    // Navigate to module using the existing function
+    if (window.app) {
+        window.app.switchModule(module);
+    }
+};
+
+function syncMobileNavState() {
+    // Sync the active state between desktop and mobile nav
+    const activeDesktopItem = document.querySelector('.nav-item.active');
+    const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
+    
+    // Remove active class from all mobile nav items
+    mobileNavItems.forEach(item => item.classList.remove('active'));
+    
+    if (activeDesktopItem) {
+        const activeModule = activeDesktopItem.dataset.module;
+        const activeMobileItem = document.querySelector(`.mobile-nav-item[data-module="${activeModule}"]`);
+        if (activeMobileItem) {
+            activeMobileItem.classList.add('active');
+        }
+    }
+}
+
+function syncUserInfoToMobile() {
+    // Sync user info from desktop to mobile menu
+    const userName = document.getElementById('userName')?.textContent || 'User';
+    const userEmail = document.getElementById('userEmail')?.textContent || '';
+    
+    const mobileUserName = document.getElementById('mobileUserName');
+    const mobileUserEmail = document.getElementById('mobileUserEmail');
+    
+    if (mobileUserName) mobileUserName.textContent = userName;
+    if (mobileUserEmail) mobileUserEmail.textContent = userEmail;
+}
+
+// Close mobile menu when clicking on overlay background
+document.addEventListener('click', (e) => {
+    const overlay = document.getElementById('mobileNavOverlay');
+    if (overlay && e.target === overlay) {
+        window.toggleMobileMenu();
+    }
+});
+
+// Handle escape key to close mobile menu
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const overlay = document.getElementById('mobileNavOverlay');
+        if (overlay && overlay.classList.contains('active')) {
+            window.toggleMobileMenu();
+        }
+    }
+});
+
 // Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new NotesApp();

@@ -265,6 +265,15 @@
             <!-- Header -->
             <header class="app-header">
                 <div class="header-content">
+                    <!-- Mobile hamburger menu button -->
+                    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+                        <div class="hamburger">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </button>
+                    
                     <h1><i class="fas fa-sticky-note"></i> ballpenbox</h1>
                     <div class="header-actions">
                         <div class="search-container">
@@ -322,8 +331,8 @@
                 </div>
             </header>
 
-            <!-- Navigation -->
-            <nav class="app-nav">
+            <!-- Desktop Navigation -->
+            <nav class="app-nav desktop-nav">
                 <div class="nav-item active" data-module="dashboard">
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
@@ -353,6 +362,83 @@
                     <span>To-Do</span>
                 </div>
             </nav>
+
+            <!-- Mobile Navigation Overlay -->
+            <div class="mobile-nav-overlay" id="mobileNavOverlay">
+                <div class="mobile-nav-content">
+                    <div class="mobile-nav-header">
+                        <h2><i class="fas fa-sticky-note"></i> ballpenbox</h2>
+                        <button class="mobile-nav-close" onclick="toggleMobileMenu()" aria-label="Close menu">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <nav class="mobile-nav">
+                        <div class="mobile-nav-item active" data-module="dashboard" onclick="navigateToModule('dashboard')">
+                            <i class="fas fa-home"></i>
+                            <span>Dashboard</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="mobile-nav-item" data-module="notes" onclick="navigateToModule('notes')">
+                            <i class="fas fa-pen"></i>
+                            <span>Notes</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="mobile-nav-item" data-module="banking" onclick="navigateToModule('banking')">
+                            <i class="fas fa-university"></i>
+                            <span>Banking</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="mobile-nav-item" data-module="passwords" onclick="navigateToModule('passwords')">
+                            <i class="fas fa-key"></i>
+                            <span>Passwords</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="mobile-nav-item" data-module="documents" onclick="navigateToModule('documents')">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Documents</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="mobile-nav-item" data-module="creative" onclick="navigateToModule('creative')">
+                            <i class="fas fa-palette"></i>
+                            <span>Creative</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="mobile-nav-item" data-module="todos" onclick="navigateToModule('todos')">
+                            <i class="fas fa-tasks"></i>
+                            <span>To-Do</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </nav>
+
+                    <div class="mobile-nav-footer">
+                        <div class="mobile-nav-user-info" id="mobileUserInfo">
+                            <div class="mobile-user-avatar" id="mobileUserAvatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="mobile-user-details">
+                                <div class="mobile-user-name" id="mobileUserName">User</div>
+                                <div class="mobile-user-email" id="mobileUserEmail">user@example.com</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mobile-nav-actions">
+                            <button class="mobile-action-btn" onclick="showAccountSettings()">
+                                <i class="fas fa-user-cog"></i>
+                                <span>Settings</span>
+                            </button>
+                            <button class="mobile-action-btn" onclick="toggleTheme()">
+                                <i class="fas fa-moon"></i>
+                                <span>Theme</span>
+                            </button>
+                            <button class="mobile-action-btn logout" onclick="logoutUser()">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Sign Out</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Main Content -->
             <main class="app-main">
