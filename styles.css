@@ -867,6 +867,7 @@ body {
     border-bottom: 1px solid var(--border-color);
     padding: 0.5rem 1rem;
     display: flex;
+    justify-content: center;
     gap: 0.5rem;
     overflow-x: auto;
 }
